@@ -28,8 +28,19 @@ import { fileURLToPath } from 'node:url';
 // Resolve the Playwright CLI and run it with THIS node binary, rather than
 // going through `npx`. Spawning npx.cmd from Node on Windows fails EINVAL
 // without shell:true, and a shell brings its own quoting problems.
+// Resolve the Playwright CLI and run it with THIS node binary, rather than
+// going through `npx`. Spawning npx.cmd from Node on Windows fails EINVAL
+// without shell:true, and a shell brings its own quoting problems.
 // src/queue/specRunner.js resolves it the same way and for the same reason.
-const PW_CLI = createRequire(import.meta.url).resolve('@playwright/test/cli');
+const req = createRequire(import.meta.url);
+const PW_CLI = (() => {
+  try {
+    return req.resolve('@playwright/test/cli');
+  } catch (_) {
+    const pkgPath = req.resolve('@playwright/test/package.json');
+    return resolve(dirname(pkgPath), 'cli.js');
+  }
+})();
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, '..');
@@ -555,6 +566,7 @@ for (const c of cases) {
     PLAYWRIGHT_HEADLESS: 'true',
     // The fixture server is on loopback, which the engine blocks by default.
     REPLAY_ALLOW_PRIVATE_HOSTS: 'true',
+    AI_RECOVERY_ENABLED: 'false',
     ...(c.patch ? { APP_PATCH: c.patch } : {}),
   });
   const problems = [];

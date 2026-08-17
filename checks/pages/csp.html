@@ -13,7 +13,7 @@
   No inline handlers here — script-src 'self' blocks those too, and the point of
   the fixture is the engine, not the page.
 -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'">
 </head><body>
 <div style="position:absolute;left:-9999px"><label for="bu_a">Business Unit</label><input id="bu_a"></div>
 <div style="height:0;overflow:hidden"><label for="bu_b">Business Unit</label><input id="bu_b"></div>
