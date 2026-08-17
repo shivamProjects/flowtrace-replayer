@@ -1,0 +1,24 @@
+{
+  // Type-checking only. Playwright transpiles the engine itself (esbuild, no
+  // type checking at all), so without this file `npx tsc --noEmit` has no
+  // inputs and a type error can only be found at runtime, one step at a time.
+  //
+  // Deliberately no `paths` and no `jsx`: Playwright reads this file for module
+  // resolution, so anything added here changes how the specs are loaded too.
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    // DOM.Iterable as well as DOM: the patches iterate NodeListOf<Element>
+    // inside page.evaluate bodies, which is legal in every browser this runs in
+    // but only typed by DOM.Iterable.
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "noEmit": true
+  },
+  "include": ["engine/**/*.ts"]
+}

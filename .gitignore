@@ -1,0 +1,44 @@
+# Secrets — .env holds live DB, JWT, AWS, Anthropic and Oracle credentials.
+# Never commit it. .env.example is the safe, blank template.
+.env
+.env.*
+!.env.example
+
+# Dependencies — native binaries (sharp, playwright) are platform-specific.
+# Never copy between machines; run `npm install` on each.
+node_modules/
+
+# Runtime artifacts — per-execution screenshots and the PDFs built from them.
+report/
+uploads/
+*.log
+
+# Playwright's own artifacts. The product takes its own step_<N>.png for the
+# PDF; these are only produced by manual, non-job runs.
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+# Scratch space for the behaviour checks — actions.json / results.json per case.
+checks/.work/
+
+# Recordings can carry plaintext credentials in their login steps
+recorded_actions*.json
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+
+# AI coding-tool state — extension/CLI working data, not project source.
+.claude/
+.kilo/
+.workflowstudio/
+
+# Cross-script AI-recovery fix library + last CLI session id — a local
+# learned cache (see engine/ai-recovery-dispatch.ts), not project source
+.ai-recovery-fixes.json
+
+# Learned commit-error labels — a local cache, rebuilt on demand
+.commit-error-types.json

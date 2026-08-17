@@ -1,0 +1,56 @@
+{
+  "name": "flowtrace-replayer",
+  "version": "1.0.0",
+  "description": "FlowTrace Replayer \u2014 replays a recording and reports what happened",
+  "main": "src/server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "checks": "node checks/branding.mjs && node checks/run.mjs",
+    "checks:engine": "node checks/run.mjs",
+    "replay": "playwright test",
+    "replay:headed": "PLAYWRIGHT_HEADLESS=false playwright test"
+  },
+  "nodemonConfig": {
+    "watch": [
+      "src",
+      "engine"
+    ],
+    "ext": "js,ts,json",
+    "ignore": [
+      "test-results/**",
+      "playwright-report/**",
+      "report/**",
+      "playwright/**",
+      "node_modules/**"
+    ]
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.115.0",
+    "@aws-sdk/client-s3": "^3.1024.0",
+    "@aws-sdk/lib-storage": "^3.1024.0",
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.3",
+    "mysql2": "^3.16.0",
+    "node-cron": "^4.6.0",
+    "openai": "^7.4.0",
+    "pdfkit": "^0.18.0",
+    "sharp": "^0.34.5",
+    "xlsx": "^0.18.5",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.62.0",
+    "@types/node": "^26.1.2",
+    "nodemon": "^3.1.11",
+    "typescript": "^5.9.3"
+  }
+}

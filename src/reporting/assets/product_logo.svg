@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  FlowTrace product mark.
+
+  Authored at 400x120 (10:3), which is the ratio the PDF header actually draws
+  it at (100x30 in reportGenerator.js). The previous raster mark was 969x219
+  (~4.4:1) drawn into that same 10:3 box, so it was squashed horizontally on
+  every report. Matching the ratio here is what removes that distortion.
+
+  The glyph is the product in one picture: a recorded path of steps (the
+  connected nodes) with one node re-verified (the check). Left to right is the
+  replay direction.
+
+  Colours are the report's own palette - the dark used for headings and the
+  green used for a passing step - so the mark does not introduce a third accent.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 120" width="400" height="120" role="img" aria-label="FlowTrace">
+  <title>FlowTrace</title>
+
+  <g fill="none" stroke="#2C3E50" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <!-- The traced path: rising, because a run moves forward through steps. -->
+    <path d="M18 84 L46 84 L74 56 L102 56" />
+  </g>
+
+  <!-- Step nodes along the path. Hollow = recorded, filled = executed. -->
+  <circle cx="18" cy="84" r="9" fill="#FFFFFF" stroke="#2C3E50" stroke-width="7" />
+  <circle cx="74" cy="56" r="9" fill="#2C3E50" />
+
+  <!-- The verified step. The check is the product's core claim: a step is not
+       reported as passing until it has been independently re-checked. -->
+  <circle cx="112" cy="42" r="21" fill="#27AE60" />
+  <path d="M103 42 L110 49 L122 35" fill="none" stroke="#FFFFFF" stroke-width="6"
+        stroke-linecap="round" stroke-linejoin="round" />
+
+  <!-- Wordmark. "Flow" regular, "Trace" bold: one word, two halves, matching
+       the two halves of the product (capture, then replay). -->
+  <text x="152" y="76" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif"
+        font-size="52" letter-spacing="-0.5">
+    <tspan fill="#2C3E50" font-weight="400">Flow</tspan><tspan fill="#2C3E50" font-weight="700">Trace</tspan>
+  </text>
+</svg>
