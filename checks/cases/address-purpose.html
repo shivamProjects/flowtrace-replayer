@@ -1,0 +1,66 @@
+<!--
+  Oracle Fusion — Create Supplier › Address › Address Purpose
+  Captured live 2026-08-25 from ibqwjb-test (Create Address dialog).
+
+  Why this one matters:
+    · The purposes are an af:selectManyCheckbox: <input type=checkbox> followed
+      by a SIBLING <label for=...>, all inside <span class="xxz">.
+    · Each label contains a nested <div class="x17g"> after its text, so the
+      label's textContent is "Ordering" plus an empty div — text matching must
+      still resolve it.
+    · The labels DO carry `for`, so a caption click is forwarded by the browser.
+      (An earlier guess that they did not was wrong; this fixture is the record.)
+
+  Recorded step that targets it:
+    {"action":"click","locator":{"text":"Ordering",
+     "selector":"internal:text=\"Ordering\"i"},
+     "description":"Select Ordering Purpose"}
+
+  Also captured here, and worth knowing: the LOV search icons
+  (`…::lovIconId`, title="Search: Phone Country Code") are EMPTY <a> elements
+  sized entirely by their CSS background. Without the application stylesheet
+  they measure 0x0, so Playwright reports them hidden and any
+  waitFor({state:'visible'}) times out. A live page styles them and they are
+  clickable — so this fragment cannot assert on them, and a case that tries
+  will fail for a reason that has nothing to do with the engine.
+-->
+<table><tbody>
+<tr><td style="width: 200px"></td><td></td></tr>
+<tr class="x1x" id="pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:smc2">
+  <td class="x10 x4z" valign="top"><span title="Required" class="xf">*</span><label class="af_selectManyCheckbox_label-text">Address Purpose</label></td>
+  <td valign="top" nowrap="" class="x18w">
+    <div id="pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:smc2::content" name="pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:smc2" class="x2f">
+      <div><span class="xxz"><input class="x17c" type="checkbox" name="pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:smc2" id="pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:smc2:_0" value="0" onclick="this.focus()"><label for="pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:smc2:_0" class="x2m">Ordering<div class="x17g"></div></label></span></div>
+      <div><span class="xxz"><input class="x17c" type="checkbox" name="pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:smc2" id="pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:smc2:_1" value="1" onclick="this.focus()"><label for="pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:smc2:_1" class="x2m">Remit to<div class="x17g"></div></label></span></div>
+      <div><span class="xxz"><input class="x17c" type="checkbox" name="pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:smc2" id="pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:smc2:_2" value="2" onclick="this.focus()"><label for="pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:smc2:_2" class="x2m">RFQ or Bidding<div class="x17g"></div></label></span></div>
+    </div>
+    <label for="pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:smc2::content" class="x9w">Address Purpose</label>
+  </td>
+</tr>
+
+<tr class="xk6" id="pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:plam1">
+  <td class="x15 x4z"><label class="af_panelLabelAndMessage_label-text">Phone</label></td>
+  <td valign="top" class="x18w xk7">
+    <table cellpadding="0" cellspacing="0" border="0" summary="" role="presentation" id="pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:pgl9" class="x1a"><tbody><tr>
+      <td><span id="pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:iclov3" class="xpi"><span id="pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:iclov3::cntnr" class="xuu" style="width:auto;"><div id="pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:iclov3lovPopupId" style="display:none"><div style="position:relative;" id="pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:iclov3lovPopupId::content"></div></div><input id="pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:iclov3::content" name="pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:iclov3" class="xpj" size="4" type="text" value="" role="combobox" aria-describedby="pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:iclov3::desc" aria-expanded="false" aria-live="off" aria-label="Phone Country Code" aria-autocomplete="list" aria-owns="pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:iclov3::_afrautosuggestpopup"><label for="pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:iclov3::content" class="x9w">Phone Country Code</label><span id="pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:iclov3::cntnrSpan" class="x1tk"><span class="x1o3"><a tabindex="-1" class="x1o2" id="pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:iclov3::lovIconId" title="Search: Phone Country Code"></a></span></span><div id="pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:iclov3::desc" class="p_OraHiddenLabel">Autocompletes on TAB</div></span><div id="pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:iclov3::dropdownPopup" style="display:none"><div style="position:relative;" id="pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:iclov3::dropdownPopup::content"></div></div></span></td>
+      <td><span id="pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:it44" class="x1u"><input id="pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:it44::content" name="pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:it44" style="width:auto" class="x25" size="5" autocomplete="off" maxlength="10" type="text" aria-live="off" aria-label="Phone Area Code"><label for="pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:it44::content" class="x9w">Phone Area Code</label></span></td>
+      <td><span id="pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:it45" class="x1u"><input id="pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:it45::content" name="pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:it45" style="width:auto" class="x25" size="12" autocomplete="off" maxlength="40" type="text" aria-live="off" aria-label="Phone"><label for="pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:it45::content" class="x9w">Phone</label></span></td>
+    </tr></tbody></table>
+  </td>
+</tr>
+
+<tr class="x1u" id="pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:it49">
+  <td class="xu x4z"><label class="x2sz" for="pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:it49::content">Email</label></td>
+  <td valign="top" nowrap="" class="x18w"><input id="pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:it49::content" name="pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:it49" style="width:auto" class="x25" size="30" autocomplete="off" maxlength="320" type="text" aria-live="off"></td>
+</tr>
+
+<tr class="x1q" id="pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:id1">
+  <td class="xy x4z"><label class="x2sy" for="pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:id1::content">Inactive Date</label></td>
+  <td valign="top" nowrap="" class="x18w"><input id="pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:id1::content" name="pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:id1" class="x2b" placeholder="dd/mm/yyyy" aria-live="off" aria-label="Inactive Date"><a tabindex="-1" class="xwh" id="pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:id1::glyph" title="Select Date"></a></td>
+</tr>
+
+<tr class="x1z p_AFReadOnly" id="pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:soc6">
+  <td class="x12 x4z"><label class="x2t0">Status</label></td>
+  <td valign="top" nowrap="" class="x18w"><span id="pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:soc6::content" class="x2h" tabindex="0">Active</span></td>
+</tr>
+</tbody></table>

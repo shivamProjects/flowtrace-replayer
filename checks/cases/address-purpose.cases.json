@@ -1,0 +1,110 @@
+{
+  "fixture": "address-purpose.html",
+  "source": "Oracle Fusion — Create Supplier › Address › Address Purpose (ibqwjb-test, 2026-08-25)",
+  "cases": [
+    {
+      "name": "Ordering purpose ticks its own checkbox",
+      "action": {
+        "action": "click",
+        "type": "click",
+        "locator": {
+          "text": "Ordering",
+          "selector": "internal:text=\"Ordering\"i"
+        },
+        "description": "Select Ordering Purpose"
+      },
+      "expect": {
+        "resolvesTo": "INPUT#pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:smc2:_0",
+        "checked": {
+          "pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:smc2:_0": true
+        },
+        "unchanged": [
+          "pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:smc2:_1",
+          "pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:smc2:_2"
+        ]
+      }
+    },
+    {
+      "name": "RFQ or Bidding ticks the third box, not the first",
+      "action": {
+        "action": "click",
+        "type": "click",
+        "locator": {
+          "text": "RFQ or Bidding",
+          "selector": "internal:text=\"RFQ or Bidding\"i"
+        },
+        "description": "Select RFQ Purpose"
+      },
+      "expect": {
+        "resolvesTo": "INPUT#pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:smc2:_2",
+        "checked": {
+          "pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:smc2:_2": true
+        },
+        "unchanged": [
+          "pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:smc2:_0",
+          "pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:smc2:_1"
+        ]
+      }
+    },
+    {
+      "name": "replaying a ticked purpose leaves it ticked (never toggles off)",
+      "pre": {
+        "check": [
+          "pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:smc2:_0"
+        ]
+      },
+      "action": {
+        "action": "click",
+        "type": "click",
+        "locator": {
+          "text": "Ordering",
+          "selector": "internal:text=\"Ordering\"i"
+        },
+        "description": "Select Ordering Purpose"
+      },
+      "expect": {
+        "checked": {
+          "pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:smc2:_0": true
+        }
+      }
+    },
+    {
+      "name": "Email field fills by its label",
+      "action": {
+        "action": "fill",
+        "type": "fill",
+        "locator": {
+          "label": "Email",
+          "selector": "internal:label=\"Email\"i"
+        },
+        "value": "supplier@example.com",
+        "description": "Enter Email"
+      },
+      "expect": {
+        "resolvesTo": "INPUT#pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:it49::content",
+        "value": {
+          "pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:it49::content": "supplier@example.com"
+        }
+      }
+    },
+    {
+      "name": "Phone Country Code combobox fills by aria-label",
+      "action": {
+        "action": "fill",
+        "type": "fill",
+        "locator": {
+          "label": "Phone Country Code",
+          "selector": "[id=\"pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:iclov3::content\"]"
+        },
+        "value": "1",
+        "description": "Enter Phone Country Code"
+      },
+      "expect": {
+        "resolvesTo": "INPUT#pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:iclov3::content",
+        "value": {
+          "pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:iclov3::content": "1"
+        }
+      }
+    }
+  ]
+}

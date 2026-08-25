@@ -1,0 +1,267 @@
+<!--
+  Captured from the live application by scripts/capture-fixtures.js
+  step 2: click
+  selector: internal:role=textbox[name="Username"i]
+  page: https://idcs-f06e30ac4e754d57b93e0d561baebf84.identity.oraclecloud.com/ui/v1/signin
+
+  This is Oracle's own markup, kept verbatim. Linters will object to the
+  deprecated attributes and layout tables — leave them exactly as captured,
+  the point is that they match what the replayer will actually meet.
+-->
+
+    <div id="idcs-app-shell-container">
+      <!--oj-bind-if test='[[isGovNofornRegion]]'--><!--ko if:isGovNofornRegion--><!--/ko--><!--/oj-bind-if-->
+      <!--oj-bind-if test='[[isGovRegion && !isGovNofornRegion]]'--><!--ko if:isGovRegion && !isGovNofornRegion--><!--/ko--><!--/oj-bind-if-->
+      
+      <!--oj-bind-if test='[[isMultiRegionLoginFeatureEnabled && isHomeRegionDown()]]'--><!--ko if:isMultiRegionLoginFeatureEnabled && isHomeRegionDown()--><!--/ko--><!--/oj-bind-if-->
+
+      <!--oj-bind-if test='[[!isRedwood && !isOracleEmployeeRedwood && !isCustomerRedwood]]'--><!--ko if:!isRedwood && !isOracleEmployeeRedwood && !isCustomerRedwood--><!--/ko--><!--/oj-bind-if-->
+
+      <!--oj-bind-if test='[[isOracleEmployeeRedwood || isCustomerRedwood]]'--><!--ko if:isOracleEmployeeRedwood || isCustomerRedwood--><!--/ko--><!--/oj-bind-if-->
+
+      <!--oj-bind-if test='[[isRedwood]]'--><!--ko if:isRedwood-->
+        <oj-idaas-signin-app-shell-rw data-oj-context="" id="idcs-app-shell" branding-logo="[[brandingLogo]]" custom-branding="[[customBranding]]" background-image="[[brandingBackgroundImage]]" announce-mfa-policy-update="[[isMfaPolicyAnnounced]]" language-options="[[languageOptions]]" class="oj-complete"><div class="oj-idaas-signin-shell-wrapper"> 
+  <!--oj-bind-if test='[[isNewSigninUx && !isHostedPage]]'--><!--ko if:isNewSigninUx && !isHostedPage-->
+    <div class="oj-flex oj-sm-flex-direction-column">
+      <div :id="[[$uniqueId + '-signin-background']]" class="oj-idaas-signin-app-shell-new-signin-rw oj-idaas-app-shell-background-new-signin-rw" id="idcs-app-shell-signin-background">
+        <div class="oj-flex oj-idaas-signin-app-shell-wrapper-rw oj-idaas-signin-app-shell-wrapper-background-new-signin-rw oj-idaas-signin-app-shell-wrapper-default-branding-new-signin-rw" :class="[[ {'oj-idaas-signin-app-shell-wrapper-default-branding-new-signin-rw': !$props.customBranding} ]]">
+          <div class="oj-flex-item oj-sm-12 oj-idaas-signin-app-shell-padding-left-rw oj-idaas-signin-app-shell-padding-right-rw">
+            <div class="oj-flex oj-sm-justify-content-space-between oj-sm-align-items-center">
+              <div class="oj-idaas-signin-app-shell-branding-logo-wrapper-new-signin-rw">
+                <img :id="[[$uniqueId + '-branding-logo']]" class="oj-idaas-signin-app-shell-branding-logo-rw" :src="[[$props.brandingLogo.src]]" :alt="[[$props.brandingLogo.alt]]" id="idcs-app-shell-branding-logo" src="https://idcs-f06e30ac4e754d57b93e0d561baebf84.identity.oraclecloud.com/ui/v1/public/common/asset/defaultBranding/oracle-desktop-logo.gif" alt="Company Logo for mgrc">
+              </div>
+  
+              <!--oj-bind-if test='[[showLoginLocaleSelector]]'--><!--ko if:showLoginLocaleSelector-->
+                <div class="oj-idaas-signin-app-shell-locale-selector-container-new-signin">
+                  <oj-select-one id="idcs-signin-language-selector" value="{{preferredLanguage}}" on-value-changed="[[localeChangeHandler]]" readonly="false" options="[[languageList]]" class="oj-select oj-component oj-enabled oj-select-jet oj-form-control oj-text-field oj-complete"><div class="oj-text-field-container" role="presentation">  <div class="oj-select-choice oj-select-accessible-container" tabindex="0" role="combobox" aria-autocomplete="none" aria-expanded="false" id="oj-select-choice-idcs-signin-language-selector" aria-controls="oj-listbox-results-idcs-signin-language-selector" aria-describedby="idcs-signin-language-selector_selected">   <div class="oj-text-field-middle">      <span class="oj-select-chosen" id="idcs-signin-language-selector_selected">English</span>   </div>   <abbr class="oj-select-search-choice-close" role="presentation"></abbr>   <span class="oj-text-field-end">     <a class="oj-select-arrow oj-component-icon oj-clickable-icon-nocontext oj-select-open-icon" role="presentation">     </a>   </span>  </div></div><div class="oj-listbox-drop" role="dialog" data-oj-containerid="idcs-signin-language-selector" style="display: none; touch-action: none;">  <div class="oj-listbox-search-wrapper">    <div class="oj-text-field">      <div class="oj-text-field-container oj-text-field-has-end-slot">        <div class="oj-listbox-search oj-text-field-middle">          <input type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="oj-listbox-input oj-text-field-input" title="Search field" role="combobox" aria-expanded="false" aria-autocomplete="list">        </div>        <span class="oj-listbox-spyglass-box oj-text-field-end">          <span class="oj-component-icon oj-clickable-icon-nocontext oj-fwk-icon-magnifier oj-listbox-search-icon" role="presentation"></span>        </span>      </div>    </div>  </div>  <div class="oj-listbox-loader-wrapper"></div>   <ul class="oj-listbox-results" role="listbox" data-oj-context="" id="oj-listbox-results-idcs-signin-language-selector">   </ul></div><div class="oj-helper-hidden-accessible oj-listbox-liveregion" aria-live="polite" id="oj-listbox-live-idcs-signin-language-selector"></div><select data-oj-internal="" tabindex="-1" aria-hidden="true" style="display: none;" class="oj-component-initnode">
+                  </select><div class="oj-user-assistance-inline-container oj-reflow" id="ui-id-1"></div></oj-select-one>
+                </div>
+              <!--/ko--><!--/oj-bind-if-->
+            </div>
+          </div>
+          <div class="oj-flex-item oj-sm-12 oj-idaas-signin-app-shell-content-wrapper-rw">
+            <oj-idaas-signin-message :id="[[$uniqueId + '-message']]" class="oj-complete" id="idcs-app-shell-message"><!--oj-bind-if test='[[message]]'--><!--ko if:message--><!--/ko--><!--/oj-bind-if-->
+<div data-bind="_ojNodeStorage_" class="oj-subtree-hidden" style="display: none;"></div></oj-idaas-signin-message>
+            <div class="oj-idaas-signin-app-shell-padding-left-rw oj-idaas-signin-app-shell-padding-right-rw">
+              <!--ko _ojBindSlot_:{name:'content'}--><div slot="content">
+            <oj-module role="main" config="[[moduleConfig]]" class="oj-complete"><!-- ko ojModule: {"view":config().view, "viewModel":config().viewModel,"cleanupMode":config().cleanupMode,"animation":animation} --><div>
+  <div>
+    <oj-popup id="idcs-signin-gov-ack-popup" class="idcs-gov-ack-popup oj-popup oj-component oj-component-initnode oj-complete" position.my.horizontal="center" position.my.vertical="center" position.at.horizontal="center" position.at.vertical="center" position.of="window" tail="none" modality="modal" aria-hidden="true" tabindex="-1" style="display: none;"><div class="oj-popup-content" role="presentation" data-oj-context="">
+
+        <div class="idcs-gov-ack-popup-content">
+          <div class="oj-flex">
+            <div class="oj-flex-item">
+              <!--oj-bind-text value='[[bundle('signin.gov.govAcknowledgementTitle')]]'--><!--ko text:bundle('signin.gov.govAcknowledgementTitle')-->You are accessing a U.S. Government (USG) Information System (IS) that is provided for USG-authorized use only. By using this IS (which includes any device attached to this IS), you consent to the following conditions:<!--/ko--><!--/oj-bind-text-->
+            </div>
+          </div>
+
+          <div class="oj-flex">
+            <div class="oj-flex-item">
+              <!--oj-bind-text value='[[bundle('signin.gov.govAcknowledgementBullet1')]]'--><!--ko text:bundle('signin.gov.govAcknowledgementBullet1')-->-The USG routinely intercepts and monitors communications on this IS for purposes including, but not limited to, penetration testing, COMSEC monitoring, network operations and defense, personnel misconduct (PM), law enforcement (LE), and counterintelligence (CI) investigations.-At any time, the USG may inspect and seize data stored on this IS.<!--/ko--><!--/oj-bind-text-->
+           </div>
+          </div>
+
+          <div class="oj-flex">
+            <div class="oj-flex-item">   
+             <!--oj-bind-text value='[[bundle('signin.gov.govAcknowledgementBullet2')]]'--><!--ko text:bundle('signin.gov.govAcknowledgementBullet2')-->-Communications using, or data stored on, this IS are not private, are subject to routine monitoring, interception, and search, and may be disclosed or used for any USG-authorized purpose.<!--/ko--><!--/oj-bind-text-->
+           </div>
+          </div>
+
+          <div class="oj-flex">
+            <div class="oj-flex-item">
+              <!--oj-bind-text value='[[bundle('signin.gov.govAcknowledgementBullet3')]]'--><!--ko text:bundle('signin.gov.govAcknowledgementBullet3')-->-This IS includes security measures (e.g., authentication and access controls) to protect USG interests-not for your personal benefit or privacy.<!--/ko--><!--/oj-bind-text-->
+            </div>
+          </div>
+
+          <div class="oj-flex">
+            <div class="oj-flex-item">
+              <!--oj-bind-text value='[[bundle('signin.gov.govAcknowledgementBullet4')]]'--><!--ko text:bundle('signin.gov.govAcknowledgementBullet4')-->-Notwithstanding the above, using this IS does not constitute consent to PM, LE or CI investigative searching or monitoring of the content of privileged communications, or work product, related to personal representation or services by attorneys, psychotherapists, or clergy, and their assistants. Such communications and work product are private and confidential. See User Agreement for details.<!--/ko--><!--/oj-bind-text-->
+            </div>
+          </div>
+
+      </div>
+      <div class="idcs-popup-footer">
+      <oj-button class="oj-button-primary oj-button oj-button-outlined-chrome oj-button-text-only oj-enabled oj-default oj-complete" on-click="[[closeListener]]" style="touch-action: none;"><button aria-labelledby="_oj4|text" class="oj-button-button" style="touch-action: none;"><div class="oj-button-label"><span id="_oj4|text" class="oj-button-text">Acknowledge</span></div></button></oj-button>
+    </div>
+    </div></oj-popup>
+  </div>
+
+  <oj-module config="[[moduleConfig]]" class="oj-complete"><!-- ko ojModule: {"view":config().view, "viewModel":config().viewModel,"cleanupMode":config().cleanupMode,"animation":animation} --><div>
+  <div data-bind="ojModule: {name: idpSigninModule.viewModel, viewName: idpSigninModule.viewName, params: params}"><div data-bind="ojModule: {name: 'signinModule/view/basicSigninForm/viewModel/basic-signin-form.view-model',
+        viewName: 'signinModule/view/basicSigninForm/template/basic-signin-form',
+        params: params}"><!--oj-bind-if test='[[isNewSigninUx]]'--><!--ko if:isNewSigninUx-->
+  <div class="oj-flex">
+    <div class="oj-flex-item oj-sm-12 idcs-title-new-sign-in oj-sm-margin-10x-bottom">
+      <!--oj-bind-text value='[[bundle('signin.generic.signInTitle')]]'--><!--ko text:bundle('signin.generic.signInTitle')-->Sign in<!--/ko--><!--/oj-bind-text-->
+    </div>  
+    <div class="oj-flex-item oj-sm-12">
+      <oj-input-text id="idcs-signin-basic-signin-form-username" data-idcs-placeholder-translation-id="idcs-username-placeholder" label-hint="[[bundle('signin.usernamePlaceholderNewSignin')]]" value="{{username}}" data-idcs-enable-right-click="true" autocomplete="off" spellcheck="false" autofocus="" class="oj-inputtext oj-form-control oj-component oj-text-field oj-has-no-value oj-text-field-label-inside oj-complete oj-focus oj-focus-highlight oj-hover" labelled-by="idcs-signin-basic-signin-form-username-labelled-by"><div role="presentation" class="oj-text-field-container"><div class="oj-text-field-middle"><oj-label id="idcs-signin-basic-signin-form-username-labelled-by" data-oj-binding-provider="none" data-oj-internal="" for="idcs-signin-basic-signin-form-username" class="oj-inputtext-label oj-label oj-component oj-complete" data-oj-input-id="idcs-signin-basic-signin-form-username|input"><div class="oj-label-group"><label data-oj-internal="" id="idcs-signin-basic-signin-form-username-labelled-by|label" class="oj-component-initnode" for="idcs-signin-basic-signin-form-username|input"><span id="idcs-signin-basic-signin-form-username|hint">Username</span></label></div></oj-label><input data-oj-internal="" autocapitalize="none" autocomplete="off" autofocus="" type="text" class="oj-inputtext-input oj-text-field-input oj-component-initnode" placeholder="" id="idcs-signin-basic-signin-form-username|input"></div></div><div class="oj-user-assistance-inline-container oj-reflow" id="ui-id-2"></div></oj-input-text>
+    </div>
+
+    <!--oj-bind-if test='[[passwordInputVisibility]]'--><!--ko if:passwordInputVisibility-->
+      <div class="oj-flex-item oj-sm-12 idcs-signin-field-label-top-margin idcs-forgot-password-link-margin">
+        <oj-input-password label-hint="[[bundle('signin.password')]]" id="idcs-signin-basic-signin-form-password" data-idcs-placeholder-translation-id="idcs-password-placeholder" class="oj-sm-12 oj-inputpassword oj-form-control oj-component oj-text-field oj-has-no-value oj-text-field-label-inside oj-complete" value="{{password}}" autocomplete="current-password" data-idcs-enable-right-click="true" labelled-by="idcs-signin-basic-signin-form-password-labelled-by"><div role="presentation" class="oj-text-field-container"><div class="oj-text-field-middle"><oj-label id="idcs-signin-basic-signin-form-password-labelled-by" data-oj-binding-provider="none" data-oj-internal="" for="idcs-signin-basic-signin-form-password" class="oj-inputpassword-label oj-label oj-component oj-complete" data-oj-input-id="idcs-signin-basic-signin-form-password|input"><div class="oj-label-group"><label data-oj-internal="" id="idcs-signin-basic-signin-form-password-labelled-by|label" class="oj-component-initnode" for="idcs-signin-basic-signin-form-password|input"><span id="idcs-signin-basic-signin-form-password|hint">Password</span></label></div></oj-label><input data-oj-internal="" autocomplete="current-password" type="password" class="oj-inputpassword-input oj-text-field-input oj-component-initnode" placeholder="" id="idcs-signin-basic-signin-form-password|input"></div></div><div class="oj-user-assistance-inline-container oj-reflow" id="ui-id-3"></div></oj-input-password>
+      </div>
+      <div class="oj-sm-12 oj-flex oj-sm-flex-items-initial">
+        <a id="idcs-signin-basic-signin-form-forgot-password" class="idcs-signin-basic-signin-form-forgot-link oj-sm-padding-2x-top" :class="[[ {'idcs-signin-disable-link': $params.disableInput} ]]" on-click="[[clickForgotPasswordUrl]]" :tabindex="[[$params.disableInput ? '-1':'0']]" tabindex="0">
+        <!--oj-bind-text value='[[bundle('signin.forgotPassword')]]'--><!--ko text:bundle('signin.forgotPassword')-->Forgot Password?<!--/ko--><!--/oj-bind-text-->
+      </a>
+      </div>
+    <!--/ko--><!--/oj-bind-if-->
+
+    <!--oj-bind-if test='[[keepMeSignedInEnabled() && !isOracleEmployeeRedwood && !isCustomerRedwood && !isOneIdentityEnabled]]'--><!--ko if:keepMeSignedInEnabled() && !isOracleEmployeeRedwood && !isCustomerRedwood && !isOneIdentityEnabled--><!--/ko--><!--/oj-bind-if-->
+
+    <div class="oj-flex oj-sm-12 idcs-signin-section-content-top-margin">
+      <oj-button id="idcs-signin-basic-signin-form-submit" class="oj-button-primary oj-sm-12 idcs-signin-rw-btn idcs-signin-buttons oj-button oj-button-cta-chrome oj-button-text-only oj-enabled oj-default oj-complete" disabled="[[disableSubmitButton]]" chroming="callToAction" on-oj-action="[[submitCredentials]]" style="touch-action: none;"><button aria-labelledby="idcs-signin-basic-signin-form-submit_oj6|text" class="oj-button-button" style="touch-action: none;"><div class="oj-button-label"><span id="idcs-signin-basic-signin-form-submit_oj6|text" class="oj-button-text"><span class=""><!--oj-bind-text value='[[bundle('signin.generic.next')]]'--><!--ko text:bundle('signin.generic.next')-->Next<!--/ko--><!--/oj-bind-text--></span></span></div></button></oj-button>
+    </div>
+
+    <oj-popup :id="idcs-signin-basic-signin-form-kmsi-info-popup" tail="simple" position.my.horizontal="start" position.my.vertical="bottom" position.at.horizontal="end" position.at.vertical="top" class="oj-idaas-kmsi-popup oj-popup oj-component oj-popup-tail-simple oj-component-initnode oj-complete" id="idcs-signin-basic-signin-form-kmsi-info-popup" aria-hidden="true" tabindex="-1" style="display: none;"><div class="oj-popup-content" role="presentation" data-oj-context="">
+      <span class="oj-idaas-kmsi-help-popup-content">
+        <oj-idaas-custom-text value="[[passwordInputVisibility() ? bundle('signin.kmsiTooltip') : bundle('signin.userNameFirstKmsiTooltip')]]" class="oj-complete"><div data-bind="_ojNodeStorage_" class="oj-subtree-hidden" style="display: none;"></div>Select <strong>Keep me signed in</strong>
+       to access the identity domain without entering your credentials.</oj-idaas-custom-text></span>
+    </div><div class="oj-popup-tail oj-popup-tail-simple" role="presentation" id="idcs-signin-basic-signin-form-kmsi-info-popup_tail" style="display: none;"></div></oj-popup>
+  </div>
+<!--/ko--><!--/oj-bind-if-->
+
+<!--oj-bind-if test='[[!isNewSigninUx]]'--><!--ko if:!isNewSigninUx--><!--/ko--><!--/oj-bind-if-->
+
+<form id="idcs-signin-basic-signin-form-post-redirect-form" name="idcs-signin-basic-signin-form-sso-post-redirect-form" method="POST">
+</form>
+</div>
+
+<!--oj-bind-if test='[[!(isMultiRegionLoginFeatureEnabled && isHomeRegionDown())]]'--><!--ko if:!(isMultiRegionLoginFeatureEnabled && isHomeRegionDown())-->
+  <!--oj-bind-if test='[[!isNewSigninUx]]'--><!--ko if:!isNewSigninUx--><!--/ko--><!--/oj-bind-if-->
+  <!--oj-bind-if test='[[isNewSigninUx]]'--><!--ko if:isNewSigninUx-->
+    <div class="oj-flex oj-sm-align-items-center oj-sm-justify-content-center idcs-signin-section-content-top-margin">
+      <div class="oj-flex-item">
+        <hr class="idcs-signin-idp-signin-line">
+      </div>
+      <div class="oj-flex-item idcs-signin-idp-signin-line-text-wrapper">
+      <h2 class="idcs-signin-idp-signin-line-text">
+        <!--oj-bind-text value='[[bundle('signin.signinWithRedwoodNewUX')]]'--><!--ko text:bundle('signin.signinWithRedwoodNewUX')-->Or<!--/ko--><!--/oj-bind-text-->
+      </h2>
+      </div>
+      <div class="oj-flex-item">
+        <hr class="idcs-signin-idp-signin-line">
+      </div>
+    </div>
+  <!--/ko--><!--/oj-bind-if-->
+<!--/ko--><!--/oj-bind-if-->
+
+
+  <div class="idcs-signin-field-label-top-margin" data-bind="ojModule: {name: 'signinModule/view/idpSigninForm/viewModel/idp-signin-form.view-model',
+          viewName: 'signinModule/view/idpSigninForm/template/idp-signin-form',
+          params: params}"><!--oj-bind-if test='[[!isNewSigninUx]]'--><!--ko if:!isNewSigninUx--><!--/ko--><!--/oj-bind-if-->
+
+<!--oj-bind-if test='[[isNewSigninUx]]'--><!--ko if:isNewSigninUx-->
+  <div class="oj-flex" id="idcs-signin-idp-signin-form-fa">
+    <!--oj-bind-for-each data='[[optionsRecent]]' as='option'--><!--ko _ojBindForEach_:{data:optionsRecent,as:'option'}-->
+        <div class="oj-flex-item idcs-signin-common-signin-button-wrapper">
+          <oj-button :id="[['idcs-signin-idp-signin-form-idp-button-' + option.data.name]]" :title="[[bundle('signin.signinButtonIDP') + option.data.name]]" :disabled="[[disableIdpSigninButtons()]]" class="idcs-signin-common-signin-button oj-sm-12 oj-button oj-button-outlined-chrome oj-button-text-icon-start oj-enabled oj-default oj-complete" on-oj-action="[[companySubmit]]" id="idcs-signin-idp-signin-form-idp-button-AzureAD" title="Sign in with AzureAD" style="touch-action: none;"><button aria-labelledby="idcs-signin-idp-signin-form-idp-button-AzureAD_oj7|text" class="oj-button-button" style="touch-action: none;"><div class="oj-button-label"><span class="oj-button-icon oj-start"><img slot="startIcon" class="idcs-signin-idp-signin-form-idp-icon-small" :src="[[option.data.iconUrl]]" :alt="[[option.data.name]]" src="https://idcs-f06e30ac4e754d57b93e0d561baebf84.identity.oraclecloud.com:443/storage/v1/public/images/202604222021/1776889260049/oci_mgrc_wheel.jpg" alt="AzureAD"></span><span id="idcs-signin-idp-signin-form-idp-button-AzureAD_oj7|text" class="oj-button-text"><span class="idcs-signin-common-signin-button-separator"> </span>Sign in with AzureAD</span></div></button></oj-button>
+        </div>
+      <!--/ko--><!--/oj-bind-for-each-->
+    <!--oj-bind-if test='[[options.length > optionsRecent.length]]'--><!--ko if:options.length > optionsRecent.length--><!--/ko--><!--/oj-bind-if-->
+  </div>
+
+<!--/ko--><!--/oj-bind-if-->
+
+<!--oj-bind-if test='[[isNewSigninUx]]'--><!--ko if:isNewSigninUx-->
+  <oj-dialog id="idcs-signin-idp-signin-form-more-options-dialog" initial-visibility="hide" cancel-behavior="icon" class="oj-dialog oj-component oj-component-initnode oj-complete" tabindex="-1" role="dialog" aria-labelledby="ui-id-5" style="display: none;">
+    
+  <div class="oj-dialog-container" data-oj-context=""><div class="oj-dialog-header oj-dialog-header-decoration"><h1 class="oj-dialog-title" id="ui-id-5">&nbsp;</h1></div><div class="oj-dialog-content oj-dialog-default-content"><div class="oj-dialog-body-wrapper"><div class="oj-row oj-dialog-body" slot="body">
+      <oj-list-view id="idcs-signin-idp-signin-form-listview" :aria-label="[[bundle('signin.idpListLabel')]]" data="[[dataSourceIdps]]" selection-mode="none" class="oj-listview oj-listview-container oj-component oj-listview-gridlines-hidden gridline-top-hidden gridline-bottom-hidden oj-complete"><div class="oj-helper-detect-contraction"><div style="width: 200%; height: 200%;"></div></div><div class="oj-helper-detect-expansion"><div></div></div><div tabindex="-1" class="oj-helper-hidden-accessible">&nbsp;</div><ul data-oj-internal="" aria-label="Identity Providers" id="ui-id-4" class="oj-listview-element oj-component-initnode" data-oj-context="" tabindex="0" x-ms-format-detection="none" role="grid" aria-rowcount="1" style="touch-action: none;"><li id="ui-id-6" role="row" class="oj-listview-focused-element oj-listview-item-element oj-listview-item oj-listview-item-layout" aria-rowindex="1"><div role="gridcell" class="oj-listview-cell-element">
+          <oj-list-item-layout>
+            <div class="oj-flex-item idcs-signin-common-signin-button-wrapper">
+              <oj-button :id="[['idcs-signin-idp-signin-form-idp-button-' + item.item.data.name]]" :title="[[bundle('signin.signinButtonIDP') + item.item.data.name]]" :disabled="[[disableIdpSigninButtons()]]" class="idcs-signin-common-signin-button oj-sm-12 oj-button oj-button-outlined-chrome oj-button-text-icon-start oj-enabled oj-default oj-complete" on-oj-action="[[companySubmit]]" id="idcs-signin-idp-signin-form-idp-button-AzureAD" title="Sign in with AzureAD" style="touch-action: none;"><button aria-labelledby="idcs-signin-idp-signin-form-idp-button-AzureAD_oj8|text" class="oj-button-button" data-oj-tabmod="0" tabindex="-1" style="touch-action: none;"><div class="oj-button-label"><span class="oj-button-icon oj-start"><img slot="startIcon" class="idcs-signin-idp-signin-form-idp-icon-small" :src="[[item.item.data.iconUrl]]" :alt="[[item.item.data.name]]" src="https://idcs-f06e30ac4e754d57b93e0d561baebf84.identity.oraclecloud.com:443/storage/v1/public/images/202604222021/1776889260049/oci_mgrc_wheel.jpg" alt="AzureAD"></span><span id="idcs-signin-idp-signin-form-idp-button-AzureAD_oj8|text" class="oj-button-text"><div class="idcs-signin-common-signin-button-separator"> </div>Sign in with AzureAD</span></div></button></oj-button>
+            </div>
+          </oj-list-item-layout>
+        </div></li><li role="presentation" class="oj-listview-skeleton-container" style="visibility: hidden;"><ul role="presentation" class="oj-listview-group"><li role="presentation" class="oj-listview-item oj-listview-item-layout gridline-hidden"><div class="oj-listview-cell-element oj-listview-skeleton oj-listview-skeleton-line-height oj-animation-skeleton"></div></li><li role="presentation" class="oj-listview-item oj-listview-item-layout gridline-hidden"><div class="oj-listview-cell-element oj-listview-skeleton oj-listview-skeleton-line-height oj-animation-skeleton"></div></li><li role="presentation" class="oj-listview-item oj-listview-item-layout gridline-hidden"><div class="oj-listview-cell-element oj-listview-skeleton oj-listview-skeleton-line-height oj-animation-skeleton"></div></li></ul></li></ul><template slot="itemTemplate" data-oj-as="item">
+          <oj-list-item-layout>
+            <div class="oj-flex-item idcs-signin-common-signin-button-wrapper">
+              <oj-button :id="[['idcs-signin-idp-signin-form-idp-button-' + item.item.data.name]]" :title="[[bundle('signin.signinButtonIDP') + item.item.data.name]]" :disabled="[[disableIdpSigninButtons()]]" class="idcs-signin-common-signin-button oj-sm-12" on-oj-action="[[companySubmit]]">
+                <oj-bind-if test="[[!item.item.data.isFontIcon]]">
+                  <img slot="startIcon" class="idcs-signin-idp-signin-form-idp-icon-small" :src="[[item.item.data.iconUrl]]" :alt="[[item.item.data.name]]">
+                </oj-bind-if>
+                <oj-bind-if test="[[item.item.data.isFontIcon]]">
+                <span slot="startIcon" :class="[['idcs-icon idcs-text-md ' + item.item.data.iconUrl]]">
+                </span>
+                </oj-bind-if>
+                <div class="idcs-signin-common-signin-button-separator"> </div>
+                <oj-bind-text value="[[bundle('signin.signinButtonIDP') + item.item.data.name]]"></oj-bind-text>
+              </oj-button>
+            </div>
+          </oj-list-item-layout>
+        </template><div class="oj-listview-status-message oj-listview-status" id="ui-id-4:status" role="status" style="display: none;"><div class="oj-icon oj-listview-loading-icon"></div></div><div class="oj-helper-hidden-accessible" id="ui-id-4:info" aria-live="polite" tabindex="-1"></div><div class="oj-helper-hidden-accessible" id="ui-id-4:loadingDesc" tabindex="-1">Loading</div></oj-list-view>
+    </div></div></div></div></oj-dialog>
+<!--/ko--><!--/oj-bind-if-->
+
+<!--oj-bind-if test='[[!isNewSigninUx]]'--><!--ko if:!isNewSigninUx--><!--/ko--><!--/oj-bind-if-->
+
+<form id="idcs-signin-idp-signin-form-post-redirect-form" name="idcs-idp-basic-signin-form-sso-post-redirect-form" method="POST">
+</form>
+</div></div>
+</div>
+<form id="idcs-signin-idp-signin-social-register-form" name="idcs-signin-idp-signin-social-register-form" method="POST">
+  <input name="userProfile" id="idcs-signin-idp-signin-social-register-user-profile" type="hidden">
+</form>
+<!-- /ko --><div data-bind="_ojNodeStorage_" class="oj-subtree-hidden" style="display: none;"></div></oj-module>
+
+  <!--oj-bind-if test='[[isRedwood]]'--><!--ko if:isRedwood-->
+    <div class="oj-flex-item oj-sm-12 oj-sm-padding-2x-top" :class="[[isNewSigninUx ? 'oj-sm-padding-2x-top' : 'idcs-signin-section-forgot-password-padding']]">
+      <a id="idcs-signin-basic-signin-form-need-help-link" :href="[[needHelpLink]]" target="_blank" href="https://docs.oracle.com/en-us/iaas/Content/GSG/Tasks/signinginIdentityDomain.htm">
+        <!--oj-bind-text value='[[bundle('signin.forgotPasswordText')]]'--><!--ko text:bundle('signin.forgotPasswordText')-->Need help signing in?<!--/ko--><!--/oj-bind-text-->
+      </a>
+    </div>
+
+    <!-- Cloud Account Details-->
+    <!--oj-bind-if test='[[isNewSigninUx && !hideTenancyAndDomainInformationOnSignInPage()]]'--><!--ko if:isNewSigninUx && !hideTenancyAndDomainInformationOnSignInPage()-->
+      <!--oj-bind-if test='[[moduleName.value.viewName.indexOf('basic-signin') !== -1 || moduleName.value.viewName.indexOf('idp-signin') !== -1]]'--><!--ko if:moduleName.value.viewName.indexOf('basic-signin') !== -1 || moduleName.value.viewName.indexOf('idp-signin') !== -1-->
+        <div class="oj-flex-item oj-sm-12 oj-sm-padding-10x-top">
+          <oj-accordion id="idcs-signin-cloud-account-details" class="oj-accordion oj-component oj-component-initnode oj-complete" role="group">
+            <oj-collapsible id="idcs-signin-cloud-account-details-collapsible" class="oj-collapsible oj-component oj-collapsed oj-component-initnode oj-complete oj-accordion-collapsible">
+              <div class="oj-collapsible-header-wrapper" style="touch-action: none;"><a tabindex="0" class="oj-component-icon oj-clickable-icon-nocontext oj-collapsible-header-icon oj-collapsible-close-icon" aria-labelledby="oj-collapsible-idcs-signin-cloud-account-details-collapsible-header" role="button" aria-controls="oj-collapsible-idcs-signin-cloud-account-details-collapsible-content" aria-expanded="false"></a><h3 slot="header" class="oj-collapsible-header" id="oj-collapsible-idcs-signin-cloud-account-details-collapsible-header">
+                <span class="oj-ux-ico-cart oj-ux-icon-size-5x oj-sm-padding-2x-end">
+                  <!--oj-bind-text value='[[bundle('signin.generic.cloudAccountDetails')]]'--><!--ko text:bundle('signin.generic.cloudAccountDetails')-->Cloud account details<!--/ko--><!--/oj-bind-text-->
+                </span>
+              </h3></div>
+            
+              <div class="oj-collapsible-wrapper oj-subtree-hidden" style="max-height: 0px; overflow-y: hidden; display: none;"><div class="idcs-signin-cloud-account-details-rw oj-collapsible-content oj-component-content" id="oj-collapsible-idcs-signin-cloud-account-details-collapsible-content" aria-hidden="true">
+                <div class="oj-sm-padding-1x">
+                  <strong><!--oj-bind-text value='[[bundle('signin.generic.tenancy')]]'--><!--ko text:bundle('signin.generic.tenancy')-->Tenancy:<!--/ko--><!--/oj-bind-text--></strong>
+                  <span>
+                    <!--oj-bind-text value='[[tenantName]]'--><!--ko text:tenantName-->mgrc<!--/ko--><!--/oj-bind-text-->
+                  </span>
+                </div>
+                <div class="oj-sm-padding-1x">
+                  <strong><!--oj-bind-text value='[[bundle('signin.generic.domain')]]'--><!--ko text:bundle('signin.generic.domain')-->Domain:<!--/ko--><!--/oj-bind-text--></strong>
+                  <span>
+                    <!--oj-bind-text value='[[domainName]]'--><!--ko text:domainName-->fa-ibqwjb-test-tow4p<!--/ko--><!--/oj-bind-text-->
+                  </span>
+                </div>
+              </div></div>
+            </oj-collapsible>
+          </oj-accordion>
+        </div>
+      <!--/ko--><!--/oj-bind-if-->
+    <!--/ko--><!--/oj-bind-if-->
+  <!--/ko--><!--/oj-bind-if-->
+
+</div>
+<!-- /ko --><div data-bind="_ojNodeStorage_" class="oj-subtree-hidden" style="display: none;"></div></oj-module>
+          </div><!--/ko-->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  <!--/ko--><!--/oj-bind-if-->
+
+  <!--oj-bind-if test='[[!isNewSigninUx || isHostedPage]]'--><!--ko if:!isNewSigninUx || isHostedPage--><!--/ko--><!--/oj-bind-if-->
+</div><div data-bind="_ojNodeStorage_" class="oj-subtree-hidden" style="display: none;"></div></oj-idaas-signin-app-shell-rw>
+      <!--/ko--><!--/oj-bind-if-->
+      <!--oj-bind-if test='[[isGovNofornRegion]]'--><!--ko if:isGovNofornRegion--><!--/ko--><!--/oj-bind-if-->
+      <!--oj-bind-if test='[[isGovRegion && !isGovNofornRegion]]'--><!--ko if:isGovRegion && !isGovNofornRegion--><!--/ko--><!--/oj-bind-if-->
+    </div>
+  
+
+<div style="display: none;"></div>

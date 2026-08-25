@@ -1,0 +1,81 @@
+<!--
+  Captured from the live application by scripts/capture-fixtures.js
+  step 1: navigate
+  selector: (none)
+  page: https://idcs-f06e30ac4e754d57b93e0d561baebf84.identity.oraclecloud.com/ui/v1/signin
+
+  This is Oracle's own markup, kept verbatim. Linters will object to the
+  deprecated attributes and layout tables — leave them exactly as captured,
+  the point is that they match what the replayer will actually meet.
+-->
+
+    <div id="idcs-app-shell-container">
+      <oj-bind-if test="[[isGovNofornRegion]]">
+        <div class="idcs-gov-banner-container" :class="[[{'idcs-gov-banner-visible': isGovNofornRegion}]]">
+          <div class="idcs-gov-banner red top">
+          <span>
+            <oj-bind-text value="[[bundle('signin.gov.nofornBanner')]]"></oj-bind-text>
+          </span>
+          </div>
+        </div>
+      </oj-bind-if>
+      <oj-bind-if test="[[isGovRegion &amp;&amp; !isGovNofornRegion]]">
+        <div class="idcs-gov-banner-container" :class="[[{'idcs-gov-banner-visible': isGovRegion}]]">
+          <div class="idcs-gov-banner yellow top">
+            <span>
+              <oj-bind-text value="[[bundle('signin.gov.banner')]]"></oj-bind-text>
+            </span>
+          </div>
+        </div>
+      </oj-bind-if>
+      
+      <oj-bind-if test="[[isMultiRegionLoginFeatureEnabled &amp;&amp; isHomeRegionDown()]]">
+        <div id="home-region-down-banner">
+          <oj-messages messages="[[messagesDataProvider()]]" position="[[position]]"></oj-messages>
+        </div>
+      </oj-bind-if>
+
+      <oj-bind-if test="[[!isRedwood &amp;&amp; !isOracleEmployeeRedwood &amp;&amp; !isCustomerRedwood]]">
+        <oj-idaas-signin-app-shell data-oj-context="" id="idcs-app-shell" branding-logo="[[brandingLogo]]" custom-branding="[[customBranding]]" background-image="[[brandingBackgroundImage]]" announce-migration="[[isMigrationAnnounced]]" announce-mfa-policy-update="[[isMfaPolicyAnnounced]]">
+          <div slot="content">
+            <oj-module role="main" config="[[moduleConfig]]"></oj-module>
+          </div>
+        </oj-idaas-signin-app-shell>
+      </oj-bind-if>
+
+      <oj-bind-if test="[[isOracleEmployeeRedwood || isCustomerRedwood]]">
+        <oj-idaas-employee-signin-app-shell-redwood data-oj-context="" id="idcs-app-shell" branding-logo="[[brandingLogo]]" custom-branding="[[customBranding]]" background-image="[[brandingBackgroundImage]]">
+          <div slot="content">
+            <oj-module role="main" config="[[moduleConfig]]"></oj-module>
+          </div>
+        </oj-idaas-employee-signin-app-shell-redwood>
+      </oj-bind-if>
+
+      <oj-bind-if test="[[isRedwood]]">
+        <oj-idaas-signin-app-shell-rw data-oj-context="" id="idcs-app-shell" branding-logo="[[brandingLogo]]" custom-branding="[[customBranding]]" background-image="[[brandingBackgroundImage]]" announce-mfa-policy-update="[[isMfaPolicyAnnounced]]" language-options="[[languageOptions]]">
+          <div slot="content">
+            <oj-module role="main" config="[[moduleConfig]]"></oj-module>
+          </div>
+        </oj-idaas-signin-app-shell-rw>
+      </oj-bind-if>
+      <oj-bind-if test="[[isGovNofornRegion]]">
+        <div class="idcs-gov-banner-container" :class="[[{'idcs-gov-banner-visible': isGovNofornRegion}]]">
+          <div class="idcs-gov-banner red bottom">
+          <span>
+            <oj-bind-text value="[[bundle('signin.gov.nofornBanner')]]"></oj-bind-text>
+          </span>
+          </div>
+        </div>
+      </oj-bind-if>
+      <oj-bind-if test="[[isGovRegion &amp;&amp; !isGovNofornRegion]]">
+        <div class="idcs-gov-banner-container" :class="[[{'idcs-gov-banner-visible': isGovRegion}]]">
+          <div class="idcs-gov-banner yellow bottom">
+            <span>
+              <oj-bind-text value="[[bundle('signin.gov.banner')]]"></oj-bind-text>
+            </span>
+          </div>
+        </div>
+      </oj-bind-if>
+    </div>
+  
+
