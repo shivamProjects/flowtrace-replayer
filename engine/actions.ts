@@ -611,6 +611,25 @@ async function doSelectOption(a: NormalizedAction, ctx: ActionContext) {
     } catch (e) {
       const idx = Number(a.optionIndex);
       if (!Number.isFinite(idx)) throw e;
+
+      // The index is a fallback for a RENAMED option, never for a DIFFERENT
+      // one. Parameterization rewrites the value a step commits but preserves
+      // optionIndex, leaving a step that says "select Credit memo, else take
+      // option 2" while option 2 is still Debit memo. ADF also renumbers
+      // options per session and again when a dependent field filters the list.
+      //
+      // Taking the index there does not fail — it SUCCEEDS on the wrong option,
+      // and nothing downstream can tell. Refusing is the safe direction: the
+      // step fails with the label that was actually asked for.
+      if (a.originalValue != null && String(a.originalValue).trim() !== value) {
+        log(
+          `  [select] ignoring recorded index ${idx} — the value was changed from ` +
+          `"${a.originalValue}" to "${value}" after recording, so the index no longer names it`,
+          'warn',
+        );
+        throw e;
+      }
+
       log(`  [select] "${value}" did not match — falling back to recorded index ${idx}`, 'warn');
       await el.selectOption({ index: idx }, { timeout: T.action });
     }

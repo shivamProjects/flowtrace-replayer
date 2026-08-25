@@ -493,6 +493,75 @@ const CASES = [
     expect: { success: true, statuses: 'sss' },
   },
   {
+    // Ambiguity is broken by the RECORDED PATH, not by document order.
+    //
+    // ambiguous.html has two painted inputs sharing the label "Depreciation
+    // Method for Poland" — the real Oracle case. The step carries the
+    // componentId of the SECOND one, so taking the first (which is what
+    // first-painted order does) fills the wrong field. The assert names the
+    // second field's id, so only a path-driven pick passes.
+    name: 'v1/ambiguous-label-is-resolved-by-recorded-component-path',
+    raw: {
+      schemaVersion: 1,
+      actions: [nav('ambiguous.html'),
+                { action: 'fill', value: 'Straight Line',
+                  locator: { label: 'Depreciation Method for Poland',
+                             componentId: 'pt1:_FOr1:1:r9:0:it1' } },
+                assertValue('pt1:_FOr1:1:r9:0:it1::content', 'Asset Details field', 'Straight Line')],
+    },
+    expect: { success: true, statuses: 'sss' },
+  },
+  {
+    // The first field must be left ALONE. Without this, a bug that filled both
+    // (or filled the first as well) would still satisfy the check above.
+    name: 'guard/path-pick-does-not-touch-the-other-match',
+    raw: {
+      schemaVersion: 1,
+      actions: [nav('ambiguous.html'),
+                { action: 'fill', value: 'Straight Line',
+                  locator: { label: 'Depreciation Method for Poland',
+                             componentId: 'pt1:_FOr1:1:r9:0:it1' } },
+                assertValue('pt1:_FOr1:0:r1:0:it1::content', 'Regional field', '')],
+    },
+    expect: { success: true, statuses: 'sss' },
+  },
+  {
+    // A stale optionIndex must not silently pick the wrong option.
+    //
+    // `rows.html` has <option value="1">Alpha</option> and
+    // <option value="2" selected>Debit memo</option>. Parameterization rewrote
+    // this step's value to "Credit memo" — a label that does not exist — while
+    // preserving optionIndex from the ORIGINAL recording of "Alpha". Taking the
+    // index would select whatever sits at that position now, succeed, and
+    // report green on an option nobody asked for.
+    //
+    // Refusing is the safe direction: the step fails naming "Credit memo",
+    // which is what was actually requested.
+    name: 'guard/stale-optionIndex-is-refused-not-guessed',
+    raw: {
+      schemaVersion: 1,
+      actions: [nav('rows.html'),
+                { action: 'selectOption', locator: { id: 'rel', label: 'Relationship' },
+                  value: 'Credit memo', optionIndex: 2, originalValue: 'Alpha' }],
+    },
+    expect: { success: false, statuses: 'sf' },
+  },
+  {
+    // The same fallback must still WORK when the value was not edited — an
+    // option that was merely RENAMED is exactly what the index is for. Here
+    // originalValue matches the requested value, so the guard stays out of the
+    // way and index 1 selects Alpha.
+    name: 'v1/optionIndex-still-rescues-an-unedited-step',
+    raw: {
+      schemaVersion: 1,
+      actions: [nav('rows.html'),
+                { action: 'selectOption', locator: { id: 'rel', label: 'Relationship' },
+                  value: 'Renamed Alpha', optionIndex: 0, originalValue: 'Renamed Alpha' },
+                assertValue('rel', 'Relationship', 'Alpha')],
+    },
+    expect: { success: true, statuses: 'sss' },
+  },
+  {
     name: 'v1/lovSelect-is-the-row-pick',
     raw: {
       schemaVersion: 1,

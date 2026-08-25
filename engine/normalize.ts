@@ -245,6 +245,9 @@ export function normalizeAction(entry: any, schemaVersion: SchemaVersion = null)
   }
 
   action.optionIndex = entry?.optionIndex;
+  // Read from both shapes: the flat recorder form carries it at the top level,
+  // the nested one under `action`.
+  action.originalValue = entry?.originalValue ?? entry?.action?.originalValue;
 
   return action;
 }

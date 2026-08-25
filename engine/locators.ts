@@ -276,6 +276,95 @@ async function unwrapLabel(scope: LocatorScope, el: Locator): Promise<Locator> {
  * the frame" and "the frame is not there" are different failures and only the
  * second one is safe to state as such.
  */
+/**
+ * Say so when a recorded selector named more than one painted element.
+ *
+ * The ladder still ACTS — it takes the first painted match, which is right far
+ * more often than not, and refusing would fail steps that work today. But the
+ * choice was ours, not the recording's, and that is worth a line in the log.
+ *
+ * Oracle repeats a label across a form freely: on Manage Depreciation Methods
+ * "Depreciation Method for Poland" is both an <option> inside the Regional
+ * Information <select> AND the label of a separate LOV field, and each LOV popup
+ * then repeats "Disposable." as a row. When two of those are on screen at once,
+ * nothing in the recording distinguishes them — so if the wrong one gets acted
+ * on, this log line is the only evidence of why, and re-recording the step to
+ * capture a componentId is the actual fix.
+ *
+ * `count` here is the number of VISIBLE matches, not raw matches: the caller
+ * has already filtered. That distinction is the point — several raw matches
+ * with one visible is the ordinary ADF case (a hidden pre-render beside the
+ * real control) and is not ambiguous at all. Warning on that would fire on
+ * nearly every step and train people to ignore the message.
+ */
+/**
+ * Break a tie using the recorded component path, before falling back to order.
+ *
+ * When a selector matches several painted nodes, taking the first is a guess
+ * about DOM order. The recording usually knows better: `componentId` is the
+ * ADF component address the recorder captured for THIS step
+ * (`pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:smc2:_0`), and it names one element on the
+ * page. Two same-labelled controls in different regions have different paths,
+ * so the path picks the right one where position cannot.
+ *
+ * Matching is by SUFFIX as well as equality, for the reason
+ * `locatorCandidates` already documents: the leading region segments change
+ * when the same field is reached by a different navigation route, while the
+ * tail stays put. A suffix match is therefore the stable half of the address.
+ * An `id` recorded without a componentId is used the same way — it is the same
+ * kind of evidence.
+ *
+ * Returns the winning index, or -1 to mean "the recording does not decide it".
+ * Never throws: a page that will not answer an evaluate is a reason to fall
+ * back to order, not to fail the step.
+ */
+async function indexByRecordedPath(
+  vis: Locator,
+  count: number,
+  action: NormalizedAction,
+): Promise<number> {
+  const wanted = String(action.componentId || action.locator?.componentId || action.locator?.id || '').trim();
+  if (!wanted || count <= 1) return -1;
+
+  const ids = await vis
+    .evaluateAll((els) => els.map((el) => (el as HTMLElement).id || ''))
+    .catch(() => [] as string[]);
+  if (!ids.length) return -1;
+
+  // Exact first. `::content` is ADF's inner-input suffix on the same component,
+  // so a candidate that already unwrapped to the editable node still counts as
+  // the same address.
+  const bare = (s: string) => s.replace(/::content$/, '');
+  const target = bare(wanted);
+
+  let hit = ids.findIndex((id) => bare(id) === target);
+  if (hit >= 0) return hit;
+
+  // Then the stable tail. Require a segment boundary so `…:smc2:_1` cannot be
+  // satisfied by `…:smc2:_11`, which is a different checkbox.
+  hit = ids.findIndex((id) => {
+    const b = bare(id);
+    return b.endsWith(`:${target}`) || target.endsWith(`:${b}`);
+  });
+  return hit;
+}
+
+function warnIfAmbiguous(
+  how: string,
+  count: number,
+  idx: number,
+  action: NormalizedAction,
+  log: LogFn,
+): void {
+  if (count <= 1) return;
+  const label = action.description || action.accessibleName || action.selector || '(unnamed step)';
+  log(
+    `"${label}" matched ${count} visible node(s) via ${how} — using painted match ${idx + 1}. ` +
+    `If the wrong one is acted on, re-record this step: a componentId would make it unambiguous.`,
+    'warn',
+  );
+}
+
 export async function resolve(
   page: Page,
   action: NormalizedAction,
@@ -294,12 +383,19 @@ export async function resolve(
     try {
       const count = await vis.count();
       if (count === 0) continue;
-      const idx = await firstPaintedIndex(vis);
-      if (idx < 0) {
+      const painted = await firstPaintedIndex(vis);
+      if (painted < 0) {
         log(`${name} matched ${count} node(s), none painted — skipping`);
         continue;
       }
-      log(`resolved via ${name}${count > 1 ? ` (painted match ${idx + 1} of ${count})` : ''}`);
+      // Ask the recording before falling back to document order.
+      const byPath = await indexByRecordedPath(vis, count, action);
+      const idx = byPath >= 0 ? byPath : painted;
+      if (byPath >= 0 && byPath !== painted) {
+        log(`${name} matched ${count} node(s) — recorded component path names match ${byPath + 1}, not ${painted + 1}`);
+      }
+      log(`resolved via ${name}${count > 1 ? ` (match ${idx + 1} of ${count})` : ''}`);
+      if (byPath < 0) warnIfAmbiguous(name, count, idx, action, log);
       return await unwrapLabel(scope, vis.nth(idx));
     } catch (_) { /* candidate is not queryable — try the next */ }
   }
@@ -326,8 +422,15 @@ export async function resolve(
       log(`${winner} became visible but no match is painted — treating as unresolved`);
       return null;
     }
+    const waitedCount = await vis.count().catch(() => 1);
+    const byPath = await indexByRecordedPath(vis, waitedCount, action);
+    const chosen = byPath >= 0 ? byPath : idx;
+    if (byPath >= 0 && byPath !== idx) {
+      log(`${winner} matched ${waitedCount} node(s) — recorded component path names match ${byPath + 1}, not ${idx + 1}`);
+    }
     log(`resolved via ${winner} (waited)`);
-    return await unwrapLabel(scope, vis.nth(idx));
+    if (byPath < 0) warnIfAmbiguous(winner, waitedCount, chosen, action, log);
+    return await unwrapLabel(scope, vis.nth(chosen));
   }
 
   log(`unresolved — tried ${cands.map((c) => c.name).join(', ')}`);

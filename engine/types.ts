@@ -149,8 +149,29 @@ export interface NormalizedAction {
    */
   schemaVersion?: number | null;
 
-  /** Index of the chosen <option>, a fallback when its label no longer matches. */
+  /**
+   * Index of the chosen <option>, a fallback when its label no longer matches.
+   *
+   * Session-scoped, and only meaningful while `text` is still what was recorded
+   * beside it — see `originalValue`.
+   */
   optionIndex?: string | number;
+
+  /**
+   * What the recorder captured for this step, before parameterization rewrote
+   * `text`.
+   *
+   * Exists to tell an EDITED value from an untouched one. Parameterization
+   * rewrites the value a step commits but preserves `optionIndex`, which leaves
+   * a step meaning "select Credit memo, and if that label is gone take option
+   * 2" — while option 2 is still Debit memo. ADF renumbers options per session
+   * and again whenever a dependent field filters the list, so the index is a
+   * fallback for a RENAMED option, never for a DIFFERENT one.
+   *
+   * Undefined on recordings made before this was captured; the guard treats
+   * that as "not edited", which is the previous behaviour.
+   */
+  originalValue?: string | null;
 
   /** The recorder's full locator object, kept intact for candidate building. */
   locator?: RecordedLocator;
