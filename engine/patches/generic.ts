@@ -172,8 +172,9 @@ export class GenericPatch implements AppPatch {
   }
 
   /** A plain web app keeps no session state in the URL. */
-  navigationWouldBreakSession(_url: string): boolean {
-    return false;
+  /** Nothing to strip — a recorded URL is replayed exactly as captured. */
+  rewriteNavigation(url: string): string | null {
+    return url;
   }
 
   /** Nothing vendor-specific to say — the neutral prompt stands alone. */

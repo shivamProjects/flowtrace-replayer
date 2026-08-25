@@ -139,6 +139,52 @@ function writeResults(results: StepResult[], success: boolean, error: string | n
   }
 }
 
+/**
+ * Warn about a click that appears twice in a row on the same control.
+ *
+ * A recorder occasionally captures one operator click twice — a double-fired
+ * event, or a genuine impatient second click on a button that had already
+ * responded. On replay the two are not equivalent: the first opens the dialog,
+ * the second lands on whatever is now under that selector. The run then drifts
+ * one state away from the recording, and the FIRST step that cannot cope is
+ * usually far downstream. One such recording clicked "Create" twice on the
+ * supplier address form and surfaced twenty steps later, at an unrelated
+ * checkbox, which is where the investigation started.
+ *
+ * Diagnostic only. It never drops the step: a real double-click on a grid row
+ * is recorded as two clicks by some recorders, and silently discarding one
+ * would break those recordings to fix a different problem. Naming the suspect
+ * up front is enough — the log then says where to look instead of blaming the
+ * step that finally failed.
+ */
+function warnOnDuplicateClicks(actions: NormalizedAction[]): void {
+  // The recorder's `locator.text` counts as identity too. A step recorded as
+  // internal:text="Ordering" carries neither a selector nor an accessibleName
+  // — and normalize does not lift `locator.text` onto `action.text`, which is
+  // the fill VALUE field — so requiring either made this check silently skip
+  // exactly the recordings it was written for. Read it off the raw locator.
+  const locText = (a: NormalizedAction) => String((a.locator as any)?.text || '');
+  const identity = (a: NormalizedAction) => a.selector || a.accessibleName || locText(a);
+  const key = (a: NormalizedAction) =>
+    `${a.selector || ''}|${a.accessibleName || ''}|${locText(a)}|${a.description || ''}`;
+
+  for (let i = 1; i < actions.length; i++) {
+    const prev = actions[i - 1];
+    const cur = actions[i];
+    if (String(cur.name).toLowerCase() !== 'click') continue;
+    if (String(prev.name).toLowerCase() !== 'click') continue;
+    // A step with no identity at all would make every pair look duplicated.
+    if (!identity(cur)) continue;
+    if (key(prev) !== key(cur)) continue;
+
+    console.log(
+      `[recording] steps ${i} and ${i + 1} are the same click ` +
+      `("${cur.description || identity(cur)}"). If this run drifts, ` +
+      `suspect a double-captured click — the second one lands on whatever the first revealed.`,
+    );
+  }
+}
+
 test.describe('Dynamic Action Replayer', () => {
   test('Replay recorded actions', async ({ page: initialPage }) => {
     let page = initialPage;
@@ -193,6 +239,8 @@ test.describe('Dynamic Action Replayer', () => {
 
     redactor.collect(entries, normalize);
     if (redactor.count) console.log(`[redact] ${redactor.count} secret value(s) will be masked in logs`);
+
+    warnOnDuplicateClicks(actions);
 
     const patch = selectPatch(actions);
 

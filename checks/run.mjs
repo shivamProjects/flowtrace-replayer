@@ -233,6 +233,64 @@ const CASES = [
     expect: { success: true, statuses: 'ss' },
   },
   {
+    name: 'checkbox/text-recorded-purpose-ticks-its-own-box',
+    // The recorder captures an Address Purpose as a bare text click:
+    //   {"locator":{"text":"Ordering","selector":"internal:text=\"Ordering\"i"}}
+    // which resolves the sibling <label>, not the <input>. Oracle's label
+    // carries `for`, so the browser forwards the click — this pins that the
+    // whole chain still lands on the right control and leaves its neighbours
+    // alone. "Ordering" is also a substring of nothing else here on purpose:
+    // if a future ladder change starts matching the wrapper, the assert on
+    // _0 fails rather than silently ticking whatever painted first.
+    steps: [nav('checkbox.html'),
+            { action: 'click', type: 'click', locator: { text: 'Ordering' },
+              description: 'Select Ordering Purpose' },
+            { action: 'assertChecked', type: 'assertChecked',
+              locator: { id: 'pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:smc2:_0' }, checked: true,
+              description: 'Assert Ordering ticked' },
+            { action: 'assertChecked', type: 'assertChecked',
+              locator: { id: 'pt1:_FOr1:1:_FONSr2:0:MAt2:1:AP1:smc2:_2' }, checked: false,
+              description: 'Assert RFQ untouched' }],
+    patch: 'oracle-fusion',
+    expect: { success: true, statuses: 'ssss' },
+  },
+  {
+    name: 'REGRESSION/replaying-a-ticked-checkbox-must-not-clear-it',
+    // A click is a TOGGLE, so a duplicated step — or a re-run against a box
+    // Oracle defaults on — used to UNTICK it and still report green. That is
+    // the silent-wrong-outcome this suite exists to catch: the run says the
+    // purpose was selected while it was actually turned off.
+    //
+    // "Email Invoices" ships checked in the fixture, exactly as Oracle ships
+    // it, so this case needs no setup step to arrange the hazard.
+    steps: [nav('checkbox.html'),
+            { action: 'click', type: 'click', locator: { text: 'Email Invoices' },
+              description: 'Select Email Invoices' },
+            { action: 'assertChecked', type: 'assertChecked',
+              locator: { id: 'comm:_0' }, checked: true,
+              description: 'Assert still ticked' }],
+    patch: 'oracle-fusion',
+    expect: { success: true, statuses: 'sss' },
+  },
+  {
+    name: 'recording/duplicate-click-is-named-up-front',
+    // A real recording clicked "Create" twice on the supplier address form —
+    // one operator click captured twice. The replay drifted a state and the
+    // first step that could not cope was twenty steps later, at an unrelated
+    // checkbox, so the investigation started in the wrong place entirely.
+    //
+    // The warning is diagnostic ONLY: both clicks still run, and the run still
+    // succeeds here. That is the point — dropping a step would break genuine
+    // double-clicks, while naming the suspect costs nothing.
+    steps: [nav('checkbox.html'),
+            { action: 'click', type: 'click', locator: { text: 'Ordering' },
+              description: 'Select Ordering Purpose' },
+            { action: 'click', type: 'click', locator: { text: 'Ordering' },
+              description: 'Select Ordering Purpose' }],
+    patch: 'oracle-fusion',
+    expect: { success: true, statuses: 'sss', logLike: /steps 2 and 3 are the same click/ },
+  },
+  {
     name: 'patch/generic-lov-uses-the-plain-listbox-contract',
     // The widget mechanics (which probes, which row roles, what commits a typed
     // value) moved out of the engine onto AppPatch. GenericPatch has to carry a
@@ -582,6 +640,13 @@ for (const c of cases) {
     }
   }
 
+  // Unlike `throws`, this composes with the results checks below: a diagnostic
+  // the engine prints about a recording says nothing about whether the run
+  // succeeded, so both have to be asserted together.
+  if (c.expect.logLike && !c.expect.logLike.test(stdout)) {
+    problems.push(`expected output matching ${c.expect.logLike}`);
+  }
+
   if (c.expect.throws) {
     if (!c.expect.throws.test(stdout)) problems.push(`expected output matching ${c.expect.throws}`);
   } else {
@@ -612,7 +677,7 @@ for (const c of cases) {
     }
   }
 
-  const KNOWN = new Set(['success', 'statuses', 'errorLike', 'outputs', 'throws', 'minStepMs']);
+  const KNOWN = new Set(['success', 'statuses', 'errorLike', 'outputs', 'throws', 'minStepMs', 'logLike']);
   for (const k of Object.keys(c.expect)) {
     if (!KNOWN.has(k)) problems.push(`case declares "${k}", which this runner does not check — remove it or implement it`);
   }

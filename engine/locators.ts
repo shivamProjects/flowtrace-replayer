@@ -174,11 +174,18 @@ export function candidatesFor(
     } catch (_) { /* a malformed candidate must not sink the rest */ }
   };
 
-  // Vendor-specific candidates first: they address the editable node rather
-  // than the wrapper Oracle actually put the recorded id on.
+  // Vendor-specific candidates address the editable node rather than the
+  // wrapper Oracle put the recorded id on, so they lead when the recorder
+  // actually captured a component id. When the patch merely GUESSED one by
+  // scraping the selector, they go after the recorded selector instead: the
+  // recorder's own capture is evidence, a scrape is inference, and inference
+  // must not outrank it. Ordering only — no candidate is dropped either way.
+  const vendor: Array<{ name: string; locator: Locator }> = [];
   if (patch.componentCandidates) {
-    try { out.push(...patch.componentCandidates(scope, action)); } catch (_) { /* ignore */ }
+    try { vendor.push(...patch.componentCandidates(scope, action)); } catch (_) { /* ignore */ }
   }
+  const vendorLeads = Boolean(action.componentId);
+  if (vendorLeads) out.push(...vendor);
 
   const { role, accessibleName } = action;
   const loc = action.locator || {};
@@ -195,6 +202,9 @@ export function candidatesFor(
   }
   if (loc.attrSelector) add('attrSelector', () => scope.locator(loc.attrSelector!));
   if (action.selector) add('selector', () => buildLocator(scope, action.selector!));
+  // Scraped-guess vendor candidates: still tried, but only once the recorded
+  // selector has had its turn.
+  if (!vendorLeads) out.push(...vendor);
   if (role && accessibleName) {
     add('role+name', () => scope.getByRole(role as any, { name: ci(accessibleName) }));
   }
@@ -203,6 +213,13 @@ export function candidatesFor(
   if (loc.title) add('title', () => scope.locator(`[title="${cssEscapeValue(loc.title!)}"]`));
   if (loc.text) add('text', () => scope.getByText(ci(loc.text!)));
   if (accessibleName && !role) add('name-as-text', () => scope.getByText(ci(accessibleName)));
+
+  // Last: vendor fallbacks for a list launcher whose recorded address matched
+  // nothing. These are alternatives to the recording rather than refinements of
+  // it, so everything the recorder actually captured is tried first.
+  if (patch.launcherCandidates) {
+    try { out.push(...patch.launcherCandidates(scope, action)); } catch (_) { /* ignore */ }
+  }
 
   return out;
 }
@@ -216,7 +233,6 @@ async function unwrapLabel(scope: LocatorScope, el: Locator): Promise<Locator> {
   const forId = await el
     .evaluate((n: any) => (n.tagName === 'LABEL' ? n.htmlFor || '' : null))
     .catch(() => null);
-  if (forId === null) return el; // not a label
 
   if (forId) {
     // Scope-relative: `for` points at an id in the SAME document, so on a step
@@ -224,8 +240,25 @@ async function unwrapLabel(scope: LocatorScope, el: Locator): Promise<Locator> {
     const target = scope.locator(`[id="${cssEscapeValue(forId)}"]`).filter({ visible: true });
     if ((await target.count().catch(() => 0)) > 0) return target.first();
   }
+
   const nested = el.locator("input, textarea, select, [role='combobox']").filter({ visible: true });
   if ((await nested.count().catch(() => 0)) > 0) return nested.first();
+
+  // A caption that neither points at its control nor contains it.
+  //
+  // ADF renders a checkbox as `<span><input><label>Ordering</label></span>`,
+  // frequently with NO `for` attribute — and a text-recorded step lands on that
+  // caption, or on a plain <span>/<td> that is not a <label> at all. Clicking it
+  // dispatches cleanly and toggles nothing, so "Select Ordering Purpose" passed
+  // while the purpose was never selected. Look sideways for the control that
+  // this caption labels, staying inside the nearest wrapper so a neighbouring
+  // checkbox in the next cell is never picked up.
+  const sibling = el
+    .locator('xpath=ancestor-or-self::*[self::td or self::span or self::div][1]')
+    .locator("input[type='checkbox'], input[type='radio']")
+    .filter({ visible: true });
+  if ((await sibling.count().catch(() => 0)) === 1) return sibling.first();
+
   return el;
 }
 

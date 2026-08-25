@@ -219,18 +219,22 @@ async function doNavigate(a: NormalizedAction, ctx: ActionContext) {
   if (!a.url) return;
   assertNavigable(a.url);
 
-  // Some applications embed per-session state in the URL; re-issuing a recorded
-  // one logs the run out. The patch owns that judgement — see
-  // AppPatch.navigationWouldBreakSession.
-  if (ctx.patch.navigationWouldBreakSession(a.url)) {
+  // Some applications embed per-session state in the URL. The patch owns that
+  // judgement — see AppPatch.rewriteNavigation — and may strip the volatile
+  // parts or, for an app that cannot be entered directly, skip the step.
+  const target = ctx.patch.rewriteNavigation(a.url);
+  if (target === null) {
     ctx.log('  [navigate] skipped to preserve the session — waiting for the app to settle instead');
     await ctx.patch.waitForIdle(ctx.page);
     return;
   }
+  if (target !== a.url) {
+    ctx.log('  [navigate] replaying the recorded page with session tokens stripped');
+  }
 
   // Not swallowed: a green navigate makes every later step fail "not found"
   // against the wrong page, and the report then blames the locators.
-  await ctx.page.goto(a.url, { waitUntil: 'domcontentloaded', timeout: T.navigate });
+  await ctx.page.goto(target, { waitUntil: 'domcontentloaded', timeout: T.navigate });
   await ctx.patch.waitForIdle(ctx.page);
 }
 
@@ -399,6 +403,35 @@ async function doClick(a: NormalizedAction, ctx: ActionContext, isDouble = false
 
   const button = (a.button as 'left' | 'right' | 'middle') ?? 'left';
   const clickCount = a.clickCount ?? 1;
+
+  // A checkbox recorded as a click is a request for it to end up TICKED, not
+  // for it to be toggled. Replaying a plain click against a box some other step
+  // (or an Oracle default) already ticked would silently clear it — a recording
+  // that "passed" while turning the setting off. Only for a single left click:
+  // a right-click or double-click on a checkbox means something else.
+  if (button === 'left' && clickCount === 1 && !isDouble) {
+    const already = await el
+      .evaluate((n: any) => {
+        const t = String(n.type || '').toLowerCase();
+        if (n.tagName !== 'INPUT' || (t !== 'checkbox' && t !== 'radio')) return null;
+        return Boolean(n.checked);
+      })
+      .catch(() => null);
+
+    if (already === true) {
+      log('  [click] checkbox is already ticked — leaving it');
+      await patch.waitForIdle(page);
+      return;
+    }
+    if (already === false) {
+      // check() verifies the resulting state instead of trusting the click,
+      // which is the whole point on a control whose click can be swallowed.
+      await el.check({ timeout: T.action });
+      log('  [click] ticked checkbox');
+      await patch.waitForIdle(page);
+      return;
+    }
+  }
 
   // Plain click first — its actionability checks ARE the verification. Force is
   // the fallback, never the opening move: it skips those checks, which turns

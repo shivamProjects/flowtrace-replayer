@@ -306,14 +306,22 @@ export interface AppPatch {
    * serialised across.
    */
   /**
-   * Would navigating to this recorded URL destroy the session?
+   * Rewrite a recorded URL into one that is safe to navigate to NOW, or return
+   * null to skip the navigation entirely.
    *
-   * Some applications embed per-session state in the URL. Re-issuing a recorded
-   * one hands the server a stale token and logs the run out, so the honest move
-   * is to let the app's own redirect settle instead of forcing a goto. Returning
-   * true SKIPS the navigation.
+   * This replaced a boolean `navigationWouldBreakSession()` that could only skip.
+   * Skipping discards the DESTINATION along with the stale token, which silently
+   * leaves the run on whatever page the app's own redirect produced — and every
+   * later step then fails "not found" against the wrong page, with the report
+   * blaming the locators. That is exactly how a Fusion run died on
+   * `#clusters-right-nav`: the element exists on the recorded FuseWelcome page
+   * and not on the AtkHomePageWelcome the run was actually sitting on.
+   *
+   * Returning a URL keeps the destination while letting the patch strip whatever
+   * per-session state it knows to be volatile. Skipping stays available for an
+   * app that genuinely cannot be navigated to directly.
    */
-  navigationWouldBreakSession(url: string): boolean;
+  rewriteNavigation(url: string): string | null;
 
   /**
    * Facts about THIS application's widgets, appended to the AI-recovery system
@@ -357,4 +365,13 @@ export interface AppPatch {
    * the editable node inside a component wrapper. Optional.
    */
   componentCandidates?(scope: LocatorScope, action: NormalizedAction): Array<{ name: string; locator: Locator }>;
+
+  /**
+   * Extra ways to reach a list-of-values launcher, tried only after the
+   * recorded selector has failed. Separate from `componentCandidates` because
+   * these are last-resort alternatives for one widget kind, not a better
+   * address for the recorded node — see OraclePatch.launcherCandidates for the
+   * case that motivated it. Optional.
+   */
+  launcherCandidates?(scope: LocatorScope, action: NormalizedAction): Array<{ name: string; locator: Locator }>;
 }

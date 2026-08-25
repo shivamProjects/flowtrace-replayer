@@ -34,6 +34,18 @@ export interface HealStep {
   key?: string;
 }
 
+/**
+ * Claude's self-reported outcome, delivered through the `done` tool.
+ *
+ * Shared so both transports report a verdict in the same shape — and so
+ * neither has to inline an anonymous type that TypeScript then narrows to
+ * `null` at every read site.
+ */
+export interface Verdict {
+  success: boolean;
+  explanation: string;
+}
+
 /** Token counts for one recovery attempt. */
 export interface RecoveryUsage {
   input_tokens: number;
@@ -88,7 +100,9 @@ export function zeroUsage(): RecoveryUsage {
  * then fails on replay — so pin it to the first match before storing it.
  */
 export function pinToFirst(selector: string): string {
-  return /(^|\s)nth=/.test(selector) ? selector : `${selector} >> nth=0`;
+  // `>>nth=0` is as valid as `>> nth=0`, so the guard cannot require whitespace
+  // — matching only the spaced form would double-pin an already-pinned selector.
+  return /(^|\s|>>)\s*nth=/.test(selector) ? selector : `${selector} >> nth=0`;
 }
 
 /** Model default shared by both transports — a subscription/CLI run resolves

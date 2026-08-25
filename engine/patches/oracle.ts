@@ -652,13 +652,36 @@ export class OraclePatch extends GenericPatch {
    */
   /**
    * ADF puts per-session state in the URL (`_adf.ctrl-state`, `_afrLoop`).
-   * Re-issuing a recorded welcome-page URL hands Oracle a stale token and
-   * invalidates the session, so the run is logged out before it starts.
+   * Strip those and navigate to the recorded PAGE — Oracle reissues fresh
+   * tokens on arrival and the session is untouched.
+   *
+   * This used to skip the navigation outright, on the theory that a stale token
+   * logs the run out. Probing the live app disproved that: navigating to the
+   * recorded URL verbatim, with the tokens stripped, and to the bare path all
+   * three landed on the page while staying logged in. Meanwhile the skip left
+   * the run on Oracle's *new* post-login home (`AtkHomePageWelcome`) instead of
+   * the recorded `FuseWelcome`, and every selector recorded against the latter —
+   * starting with `#clusters-right-nav` — became unresolvable. Losing the
+   * destination was the greater harm, and it was the harm actually occurring.
+   *
+   * The tokens are still stripped rather than replayed: they are the volatile
+   * part, they are meaningless by the time a recording is replayed, and dropping
+   * them costs nothing since Oracle mints new ones.
    */
-  navigationWouldBreakSession(url: string): boolean {
-    if (!url) return false;
-    return /\/(fscm|hcm|crm)UI\/faces\//i.test(url)
-      && (url.includes('_adf.ctrl-state') || url.includes('_afrLoop'));
+  rewriteNavigation(url: string): string | null {
+    if (!url) return url;
+    if (!/\/(fscm|hcm|crm)UI\/faces\//i.test(url)) return url;
+    try {
+      const u = new URL(url);
+      for (const p of ['_adf.ctrl-state', '_afrLoop', '_adf.no-new-window-redirect']) {
+        u.searchParams.delete(p);
+      }
+      return u.toString();
+    } catch {
+      // Not parseable as a URL — replay it as recorded rather than dropping the
+      // step; assertNavigable() upstream has already vetted the scheme.
+      return url;
+    }
   }
 
   recoveryHints(): string[] {
@@ -768,7 +791,15 @@ export class OraclePatch extends GenericPatch {
     let id = action.componentId || null;
     if (!id) {
       const m = String(action.selector || '').match(/\[id="([^"]+)"\]|#([\w:$-]+)/);
-      id = m ? (m[1] || m[2]) : null;
+      // Only a COLON-delimited id is an ADF component address (`pt1:_FOr1:1:…`).
+      // Without this check a plain semantic CSS id like `#clusters-right-nav`
+      // was scraped and given ADF treatment, manufacturing two candidates that
+      // can never exist (`…::content`, and an <input> inside a nav toggle) and
+      // — because patch candidates are tried first — burning the ladder's early
+      // slots on them. The recorder's own `componentId` is authoritative and is
+      // trusted as-is above; this shape check guards only the scraped fallback.
+      const scraped = m ? (m[1] || m[2]) : null;
+      id = scraped && scraped.includes(':') ? scraped : null;
     }
     if (!id || id.endsWith('::content')) return [];
 
@@ -776,6 +807,40 @@ export class OraclePatch extends GenericPatch {
     return [
       { name: 'componentId::content', locator: byId(`${id}::content`) },
       { name: 'componentId>input', locator: byId(id).locator('input, textarea').first() },
+    ];
+  }
+
+  /**
+   * Extra ways to reach an LOV search icon when the recorded ones miss.
+   *
+   * The recorder captures these icons as `[title="Search: X"]`, which is how
+   * ADF renders them on the main form — steps 16 and 30 of the invoice flow
+   * resolve that way every run. Inside the Distribution Combination popup the
+   * SAME widget carries the label on `aria-label` instead, with no `title` at
+   * all, so the recorded selector matches zero nodes and the step fails on a
+   * control that is plainly on screen.
+   *
+   * Rather than guess which attribute a given release uses, try the others.
+   * These run only for a step already identified as a list launcher, and only
+   * after the recorded selector has had its turn, so a form where `title` works
+   * never reaches them.
+   */
+  launcherCandidates(scope: LocatorScope, action: NormalizedAction) {
+    if (!this.isListLauncher(action)) return [];
+
+    const loc = action.locator || {};
+    // The "Search: X" label, from wherever the recording carries it.
+    const label = String(loc.title || action.accessibleName || action.description || '').trim();
+    if (!/^Search(\s+and\s+Select)?\s*:/i.test(label)) return [];
+
+    const esc = (v: string) => v.replace(/["\\]/g, '\\$&');
+    // Every candidate is pinned to THIS field's label. A bare
+    // `[id$="::lovIconId"]` would match every LOV icon on the page and click
+    // whichever painted first — on this popup, the wrong segment.
+    return [
+      { name: 'lovIcon[aria-label]', locator: scope.locator(`[aria-label="${esc(label)}" i]`) },
+      { name: 'lovIcon[title*]', locator: scope.locator(`[title*="${esc(label)}" i]`) },
+      { name: 'lovIcon[role=link][name]', locator: scope.getByRole('link', { name: label }) },
     ];
   }
 }

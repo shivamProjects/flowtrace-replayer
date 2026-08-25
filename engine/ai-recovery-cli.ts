@@ -31,7 +31,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 
 import {
-  RecoveryContext, RecoveryResult, RecoveryUsage, HealStep,
+  RecoveryContext, RecoveryResult, RecoveryUsage, HealStep, Verdict,
   zeroUsage, pinToFirst, truncate, recoverySystemPrompt, recoveryUserPrompt,
 } from './ai-recovery-types';
 
@@ -90,14 +90,28 @@ export async function recoverWithClaudeViaCli(
 
   // Claude reports its own verdict through the `done` tool, rather than us
   // inferring one from "it stopped calling tools".
-  let verdict: { success: boolean; explanation: string } | null = null;
+  //
+  // Held in a box rather than a bare `let`: the only write happens inside the
+  // `done` tool handler, a closure TypeScript cannot see run, so it narrows a
+  // plain variable to `null` for the rest of the function and forces a cast at
+  // every read. A property write defeats that narrowing honestly.
+  const state: { verdict: Verdict | null } = { verdict: null };
 
   const redact = opts.redact
     ?? ((v: string) => `«unredacted output suppressed: ${String(v).length} chars»`);
 
+  /**
+   * How many tool calls actually reached us. Distinct from `actions.length`
+   * only in intent, but that is the point: the "did the CLI ever get going"
+   * check below means *tool calls*, while `actions` is an audit trail that
+   * could reasonably grow a non-tool line later and silently break it.
+   */
+  let toolCalls = 0;
+
   // Everything that leaves this module goes through redact() — `actions` is
   // rendered in the PDF, not just logged.
   const log = (line: string) => {
+    toolCalls++;
     const safe = redact(line);
     actions.push(safe);
     console.log(`[AI:cli] ${safe}`);
@@ -282,7 +296,7 @@ export async function recoverWithClaudeViaCli(
       },
     },
     async ({ success, explanation }) => {
-      verdict = { success, explanation };
+      state.verdict = { success, explanation };
       log(`done success=${success}: ${explanation}`);
       return text('control returned to the replayer');
     }
@@ -385,7 +399,7 @@ export async function recoverWithClaudeViaCli(
     // fall back to the API key, if one is configured) rather than an
     // unfixable recording. If tools did run, the run was real: fall through
     // and let the no-verdict branch below describe it.
-    if (!verdict && actions.length === 0) {
+    if (!state.verdict && toolCalls === 0) {
       return fail(
         `claude CLI produced no tool calls (exit ${exitInfo.exitCode}): ` +
         `${exitInfo.diagnostics.slice(0, 500) || '(no output)'}`
@@ -400,11 +414,13 @@ export async function recoverWithClaudeViaCli(
     if (mcpConfigPath) await unlink(mcpConfigPath).catch(() => {});
   }
 
+  const verdict = state.verdict;
+
   if (!verdict) {
     return {
       attempted: true,
       recovered: false,
-      summary: `AI recovery stopped after ${actions.length} action(s) without reporting a verdict`,
+      summary: `AI recovery stopped after ${toolCalls} action(s) without reporting a verdict`,
       actions,
       healSteps: [],
       model,
@@ -415,12 +431,12 @@ export async function recoverWithClaudeViaCli(
     };
   }
 
-  const recovered = (verdict as { success: boolean }).success;
+  const recovered = verdict.success;
 
   return {
     attempted: true,
     recovered,
-    summary: (verdict as { explanation: string }).explanation,
+    summary: verdict.explanation,
     actions,
     // Only a verified recovery is worth storing. A failed attempt's steps would
     // be replayed forever otherwise.

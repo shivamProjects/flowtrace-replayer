@@ -18,7 +18,7 @@ import type { Page } from '@playwright/test';
 import Anthropic from '@anthropic-ai/sdk';
 import { betaTool } from '@anthropic-ai/sdk/helpers/beta/json-schema';
 import OpenAI from 'openai';
-import { apiProviderId, recoverySystemPrompt } from './ai-recovery-types';
+import { apiProviderId, recoverySystemPrompt, type Verdict } from './ai-recovery-types';
 
 export interface RecoveryContext {
   index: number;
@@ -94,7 +94,11 @@ export async function recoverWithClaude(
 
   // Claude / model reports its own verdict through this, rather than us inferring one
   // from "it stopped calling tools".
-  let verdict: { success: boolean; explanation: string } | null = null;
+  //
+  // Boxed rather than a bare `let`: the only write happens inside the `done`
+  // runner, a closure TypeScript cannot see run, so it narrows a plain variable
+  // to `null` for the rest of the function and forces a cast at every read.
+  const state: { verdict: Verdict | null } = { verdict: null };
 
   // Everything printed here reaches stdout -> the service log -> the SSE
   // stream. `type_into` logs the value it is typing, which on a login step is
@@ -188,7 +192,7 @@ export async function recoverWithClaude(
       return `"${String(v).trim()}"`;
     },
     done: async ({ success, explanation }: { success: boolean; explanation: string }) => {
-      verdict = { success, explanation };
+      state.verdict = { success, explanation };
       log(`done success=${success}: ${explanation}`);
       return 'control returned to the replayer';
     }
@@ -335,7 +339,7 @@ export async function recoverWithClaude(
       ];
 
       let iterations = 0;
-      while (iterations < maxIterations && !verdict) {
+      while (iterations < maxIterations && !state.verdict) {
         iterations++;
         
         const response = await client.chat.completions.create({
@@ -356,7 +360,7 @@ export async function recoverWithClaude(
         }
 
         if (!message.tool_calls || message.tool_calls.length === 0) {
-          if (!verdict) {
+          if (!state.verdict) {
             log('Model stopped calling tools without calling done.');
           }
           break;
@@ -549,6 +553,8 @@ export async function recoverWithClaude(
     clearTimeout(stopAt);
   }
 
+  const verdict = state.verdict;
+
   if (!verdict) {
     return {
       attempted: true,
@@ -560,8 +566,8 @@ export async function recoverWithClaude(
 
   return {
     attempted: true,
-    recovered: (verdict as { success: boolean }).success,
-    summary: (verdict as { explanation: string }).explanation,
+    recovered: verdict.success,
+    summary: verdict.explanation,
     actions,
   };
 }
