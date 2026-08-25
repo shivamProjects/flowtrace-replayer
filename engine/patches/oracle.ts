@@ -30,6 +30,25 @@ const T = {
 const BUSY_SEL =
   '.AFPopUpLoadingIndicator, .af_statusIndicator, .p_AFLoadingIndicator, .AFLoadingIcon, .af_loadingIndicator';
 
+/**
+ * A Redwood (Oracle JET) picker list, open.
+ *
+ * JET renders one as `<ul class="oj-listview-element" role="grid"
+ * aria-rowcount="3">` — no dialog, no ADF id shape, nothing the selectors below
+ * this were written for. Captured live from ibqwjb-test; see
+ * `checks/pages/redwood-picker.html` for the unmodified markup.
+ *
+ * Deliberately NOT a bare `[role=grid]`: an ADF LOV dialog's results table is
+ * also a grid, and matching it here would route ADF picks down the Redwood
+ * path, which has no Search button and no OK button to press.
+ */
+const REDWOOD_LIST_SEL =
+  'ul.oj-listview-element[role="grid"], ul[role="grid"][aria-rowcount], ul[role="grid"]:has(> li[role="row"])';
+
+// A row inside one. The `<li role=row>` carries the volatile id; the gridcell
+// inside it carries the text, which is what a person actually picked.
+const REDWOOD_ROW_SEL = '[role="gridcell"]';
+
 // Every surface ADF can open for a launcher click. Counted, never tested for
 // existence: a hidden container per field always exists, so only a RISE over
 // the pre-click baseline proves that THIS click opened something.
@@ -41,6 +60,11 @@ const LOV_SURFACE_SEL = [
   '[id$="::popup-container"]',
   '[id*="_afrPopup"]',
   '[role="dialog"]',
+  // Redwood (JET). Every entry above is an ADF shape, so on a JET page this
+  // list counted ZERO surfaces however many pickers were open — which made
+  // `listOpened` report that a launcher click opened nothing, and left
+  // `_openListDialog` with nothing to hand `selectFromOpenList`.
+  REDWOOD_LIST_SEL,
 ].join(', ');
 
 // The autosuggest list specifically — narrower than LOV_SURFACE_SEL, because
@@ -382,6 +406,12 @@ export class OraclePatch extends GenericPatch {
     const want = String(wanted || '').trim();
     if (!want) return false;
 
+    // Redwood first. Its list is not a dialog, so `_openListDialog` returns null
+    // for it and the whole ADF path below is unreachable — which is why a
+    // Business Unit row recorded as `[id$="table:1250645336_0"]` had no recovery
+    // at all once that id stopped resolving.
+    if (await this._selectFromRedwoodList(page, want, log)) return true;
+
     const dialog = await this._openListDialog(page);
     if (!dialog) return false;
 
@@ -434,7 +464,103 @@ export class OraclePatch extends GenericPatch {
   }
 
   /**
-   * Pick the SHORTEST matching row, not the first in DOM order.
+   * Pick a row out of an open Redwood (JET) picker, BY ITS TEXT.
+   *
+   * This is the half the tail rewrite could not supply. A recorder that stores
+   * `[id$="table:1250645336_0"]` gives the replay a stable address for the row,
+   * but that address means nothing to an operator: in the UI they type a
+   * business unit NAME, and it is the name that ends up in the parameter map and
+   * gets overridden per run. So when the recorded id no longer resolves — a
+   * different data set, a filtered list, a row that moved index — recovery has
+   * to work from the value, exactly as a person would.
+   *
+   * Two shapes are handled, in order:
+   *   1. The row is already rendered — click it. A short list (Sales Channel has
+   *      three) never needs filtering, and typing into it would only narrow a
+   *      list that already contains the answer.
+   *   2. It is not — type the value into the combobox that owns the list, let
+   *      JET filter server-side, then click. This is the virtualised case, the
+   *      Redwood equivalent of the ADF dialog's search box.
+   *
+   * Ranking is shared with the ADF path (`_rankRows`), so "MANUAL" cannot select
+   * "MANUAL ADJUSTMENT" here either.
+   */
+  private async _selectFromRedwoodList(page: Page, want: string, log: LogFn): Promise<boolean> {
+    const list = page.locator(REDWOOD_LIST_SEL).filter({ visible: true }).first();
+    if ((await list.count().catch(() => 0)) === 0) return false;
+
+    if (await this._clickRedwoodRow(page, list, want, log)) return true;
+
+    // Not on screen. Filter the way the field is meant to be used.
+    //
+    // The input is NOT inside the list — JET renders the popup as a sibling of
+    // the combobox, or reparents it to <body> entirely — so it is found through
+    // the list's `aria-labelledby`, which points at the field's own label. That
+    // keeps the typing pinned to the field this list belongs to; a page-wide
+    // "first visible combobox" would type into whichever one painted first.
+    const input = await this._redwoodFilterInput(page, list);
+    if (!input) return false;
+
+    log(`  [lov] filtering the Redwood picker for "${want}"`);
+    await input.fill(want, { timeout: ABSENCE.action }).catch(() => {});
+    await this.settleAutosuggest(page);
+
+    return await this._clickRedwoodRow(
+      page,
+      page.locator(REDWOOD_LIST_SEL).filter({ visible: true }).first(),
+      want,
+      log,
+    );
+  }
+
+  /** The combobox input feeding an open JET listview, or null. */
+  private async _redwoodFilterInput(page: Page, list: Locator): Promise<Locator | null> {
+    const labelledBy = await list.getAttribute('aria-labelledby').catch(() => null);
+    if (labelledBy) {
+      // `oj-selectsingle-12-labelled-by` — the id of the field's label element.
+      // Its owning component is the combobox we want to type into.
+      const owned = page
+        .locator(`[aria-labelledby~="${labelledBy.replace(/["\\]/g, '\\$&')}"]`)
+        .locator('input:not([type="hidden"])')
+        .filter({ visible: true })
+        .first();
+      if ((await owned.count().catch(() => 0)) > 0) return owned;
+    }
+
+    // Fall back to the focused input. Opening a JET picker focuses its search
+    // field, so this is right far more often than it looks — and it is only
+    // reached when the list declares no label to pin to.
+    const active = page.locator('input:focus').filter({ visible: true }).first();
+    return (await active.count().catch(() => 0)) > 0 ? active : null;
+  }
+
+  /** Click the best text match among a JET listview's rows. */
+  private async _clickRedwoodRow(page: Page, list: Locator, want: string, log: LogFn): Promise<boolean> {
+    if ((await list.count().catch(() => 0)) === 0) return false;
+    const rows = list.locator(REDWOOD_ROW_SEL);
+    const texts: string[] = await rows
+      .evaluateAll((els) => els.map((e) => ((e as HTMLElement).innerText || '').replace(/\s+/g, ' ').trim()))
+      .catch(() => [] as string[]);
+
+    const best = this._rankRows(texts, want);
+    if (!best) return false;
+
+    if (best.t.toLowerCase() !== want.toLowerCase()) {
+      log(`  [lov] "${want}" -> closest Redwood row "${best.t.slice(0, 60)}"`);
+    }
+    const clicked = await rows
+      .nth(best.i)
+      .click({ timeout: ABSENCE.action })
+      .then(() => true, () => false);
+    if (!clicked) return false;
+
+    await this.waitForIdle(page);
+    log(`  [lov] selected "${best.t.slice(0, 60)}"`);
+    return true;
+  }
+
+  /**
+   * The SHORTEST matching row, not the first in DOM order.
    *
    * Substring matching plus `.first()` is how "MANUAL" selects "MANUAL
    * ADJUSTMENT", "United States" selects "United States Minor Outlying
@@ -442,19 +568,11 @@ export class OraclePatch extends GenericPatch {
    * lands - and because the typed term IS a prefix of it, the read-back check
    * ACCEPTS it. A green step carrying the wrong master data is worse than a
    * failed one. Ranking exact > prefix > contains, then by length, is the fix.
+   *
+   * Shared by both list shapes: a Redwood picker offers exactly the same way to
+   * pick the wrong row, and it would be a poor trade to fix it in one place.
    */
-  private async _pickShortestMatch(
-    page: Page,
-    dialog: Locator,
-    want: string,
-    log: LogFn,
-  ): Promise<boolean> {
-    const rows = dialog.locator('[role="cell"], [role="gridcell"], [role="option"], td');
-    const texts: string[] = await rows
-      .evaluateAll((els) => els.map((e) => ((e as HTMLElement).innerText || '').replace(/\s+/g, ' ').trim()))
-      .catch(() => [] as string[]);
-    if (!texts.length) return false;
-
+  private _rankRows(texts: string[], want: string): { i: number; t: string; n: number } | null {
     const target = want.toLowerCase();
     const rank = (t: string): number => {
       const v = t.toLowerCase();
@@ -469,12 +587,28 @@ export class OraclePatch extends GenericPatch {
       .map((t, i) => ({ i, t, r: rank(t) }))
       .filter((m) => m.r >= 0)
       .sort((a, b) => a.r - b.r || a.t.length - b.t.length);
-    if (!matches.length) return false;
+    if (!matches.length) return null;
+    return { i: matches[0].i, t: matches[0].t, n: matches.length };
+  }
 
-    const best = matches[0];
-    if (best.t.toLowerCase() !== target) {
+  private async _pickShortestMatch(
+    page: Page,
+    dialog: Locator,
+    want: string,
+    log: LogFn,
+  ): Promise<boolean> {
+    const rows = dialog.locator('[role="cell"], [role="gridcell"], [role="option"], td');
+    const texts: string[] = await rows
+      .evaluateAll((els) => els.map((e) => ((e as HTMLElement).innerText || '').replace(/\s+/g, ' ').trim()))
+      .catch(() => [] as string[]);
+    if (!texts.length) return false;
+
+    const best = this._rankRows(texts, want);
+    if (!best) return false;
+
+    if (best.t.toLowerCase() !== want.toLowerCase()) {
       log(`  [lov] "${want}" -> closest row "${best.t.slice(0, 60)}"` +
-          (matches.length > 1 ? ` (${matches.length} matched)` : ''));
+          (best.n > 1 ? ` (${best.n} matched)` : ''));
     }
     await rows.nth(best.i).click({ timeout: ABSENCE.action }).catch(() => {});
     await this.waitForIdle(page);

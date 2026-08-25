@@ -309,6 +309,54 @@ const CASES = [
     expect: { success: true, statuses: 'sss' },
   },
   {
+    name: 'redwood/stable-id-tail-survives-a-new-session',
+    // Redwood ids are only partly volatile. The same Business Unit row recorded
+    // twice ~90 minutes apart gave _oj1147_table:1250645336_0 and
+    // _oj687_table:1250645336_0 — the _ojNNN counter changed, the tail did not.
+    //
+    // So a recording that stored the whole id is dead on the next run, while one
+    // anchored on the tail still resolves. The fixture carries a decoy whose id
+    // hashes to the same digits under a different widget kind, so this also pins
+    // that keeping "table:" in the suffix is what keeps the match unique.
+    steps: [nav('redwood-ids.html'),
+            { action: 'click', type: 'click',
+              locator: { selector: '[id$="table:1250645336_0"]' },
+              description: 'Select Business Unit' },
+            { action: 'assertText', type: 'assertText',
+              locator: { selector: '[id$="table:1250645336_0"]' },
+              value: 'McGrath RentCorp',
+              description: 'Assert the right row was addressed' }],
+    expect: { success: true, statuses: 'sss' },
+  },
+  {
+    name: 'REGRESSION/a-recorded-whole-redwood-id-is-already-dead',
+    // The other half of the same fact: the id recording 1629 stored does not
+    // exist in a later session. This is what the tail rewrite exists to avoid,
+    // and it must keep failing — if it ever passes, the premise is wrong.
+    steps: [nav('redwood-ids.html'),
+            { action: 'click', type: 'click',
+              locator: { selector: '[id="_oj1147_table:1250645336_0"]' },
+              description: 'Select Business Unit (stale id)' }],
+    expect: { success: false, statuses: 'sf' },
+  },
+  {
+    name: 'redwood/row-resolves-by-gridcell-name-not-generated-id',
+    // Recording 1629 (script 2326) recorded three Redwood picks as generated
+    // ids — css=#ui-id-194, #_oj1147_table:1250645336_0 — and each was saved
+    // with originalValue:null, so the parameter map showed those fields empty.
+    //
+    // Probing the live page showed the row always offers a stable address too:
+    //   <li id="ui-id-64" role="row">        <- generated, what was recorded
+    //     <div role="gridcell">"Direct"      <- stable
+    // This pins that the stable one resolves and acts on the right row, so a
+    // recorder change to emit it is provably enough.
+    steps: [nav('redwood-picker.html'),
+            { action: 'click', type: 'click',
+              locator: { role: 'gridcell', name: 'Inside sales' },
+              description: 'Select Sales Channel' }],
+    expect: { success: true, statuses: 'ss' },
+  },
+  {
     name: 'oracle/lov-dropdown-row-is-picked-by-its-code',
     // The real dropdown is a two-column grid: code, then display text. Picking
     // "Disposable." must land on ORA_J — and must not be satisfied by the
