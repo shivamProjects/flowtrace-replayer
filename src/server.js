@@ -20,6 +20,7 @@ const cors = require('cors');
 const { testConnection } = require('./config/database');
 const queueWorker = require('./queue/queueWorker');
 const executionRoutes = require('./routes/execution.routes');
+const replayRoutes = require('./routes/replay.routes');
 
 const app = express();
 
@@ -44,6 +45,9 @@ app.get('/health', (req, res) => {
 
 // Same prefix the replay service used, so an existing frontend needs no changes.
 app.use('/api/playwright-execution', executionRoutes);
+// The platform's Java side dispatches here — steps inline, service-token auth.
+// See routes/replay.routes.js for why this does not go through the queue.
+app.use('/api/v1', replayRoutes);
 
 app.use((req, res) => {
   res.status(404).json({
