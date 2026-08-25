@@ -16,6 +16,7 @@ import { mustResolve, resolve } from './locators';
 import { norm, readValue, unresolvedParameters, valueAccepted, valueMatchesStrict } from './values';
 import { waitUntil, waitForPaint } from './settle';
 import { ABSENCE, PATIENCE } from './timeouts';
+import type { CredentialStore } from './credentials';
 
 const T = {
   action: ABSENCE.action,
@@ -59,6 +60,18 @@ export interface ActionContext {
   /** The step after this one, for the fill lookahead. */
   next: NormalizedAction | null;
   outputs: Record<string, string>;
+  /**
+   * Turns a step's `credentialRef` into the real value, at the moment it is
+   * typed. Absent when the run supplied no credentials — a recording with no
+   * login steps needs none, so this must not be required to replay one.
+   */
+  credentials?: CredentialStore;
+  /**
+   * Registers a run-time secret with the redactor. Separate from `credentials`
+   * because the store's job is to produce a value and the redactor's is to hide
+   * it — and a decrypted credential needs both.
+   */
+  redact?: (secret: string) => void;
 }
 
 // ── wait ───────────────────────────────────────────────────────────────────
@@ -257,9 +270,39 @@ function assertResolved(a: NormalizedAction, value: string): void {
   );
 }
 
+/**
+ * The value this step should type, with a credential swapped in if it names one.
+ *
+ * The recorder masks a password at capture time, so what arrives is
+ * `'********'` plus `credentialRef: 'password'` — a NAME, not a secret. Typing
+ * the mask would fail at the login page and leave every later step failing
+ * against the wrong page, with the report blaming the locators; that is exactly
+ * the failure this engine has already been bitten by twice. So a step that
+ * declares a ref either gets the real value or fails HERE, naming the reason.
+ */
+function valueFor(a: NormalizedAction, ctx: ActionContext): string {
+  const recorded = a.text == null ? '' : String(a.text);
+  if (!a.credentialRef) return recorded;
+
+  if (!ctx.credentials) {
+    throw new Error(
+      `"${a.accessibleName || a.description || a.selector}" needs credential ` +
+      `"${a.credentialRef}", but this run was given none. Supply CREDENTIALS_JSON ` +
+      `(or CREDENTIAL_${String(a.credentialRef).toUpperCase()}) and CREDENTIAL_KEY.`,
+    );
+  }
+  // CredentialError already reads as an explanation; let it through as-is.
+  const secret = ctx.credentials.resolve(a.credentialRef);
+  // Tell the redactor BEFORE the value can reach a log line. It scans the
+  // recording, where this value never appears, so without this the one string
+  // most worth masking is the one it does not know about.
+  ctx.redact?.(secret);
+  return secret;
+}
+
 async function doFill(a: NormalizedAction, ctx: ActionContext) {
   const { page, patch, log } = ctx;
-  const value = a.text == null ? '' : String(a.text);
+  const value = valueFor(a, ctx);
   assertResolved(a, value);
   const el = await mustResolve(page, a, patch, 'fill', log);
 

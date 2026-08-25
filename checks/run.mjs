@@ -291,6 +291,51 @@ const CASES = [
     expect: { success: true, statuses: 'sss', logLike: /steps 2 and 3 are the same click/ },
   },
   {
+    name: 'REGRESSION/selectOption-recorded-as-a-value-attribute',
+    // Oracle's Regional Information select stores "1" for the option whose text
+    // is "Depreciation Method for Poland". The recorder captured the VALUE
+    // attribute, not the label. Selecting by value is correct and must be
+    // accepted — the sibling engine failed the step by comparing that "1"
+    // against the label it produced ("asked for 1 but the field reads
+    // Depreciation Method for Poland") and took 8 later steps down with it.
+    steps: [nav('oracle-test.html'),
+            { action: 'selectOption', type: 'selectOption',
+              locator: { id: 'B:df3_FLEX_Context::content', label: 'Regional Information' },
+              value: '1', description: 'Select Regional Information' },
+            { action: 'assertValue', type: 'assertValue',
+              locator: { id: 'B:df3_FLEX_Context::content' },
+              value: 'Depreciation Method for Poland', description: 'Assert Regional Information' }],
+    patch: 'oracle-fusion',
+    expect: { success: true, statuses: 'sss' },
+  },
+  {
+    name: 'oracle/lov-dropdown-row-is-picked-by-its-code',
+    // The real dropdown is a two-column grid: code, then display text. Picking
+    // "Disposable." must land on ORA_J — and must not be satisfied by the
+    // SELECTED row that ADF repeats at the top of the list (ORA_K appears at
+    // both _afrrk=0 and _afrrk=4, so "first text match" is not "the right row").
+    steps: [nav('oracle-test.html'),
+            { action: 'click', type: 'click',
+              locator: { id: 'B:DeprFreq::lovIconId', title: 'Search: Depreciation Frequency for Poland' },
+              description: 'Open Depreciation Frequency' },
+            { action: 'click', type: 'click', locator: { text: 'Disposable.' },
+              description: 'Select Depreciation Frequency' },
+            { action: 'assertValue', type: 'assertValue',
+              locator: { id: 'B:DeprFreq::content' },
+              value: 'ORA_J', description: 'Assert the code that was stored' }],
+    patch: 'oracle-fusion',
+    expect: { success: true, statuses: 'ssss' },
+  },
+  {
+    name: 'guard/fill-on-a-disabled-field-must-not-report-green',
+    // "Life in Periods" is disabled — Oracle derives it. A recording that tries
+    // to fill it must fail rather than pass having typed nothing.
+    steps: [nav('oracle-test.html'),
+            fill('B:it1::content', 'Life in Periods', '12')],
+    patch: 'oracle-fusion',
+    expect: { success: false, statuses: 'sf' },
+  },
+  {
     name: 'patch/generic-lov-uses-the-plain-listbox-contract',
     // The widget mechanics (which probes, which row roles, what commits a typed
     // value) moved out of the engine onto AppPatch. GenericPatch has to carry a
@@ -491,6 +536,48 @@ const CASES = [
                 assertValue('rel', 'Relationship', 'Alpha')],
     },
     expect: { success: true, statuses: 'sss' },
+  },
+  {
+    // A credentialRef is DECRYPTED and typed — the recorded mask never is.
+    //
+    // The blob below was produced by the platform's own Java EncryptionService
+    // (AES-256-GCM, 12-byte IV prepended, 128-bit tag, base64), so this pins
+    // the cross-runtime format as well as the wiring. login.html only reports
+    // "Signed in" for the real password, so typing '********' fails the assert.
+    name: 'v1/credentialRef-is-decrypted-not-typed-as-the-mask',
+    env: {
+      CREDENTIAL_KEY: 'TCS0R+p+gZa375VU5Fpuqm0N23tZUZ6hDpbjsfaQVWA=',
+      CREDENTIAL_PASSWORD: 'FSUsk9gmp5UBUYsTw2Fp9e6dZaP8a4GjZF4qlW6nPTar7mdn1hcylHqDwxAiFQusimoM',
+    },
+    raw: {
+      schemaVersion: 1,
+      actions: [nav('login.html'),
+                { action: 'fill', locator: { id: 'u', label: 'User Name' },
+                  value: 'test.user@example.com' },
+                { action: 'fill', locator: { id: 'p', label: 'Password' },
+                  value: '********', sensitive: true, credentialRef: 'password' },
+                { action: 'click', locator: { id: 'go', label: 'Next' } },
+                { action: 'assertText', type: 'assertText', locator: { id: 'out', label: 'Result' },
+                  value: 'Signed in', description: 'Assert signed in' }],
+    },
+    expect: { success: true, statuses: 'sssss' },
+  },
+  {
+    // A step that names a credential nobody supplied FAILS, and fails at the
+    // step that needs it.
+    //
+    // Typing the mask instead would "pass" here and strand the run on the login
+    // page — every later step then failing against the wrong page, with the
+    // report blaming the locators. That is precisely how execution 8336 spent
+    // 17 steps failing for a reason nobody could see.
+    name: 'guard/missing-credential-fails-at-the-step-that-needs-it',
+    raw: {
+      schemaVersion: 1,
+      actions: [nav('login.html'),
+                { action: 'fill', locator: { id: 'p', label: 'Password' },
+                  value: '********', sensitive: true, credentialRef: 'password' }],
+    },
+    expect: { success: false, statuses: 'sf' },
   },
   {
     // Ambiguity is broken by the RECORDED PATH, not by document order.
@@ -695,6 +782,8 @@ for (const c of cases) {
     REPLAY_ALLOW_PRIVATE_HOSTS: 'true',
     AI_RECOVERY_ENABLED: 'false',
     ...(c.patch ? { APP_PATCH: c.patch } : {}),
+    // Case-supplied environment, last so a case can override any of the above.
+    ...(c.env || {}),
   });
   const problems = [];
 

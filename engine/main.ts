@@ -34,6 +34,7 @@ import { Redactor } from './values';
 import type { NormalizedAction, StepResult } from './types';
 import { selectPatch } from './patches';
 import { classifyCommitErrors } from './commit-error-type';
+import { CredentialStore } from './credentials';
 import {
   buildIdContext, isCommitTrigger, isDismissTrigger, inCaptureTail, clickTargetName,
   readDismissDialogText, captureTransactionInfo, bestCapture,
@@ -242,6 +243,19 @@ test.describe('Dynamic Action Replayer', () => {
 
     warnOnDuplicateClicks(actions);
 
+    // Built once for the run, and only when something asks for a credential —
+    // constructing it eagerly would fail a perfectly good recording that has no
+    // login steps just because no key was configured.
+    const needsCredentials = actions.some((a) => !!a.credentialRef);
+    const credentials = needsCredentials ? new CredentialStore() : undefined;
+    if (needsCredentials) {
+      const refs = [...new Set(actions.map((a) => a.credentialRef).filter(Boolean))];
+      console.log(
+        `[credentials] ${refs.length} reference(s) in this recording: ${refs.join(', ')}` +
+        (credentials!.isConfigured ? '' : ' — NONE supplied, those steps will fail'),
+      );
+    }
+
     const patch = selectPatch(actions);
 
     // What the AI features call this application.
@@ -373,6 +387,8 @@ test.describe('Dynamic Action Replayer', () => {
         log,
         next: actions[i + 1] ?? null,
         outputs: capturedOutputs,
+        credentials,
+        redact: (secret: string) => redactor.addSecret(secret),
       };
 
       // The application reports a generated number in a confirmation dialog and the next

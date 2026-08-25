@@ -256,6 +256,24 @@ export class Redactor {
   /** Indices of steps whose value is a secret — AI recovery must skip these. */
   private secretSteps = new Set<number>();
 
+  /**
+   * Register a secret that was never in the recording.
+   *
+   * `collect` scans the RECORDED values, which is everything it can see — but a
+   * credential resolved from `credentialRef` is decrypted at run time and never
+   * appears in the recording at all. Without this the one value most worth
+   * masking is the one value the redactor does not know about, and it would
+   * reach stdout, the service log, the SSE stream and the PDF.
+   *
+   * Idempotent, and re-sorts so a longer secret still masks whole.
+   */
+  addSecret(value: string): void {
+    const t = String(value ?? '');
+    if (!t || this.secrets.includes(t)) return;
+    this.secrets.push(t);
+    this.secrets.sort((a, b) => b.length - a.length);
+  }
+
   /** Scan a recording for values belonging to password-ish fields. */
   collect(entries: any[], normalize: (e: any) => any): void {
     this.secrets = [];
