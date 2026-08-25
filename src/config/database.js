@@ -13,7 +13,12 @@ const dbConfig = {
   database: isProduction ? process.env.PROD_DB_NAME : process.env.DEV_DB_NAME,
   timezone: 'Z', // UTC timezone
   waitForConnections: true,
-  connectionLimit: 10,
+  // Was 10. dev-gcp-server's MySQL has max_connections=30, shared with
+  // pg-final-master/Back's two pools (15 main + 5 ETL = 20) while DEV_DB_HOST
+  // points here over an SSH tunnel. 5 leaves headroom instead of the three
+  // pools summing to exactly 30 with zero margin. Revert to 10 once back on
+  // local/LAN MySQL.
+  connectionLimit: 5,
   queueLimit: 0
 };
 

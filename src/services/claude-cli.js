@@ -167,11 +167,50 @@ function runClaude(opts) {
     let sessionId = resumeSessionId || null;
     let settled = false;
 
+    let timedOut = false;
+
+    /**
+     * Kill the CLI and everything it spawned.
+     *
+     * On Windows `shell: true` means the direct child is the `cmd.exe` shim,
+     * not `claude` itself — signalling it leaves the real process running,
+     * still holding MCP tool calls open against the caller's browser. taskkill
+     * `/T` walks the process tree; `/F` makes it unconditional. Elsewhere
+     * SIGKILL on the child is enough.
+     */
+    const killTree = () => {
+      if (process.platform === 'win32' && child.pid !== undefined) {
+        // taskkill is asynchronous. Signalling the shim ourselves as well races
+        // it — the signal tears down cmd.exe's stdio while taskkill is still
+        // walking the tree, and the `close` event then does not arrive, which
+        // is exactly the hang the grace timer had to paper over. Let taskkill
+        // own the kill, and only fall back to a signal if it could not run.
+        try {
+          const tk = spawn('taskkill', ['/pid', String(child.pid), '/T', '/F'], { stdio: 'ignore' });
+          tk.on('error', () => { try { child.kill('SIGKILL'); } catch (_) {} });
+          return;
+        } catch (_) { /* fall through to the signal below */ }
+      }
+      try { child.kill('SIGKILL'); } catch (_) {}
+    };
+
     const timer = setTimeout(() => {
       if (settled) return;
-      settled = true;
-      try { child.kill('SIGKILL'); } catch (_) {}
-      reject(new Error(`claude CLI timed out after ${timeoutMs}ms`));
+      // Rejecting here would hand control back while the CLI is still alive and
+      // mid-tool-call, letting the caller tear down its MCP server underneath a
+      // running process. Mark the run, kill the tree, and let the normal `close`
+      // handler settle once the process is actually gone.
+      timedOut = true;
+      killTree();
+      // A killed process normally closes within milliseconds. If it does not —
+      // a wedged shim, a taskkill that failed — settle anyway rather than hang
+      // in the very place the timeout exists to prevent.
+      const grace = setTimeout(() => {
+        if (settled) return;
+        settled = true;
+        reject(new Error(`claude CLI timed out after ${timeoutMs}ms and did not exit when killed`));
+      }, 10000);
+      if (grace.unref) grace.unref();
     }, timeoutMs);
 
     createInterface({ input: child.stdout }).on('line', (line) => {
@@ -246,6 +285,10 @@ function runClaude(opts) {
       if (settled) return;
       settled = true;
       clearTimeout(timer);
+      if (timedOut) {
+        reject(new Error(`claude CLI timed out after ${timeoutMs}ms`));
+        return;
+      }
       resolve({
         text,
         usage,
