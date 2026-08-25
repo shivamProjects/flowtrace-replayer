@@ -765,10 +765,29 @@ function runCase(env) {
 let passed = 0;
 const failures = [];
 
-for (const c of cases) {
-  const actionsPath = join(WORK, 'actions.json');
-  const resultsPath = join(WORK, 'results.json');
-  if (existsSync(resultsPath)) rmSync(resultsPath);
+for (const [caseIndex, c] of cases.entries()) {
+  // Every case gets its OWN directory.
+  //
+  // These were shared files under .work/, and that made the whole suite
+  // non-deterministic: a Playwright worker left over from an earlier or killed
+  // run would write into the same results.json the current case was about to
+  // read, so a 2-step case reported 3 steps, filtering to one case executed
+  // another's steps, and back-to-back runs of identical code gave 28/59 then
+  // 53/59. A count from that suite was not evidence either way — which is
+  // worse than a failing suite, because it looks like one.
+  //
+  // Indexed as well as named so two cases cannot collide on a sanitised name,
+  // and so the directory order matches the run order when reading them back.
+  const slug = String(c.name).replace(/[^a-z0-9]+/gi, '-').slice(0, 60);
+  const caseDir = join(WORK, `${String(caseIndex).padStart(3, '0')}-${slug}`);
+  // Removed first, not just overwritten: a stale results.json from a previous
+  // run of THIS case would otherwise be read as this run's result if the engine
+  // died before writing one.
+  if (existsSync(caseDir)) rmSync(caseDir, { recursive: true, force: true });
+  mkdirSync(caseDir, { recursive: true });
+
+  const actionsPath = join(caseDir, 'actions.json');
+  const resultsPath = join(caseDir, 'results.json');
   writeFileSync(actionsPath, JSON.stringify(c.raw ?? c.steps, null, 1));
 
   // Async, NOT spawnSync: the fixture server lives in this process, and
