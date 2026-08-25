@@ -250,9 +250,13 @@ test.describe('Dynamic Action Replayer', () => {
     const credentials = needsCredentials ? new CredentialStore() : undefined;
     if (needsCredentials) {
       const refs = [...new Set(actions.map((a) => a.credentialRef).filter(Boolean))];
+      const raw = credentials!.rawCount;
       console.log(
         `[credentials] ${refs.length} reference(s) in this recording: ${refs.join(', ')}` +
-        (credentials!.isConfigured ? '' : ' — NONE supplied, those steps will fail'),
+        (credentials!.isConfigured ? '' : ' — NONE supplied, those steps will fail') +
+        // Never silent about plaintext: someone who believes the vault is in
+        // play should be able to see from the log that it is not.
+        (raw ? ` — ${raw} supplied as PLAINTEXT (not encrypted)` : ''),
       );
     }
 

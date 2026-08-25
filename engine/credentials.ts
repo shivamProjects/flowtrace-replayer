@@ -84,47 +84,96 @@ export function decryptSecret(blob: string, base64Key: string): string {
  *      by hand without a platform round trip. Uppercased, non-alphanumerics to
  *      underscores, so `credentialRef: 'password'` reads `CREDENTIAL_PASSWORD`.
  *
- * Both hold ENCRYPTED values. There is deliberately no plaintext path: an
- * escape hatch for "just this once" is how a plaintext password ends up in a
- * shell history, a CI log or a committed .env, and the 329 recordings already
- * carrying one are the argument against adding another route.
+ * Values may be ENCRYPTED or RAW.
+ *
+ * Encrypted is the better path and stays the default. Raw is supported because
+ * not every caller has the vault: an on-premise install, a developer replaying
+ * a recording by hand, and the recorder's own capture (which holds what the
+ * operator typed) all have a plaintext credential and nowhere to encrypt it.
+ * Refusing them would not remove the plaintext — it would push it back into the
+ * recording, which is where this whole problem started.
+ *
+ * Raw is EXPLICIT, never a fallback. A value is treated as plaintext only when
+ * `CREDENTIALS_RAW=true`, or when a ref is supplied through `CREDENTIAL_RAW_*` /
+ * `CREDENTIALS_RAW_JSON`. Decryption failure never silently degrades to "maybe
+ * it was plaintext": a wrong key would then send a base64 blob to the login
+ * form and the failure would look like a bad password. The two possibilities
+ * are kept apart so each fails with its own message.
  */
+interface Entry {
+  value: string;
+  /** True when `value` is already plaintext and must not be decrypted. */
+  raw: boolean;
+}
+
 export class CredentialStore {
   private readonly cache = new Map<string, string>();
-  private readonly blobs: Record<string, string>;
+  private readonly entries: Record<string, Entry>;
   private readonly key: string;
 
   constructor(env: NodeJS.ProcessEnv = process.env) {
     this.key = String(env.CREDENTIAL_KEY || env.PLATFORM_ENCRYPTION_KEY || '');
-    this.blobs = {};
+    this.entries = {};
 
-    const json = env.CREDENTIALS_JSON;
-    if (json) {
+    // Everything supplied through the ordinary names is encrypted unless the
+    // caller says otherwise for the whole run.
+    const allRaw = /^(1|true|yes)$/i.test(String(env.CREDENTIALS_RAW || ''));
+
+    const put = (ref: string, value: string, raw: boolean) => {
+      const k = normaliseRef(ref);
+      // First writer wins, and the sources are visited in precedence order
+      // below, so a stray env var cannot outrank what the platform passed.
+      if (!(k in this.entries)) this.entries[k] = { value, raw };
+    };
+
+    const fromJson = (json: string | undefined, raw: boolean, name: string) => {
+      if (!json) return;
+      let parsed: unknown;
       try {
-        const parsed = JSON.parse(json);
-        if (parsed && typeof parsed === 'object') {
-          for (const [k, v] of Object.entries(parsed)) {
-            if (typeof v === 'string') this.blobs[normaliseRef(k)] = v;
-          }
-        }
+        parsed = JSON.parse(json);
       } catch (_) {
-        throw new CredentialError('CREDENTIALS_JSON is not valid JSON');
+        throw new CredentialError(`${name} is not valid JSON`);
       }
-    }
+      if (parsed && typeof parsed === 'object') {
+        for (const [k, v] of Object.entries(parsed as Record<string, unknown>)) {
+          if (typeof v === 'string') put(k, v, raw);
+        }
+      }
+    };
+
+    // Precedence: explicit-raw JSON, then the platform's JSON, then env vars.
+    fromJson(env.CREDENTIALS_RAW_JSON, true, 'CREDENTIALS_RAW_JSON');
+    fromJson(env.CREDENTIALS_JSON, allRaw, 'CREDENTIALS_JSON');
 
     for (const [name, value] of Object.entries(env)) {
-      if (!name.startsWith('CREDENTIAL_') || name === 'CREDENTIAL_KEY') continue;
       if (typeof value !== 'string' || !value) continue;
-      const ref = normaliseRef(name.slice('CREDENTIAL_'.length));
-      // CREDENTIALS_JSON is the platform's own word on this run; a stray env var
-      // must not quietly outrank it.
-      if (!(ref in this.blobs)) this.blobs[ref] = value;
+      if (name === 'CREDENTIAL_KEY') continue;
+      // CREDENTIAL_RAW_<REF> is checked first: it also starts with
+      // "CREDENTIAL_", so testing the shorter prefix first would swallow it and
+      // treat a plaintext password as a base64 blob.
+      if (name.startsWith('CREDENTIAL_RAW_')) {
+        put(name.slice('CREDENTIAL_RAW_'.length), value, true);
+      } else if (name.startsWith('CREDENTIAL_')) {
+        put(name.slice('CREDENTIAL_'.length), value, allRaw);
+      }
     }
   }
 
-  /** Is any credential configured at all? Used to phrase the error better. */
+  /**
+   * Is any credential usable? A raw one needs no key, so requiring a key here
+   * would report "none supplied" for a perfectly workable plaintext run.
+   */
   get isConfigured(): boolean {
-    return Boolean(this.key) && Object.keys(this.blobs).length > 0;
+    return Object.values(this.entries).some((e) => e.raw || Boolean(this.key));
+  }
+
+  /**
+   * How many refs arrived as plaintext. Reported once at the start of a run:
+   * plaintext is supported, but it should never be the SILENT default — an
+   * operator who thinks the vault is in use deserves to see that it is not.
+   */
+  get rawCount(): number {
+    return Object.values(this.entries).filter((e) => e.raw).length;
   }
 
   /**
@@ -140,22 +189,32 @@ export class CredentialStore {
     const cached = this.cache.get(key);
     if (cached !== undefined) return cached;
 
-    if (!this.key) {
-      throw new CredentialError(
-        `step needs credential "${ref}" but no decryption key is set ` +
-        `(CREDENTIAL_KEY, matching platform.encryption.key)`,
-      );
-    }
-    const blob = this.blobs[key];
-    if (!blob) {
-      const known = Object.keys(this.blobs);
+    const entry = this.entries[key];
+    if (!entry) {
+      const known = Object.keys(this.entries);
       throw new CredentialError(
         `step needs credential "${ref}", which was not supplied` +
         (known.length ? ` (have: ${known.join(', ')})` : ' (none supplied)'),
       );
     }
 
-    const value = decryptSecret(blob, this.key);
+    // Raw is taken at face value — no key involved, so a plaintext run works
+    // with no vault at all.
+    if (entry.raw) {
+      this.cache.set(key, entry.value);
+      return entry.value;
+    }
+
+    if (!this.key) {
+      throw new CredentialError(
+        `credential "${ref}" is encrypted but no decryption key is set ` +
+        `(CREDENTIAL_KEY, matching platform.encryption.key). ` +
+        `If this value is plaintext, pass it as CREDENTIAL_RAW_${key.toUpperCase()} ` +
+        `or set CREDENTIALS_RAW=true.`,
+      );
+    }
+
+    const value = decryptSecret(entry.value, this.key);
     this.cache.set(key, value);
     return value;
   }

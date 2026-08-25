@@ -785,6 +785,88 @@ const CASES = [
     },
     expect: { success: true, statuses: 'ss' },
   },
+  {
+    // A RAW (plaintext) credential works, with no key and no vault.
+    //
+    // Not every caller has the vault — an on-premise install, a developer
+    // replaying by hand, the recorder's own capture. Refusing plaintext would
+    // not remove it, it would push it back into the recording.
+    name: 'v1/raw-credential-is-used-as-is',
+    env: { CREDENTIAL_RAW_PASSWORD: 'S3cr3t-P@ssw0rd-unicode' },
+    raw: {
+      schemaVersion: 1,
+      actions: [nav('login.html'),
+                { action: 'fill', locator: { id: 'u', label: 'User Name' },
+                  value: 'test.user@example.com' },
+                { action: 'fill', locator: { id: 'p', label: 'Password' },
+                  value: '********', sensitive: true, credentialRef: 'password' },
+                { action: 'click', locator: { id: 'go', label: 'Next' } },
+                { action: 'assertText', type: 'assertText', locator: { id: 'out', label: 'Result' },
+                  value: 'Signed in', description: 'Assert signed in' }],
+    },
+    expect: { success: true, statuses: 'sssss' },
+  },
+  {
+    // CREDENTIALS_RAW=true switches the ordinary names to plaintext, for a
+    // caller that has no vault at all.
+    name: 'v1/CREDENTIALS_RAW-treats-ordinary-names-as-plaintext',
+    env: { CREDENTIALS_RAW: 'true', CREDENTIAL_PASSWORD: 'S3cr3t-P@ssw0rd-unicode' },
+    raw: {
+      schemaVersion: 1,
+      actions: [nav('login.html'),
+                { action: 'fill', locator: { id: 'u', label: 'User Name' },
+                  value: 'test.user@example.com' },
+                { action: 'fill', locator: { id: 'p', label: 'Password' },
+                  value: '********', sensitive: true, credentialRef: 'password' },
+                { action: 'click', locator: { id: 'go', label: 'Next' } },
+                { action: 'assertText', type: 'assertText', locator: { id: 'out', label: 'Result' },
+                  value: 'Signed in', description: 'Assert signed in' }],
+    },
+    expect: { success: true, statuses: 'sssss' },
+  },
+  {
+    // An ENCRYPTED value with no key must FAIL, not be typed as if plaintext.
+    //
+    // This is the case that keeps raw support honest. If decryption silently
+    // degraded to "maybe it was already plaintext", a wrong or missing key
+    // would send a base64 blob to the login form and the run would fail looking
+    // like a bad password — sending the reader after the wrong problem.
+    name: 'guard/encrypted-credential-without-a-key-is-not-typed-raw',
+    env: {
+      CREDENTIAL_PASSWORD: 'FSUsk9gmp5UBUYsTw2Fp9e6dZaP8a4GjZF4qlW6nPTar7mdn1hcylHqDwxAiFQusimoM',
+    },
+    raw: {
+      schemaVersion: 1,
+      actions: [nav('login.html'),
+                { action: 'fill', locator: { id: 'p', label: 'Password' },
+                  value: '********', sensitive: true, credentialRef: 'password' }],
+    },
+    expect: { success: false, statuses: 'sf', errorLike: /no decryption key is set/ },
+  },
+  {
+    name: 'guard/a-truncated-lov-title-must-not-open-the-wrong-field',
+    // RECONSTRUCTED — this case and its fixture were lost from the working tree
+    // and rewritten from the original.
+    //
+    // A recording of Create Depreciation Method captured the icon as
+    // title="Search: Depreciation Method" when the real attribute is
+    // "Search: Depreciation Method for Poland". Both launchers on that form
+    // begin "Search: Depreciation ", so a loose match would open the FREQUENCY
+    // field and every later step would act on the wrong control while reporting
+    // green.
+    //
+    // Failing to resolve is the RIGHT answer here: the recording is wrong and
+    // should say so, rather than being guessed into acting on a neighbour.
+    steps: [nav('lov-title.html'),
+            { action: 'click', type: 'click',
+              locator: { title: 'Search: Depreciation Method' },
+              description: 'Click Search: Depreciation Method' }],
+    patch: 'oracle-fusion',
+    // "List did not open" rather than "not found": the launcher check is what
+    // catches it, and either message is honest — what matters is that the run
+    // stops instead of acting on the neighbouring field.
+    expect: { success: false, statuses: 'sf', errorLike: /did not open|not found/i },
+  },
 ];
 
 // ── runner ─────────────────────────────────────────────────────────────────
