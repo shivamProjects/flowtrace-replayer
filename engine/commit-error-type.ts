@@ -129,6 +129,31 @@ type Cache = Record<string, string>;
 const learnedThisRun: Cache = {};
 
 /**
+ * Folded into every cache key.
+ *
+ * The cache is keyed on the MASKED message, so the masking rules and the key
+ * are one contract: change how a message is masked and yesterday's keys no
+ * longer describe today's messages, yet they still match — a stale row is
+ * served as if it were an answer to a question nobody asked any more. The same
+ * applies to the vocabulary: retire a label and every cached row still carrying
+ * it keeps handing it out.
+ *
+ * Versioning the key retires those rows instead of quietly trusting them. Old
+ * entries are never read again and cost one API call each to relearn, which is
+ * the correct price for a rule change.
+ *
+ * BUMP THIS whenever maskMessage() or STARTING_CATEGORIES changes.
+ */
+const KEY_VERSION = 'v2';
+
+/**
+ * Stands in for an apostrophe that is part of a word while the quoted-value
+ * rule runs. U+0001 is a control character: it cannot appear in an application
+ * error message, so it can never collide with real content.
+ */
+const APOSTROPHE = '\u0001';
+
+/**
  * The lookup key: the message with everything run-specific taken out.
  *
  * "Supplier: A record with the value add_TES21 already exists."
@@ -143,12 +168,37 @@ const learnedThisRun: Cache = {};
  * the same message, so one answer can serve all of them.
  */
 function cacheKey(message: string): string {
+  return `${KEY_VERSION}:${maskMessage(message)}`;
+}
+
+/**
+ * The masking itself, without the version prefix.
+ *
+ * Split out from cacheKey so the checks can exercise the masking on its own,
+ * and so the version lives in exactly one place.
+ */
+function maskMessage(message: string): string {
   return String(message)
     .toLowerCase()
     // "Supplier: …" — a short leading label followed by a colon.
     .replace(/^[^:]{1,60}:\s*/, '')
+    // Contractions first, and this ordering is load-bearing.
+    //
+    // The quoted-value rule below treats an apostrophe as a quote delimiter. In
+    // a sentence with two contractions — "doesn't match the supplier's record" —
+    // the apostrophe in "doesn't" pairs with the one in "supplier's", and
+    // everything between them is masked away as if it were a quoted value. The
+    // key that comes out is missing the words that say what the problem was, so
+    // two unrelated messages can collapse onto the same key and be served each
+    // other's label.
+    //
+    // An apostrophe BETWEEN two letters is part of a word, never a quote, so it
+    // is parked under a sentinel that no message contains and restored after the
+    // quote rule has run.
+    .replace(/(\p{L})['’](\p{L})/gu, `$1${APOSTROPHE}$2`)
     // Quoted values.
     .replace(/["'][^"']*["']/g, '#')
+    .replace(new RegExp(APOSTROPHE, 'g'), "'")
     // Any word carrying a digit: add_TES21, 01-jan-2026, fnd-9999, 2000217.
     .replace(/\S*\d\S*/g, '#')
     .replace(/\s+/g, ' ')
