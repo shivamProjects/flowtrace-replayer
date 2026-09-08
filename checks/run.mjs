@@ -75,6 +75,12 @@ const page = (name) => `${ORIGIN}/${name}`;
 
 const PAGE_ADF = page('adf.html');
 const nav = (name) => ({ action: 'navigate', type: 'navigate', url: page(name) });
+// Same fixture, requested under a realistic Oracle PATHNAME. The fixture server
+// resolves by basename, so the directories are ignored by it and are exactly
+// what the engine reads when it decides landing page vs deeplink.
+const navPath = (path) => ({ action: 'navigate', type: 'navigate', url: `${ORIGIN}/${path}` });
+const assertMarker = (value) =>
+  ({ action: 'assertText', type: 'assertText', locator: { id: 'marker' }, value, description: `Assert on ${value}` });
 const fill = (id, label, value, extra = {}) =>
   ({ action: 'fill', type: 'fill', locator: { id, label }, value, description: `Fill ${label}`, ...extra });
 // Verify a field using the ENGINE'S OWN assertion rather than a bespoke check in
@@ -128,6 +134,28 @@ const CASES = [
     // valueMatchesStrict(field, undefined) returned true for any empty field,
     // so a step with no committedValue skipped the fill and left it blank.
     steps: [nav('audit.html'), fill('cmt', 'Comments', 'typed text'), assertValue('cmt', 'Comments', 'typed text')],
+    expect: { success: true, statuses: 'sss' },
+  },
+  {
+    name: 'REGRESSION/jet-two-digit-year-readback-is-the-same-date',
+    // Redwood repaints a committed date with a two-digit year ("9/18/2026" ->
+    // "9/18/26"). dateParts required four digits, so the read-back parsed to
+    // nothing and a correct fill was failed outright. Found by replaying a real
+    // script, not by a check — every unit case here passed while it was broken.
+    steps: [nav('jet-date.html'), fill('hire', 'Hire Date', '9/18/2026')],
+    expect: { success: true, statuses: 'ss' },
+  },
+  {
+    name: 'REGRESSION/stale-committedValue-must-not-skip-a-reparameterized-fill',
+    // The field still holds "1/1/21" from the previous execution, and the step's
+    // committedValue still says "1/1/21" — but `value` has been re-bound to a new
+    // date. Trusting committedValue matched the field, SKIPPED the fill, and
+    // reported success having written the old value.
+    steps: [
+      nav('jet-date.html'),
+      fill('rehire', 'Rehire Date', '4/2/2027', { originalValue: '1/1/2021', committedValue: '1/1/21' }),
+      assertValue('rehire', 'Rehire Date', '4/2/27'),
+    ],
     expect: { success: true, statuses: 'sss' },
   },
   {
@@ -807,6 +835,114 @@ const CASES = [
     expect: { success: true, statuses: 'sssss' },
   },
   {
+    // A step that opens a NEW TAB is followed, not ignored.
+    //
+    // The supplier-registration replay stalled here on Testing Vision: Oracle's
+    // "Register Supplier" is an <a target="_blank"> into the Redwood
+    // registration app. The click succeeded, the form loaded in a second tab,
+    // and the run kept driving the dashboard — where Company does not exist.
+    // Every later step failed and the report blamed the locators for a page the
+    // run had simply never moved to.
+    //
+    // The pre-existing recovery only fired when the old page CLOSED. Verified
+    // live: after that click the original reports isClosed() === false, so it
+    // never fired at all.
+    //
+    // Company exists only on the second tab, so a run that does not follow
+    // cannot pass this by accident.
+    name: 'guard/a-step-that-opens-a-new-tab-is-followed',
+    raw: {
+      schemaVersion: 1,
+      actions: [nav('opens-tab.html'),
+                { action: 'click', locator: { id: 'register', label: 'Register Supplier' },
+                  description: 'Open Register Supplier' },
+                { action: 'fill', locator: { id: 'company', label: 'Company' },
+                  value: 'Acme Ltd', description: 'Enter Company' },
+                { action: 'assertText', type: 'assertText', locator: { id: 'out', label: 'Result' },
+                  value: 'Company: Acme Ltd', description: 'Assert the value landed' }],
+    },
+    expect: { success: true, statuses: 'ssss' },
+  },
+  {
+    // A tab that opens and then CLOSES itself must not strand the run.
+    //
+    // Oracle opens a transient tab for a print preview or a download shim. If
+    // the run followed it and stayed, every later step would act on a dead
+    // handle. Picking the newest LIVE tab handles both directions with one
+    // rule: follow a tab that opens, fall back when it goes away.
+    //
+    // The field the last step needs exists only on the ORIGINAL page, so a run
+    // stranded on the transient tab cannot pass this by accident.
+    name: 'guard/a-tab-that-closes-itself-does-not-strand-the-run',
+    raw: {
+      schemaVersion: 1,
+      actions: [nav('tab-closes.html'),
+                { action: 'click', locator: { id: 'open', label: 'Open transient tab' },
+                  description: 'Open a tab that closes itself' },
+                { action: 'wait', ms: 3000, description: 'Let it close' },
+                { action: 'fill', locator: { id: 'after', label: 'After' },
+                  value: 'back home', description: 'Type on the original page' },
+                { action: 'assertText', type: 'assertText', locator: { id: 'out', label: 'Result' },
+                  value: 'After: back home', description: 'Assert we are on the original page' }],
+    },
+    expect: { success: true, statuses: 'sssss' },
+  },
+  {
+    // A LOGIN THAT NEVER AUTHENTICATED FAILS AT THE LOGIN, not 17 steps later.
+    //
+    // Execution 8336 reported six green steps on a run that never signed in:
+    // the credential had expired, every sign-in step dispatched cleanly, and
+    // the run then spent 17 more steps failing against a login page while the
+    // report blamed the locators. Same silent-green class as the checkbox that
+    // dispatched without ticking — an action that succeeds while achieving
+    // nothing.
+    //
+    // The wrong password leaves signin.html on screen. Step 4 (the submit) must
+    // therefore FAIL, and step 5 must never run: on the old behaviour both were
+    // green and the failure surfaced somewhere downstream.
+    //
+    // oracle-fusion is forced because sessionExpired() is a patch method and
+    // the generic patch has no opinion — this guard only exists for
+    // applications that can say what a sign-in page looks like.
+    name: 'guard/a-login-that-did-not-authenticate-fails-at-the-login-step',
+    patch: 'oracle-fusion',
+    env: { CREDENTIAL_RAW_PASSWORD: 'wrong-password', REPLAY_LOGIN_SETTLE_MS: '3000' },
+    raw: {
+      schemaVersion: 1,
+      actions: [nav('signin.html'),
+                { action: 'fill', locator: { id: 'u', label: 'User Name' },
+                  value: 'test.user@example.com' },
+                { action: 'fill', locator: { id: 'p', label: 'Password' },
+                  value: '********', sensitive: true, credentialRef: 'password' },
+                { action: 'click', locator: { id: 'go', label: 'Next' } },
+                { action: 'click', locator: { id: 'home', label: 'Home' } }],
+    },
+    expect: { success: false, statuses: 'sssfk', errorLike: /login did not complete/i },
+  },
+  {
+    // ...and the guard stays out of the way of a login that DID work.
+    //
+    // The counterpart matters as much as the case above: a guard that fires on
+    // a successful sign-in would fail every login flow in the product. The
+    // fixture redirects 700ms after the click, so this also pins that the guard
+    // WAITS for the redirect instead of sampling once and calling it a failure.
+    name: 'guard/a-successful-login-is-not-flagged-as-unauthenticated',
+    patch: 'oracle-fusion',
+    env: { CREDENTIAL_RAW_PASSWORD: 'S3cr3t-P@ssw0rd-unicode' },
+    raw: {
+      schemaVersion: 1,
+      actions: [nav('signin.html'),
+                { action: 'fill', locator: { id: 'u', label: 'User Name' },
+                  value: 'test.user@example.com' },
+                { action: 'fill', locator: { id: 'p', label: 'Password' },
+                  value: '********', sensitive: true, credentialRef: 'password' },
+                { action: 'click', locator: { id: 'go', label: 'Next' } },
+                { action: 'assertText', type: 'assertText', locator: { id: 'out', label: 'Result' },
+                  value: 'Signed in', description: 'Assert signed in' }],
+    },
+    expect: { success: true, statuses: 'sssss' },
+  },
+  {
     // CREDENTIALS_RAW=true switches the ordinary names to plaintext, for a
     // caller that has no vault at all.
     name: 'v1/CREDENTIALS_RAW-treats-ordinary-names-as-plaintext',
@@ -866,6 +1002,343 @@ const CASES = [
     // catches it, and either message is honest — what matters is that the run
     // stops instead of acting on the neighbouring field.
     expect: { success: false, statuses: 'sf', errorLike: /did not open|not found/i },
+  },
+
+  // ── navigation: landing pages and origin alignment ────────────────────────
+  //
+  // Measured over 652 stored scripts: 96.5% open with a navigate; ~85% of those
+  // first navigates go to an Oracle LANDING page, ~13% are genuine deeplinks
+  // straight into a task, and 67.6% of scripts carry TWO consecutive landing
+  // navigates — the login redirect chain, captured as steps.
+  //
+  // `navPath` requests a fixture under a REALISTIC Oracle pathname. The fixture
+  // server resolves by basename, so the leading directories are decoration for
+  // the server and the whole point for the engine, which decides landing-vs-
+  // deeplink from the pathname.
+  {
+    name: 'REGRESSION/redundant-landing-navigate-after-login-is-skipped',
+    // Oracle redirects to the welcome page ITSELF after a successful sign-in, so
+    // replaying the recorded second landing navigate re-enters a page the run is
+    // already on, using a URL that carries state from the original recording
+    // session. The skip must leave the run on the page it is already on: this
+    // asserts the FuseWelcome marker AFTER the AtkHomePageWelcome step, so a
+    // navigate that actually happened fails the case instead of passing quietly.
+    patch: 'oracle-fusion',
+    steps: [
+      navPath('fscmUI/faces/FuseWelcome.html'),
+      navPath('fscmUI/faces/AtkHomePageWelcome.html'),
+      assertMarker('FUSE-LANDING'),
+    ],
+    expect: { success: true, statuses: 'sss' },
+  },
+  {
+    name: 'guard/the-first-navigate-is-never-skipped',
+    // The first navigate is how the run reaches the sign-in page at all. Skipping
+    // it — it is a landing page, so the skip rule would otherwise reach it —
+    // would strand the run on about:blank and fail every later step "not found".
+    patch: 'oracle-fusion',
+    steps: [navPath('fscmUI/faces/FuseWelcome.html'), assertMarker('FUSE-LANDING')],
+    expect: { success: true, statuses: 'ss' },
+  },
+  {
+    name: 'guard/a-redwood-deeplink-navigate-is-never-skipped',
+    // ~80 stored scripts start straight inside a task rather than at a landing
+    // page. A skip rule that matched loosely — on "welcome", or on any
+    // post-login navigate — would strand every one of them on the previous page.
+    // The path is a real one from the corpus.
+    patch: 'oracle-fusion',
+    steps: [
+      nav('adf.html'),
+      navPath('fscmUI/redwood/order-management-orders/manage.html'),
+      assertMarker('DEEPLINK-MANAGE'),
+    ],
+    expect: { success: true, statuses: 'sss' },
+  },
+  {
+    name: 'REGRESSION/stale-origin-is-retargeted-to-the-login-origin-not-the-current-page',
+    // Origin alignment used to anchor on page.url() — whatever page the browser
+    // happened to be sitting on. That is a weak anchor: it is about:blank before
+    // the first navigate and mid-flow it can be an origin the flow was merely
+    // passed through. The authority is the LOGIN step, whose URL the queue worker
+    // re-reads from the instance record every run, so it is current even when the
+    // instance has been repointed at a new pod and every business step still
+    // carries an origin months out of date.
+    //
+    // The click hops the browser to the localhost origin WITHOUT a navigate step
+    // (a navigate would itself be realigned, proving nothing). The third step's
+    // recorded origin is a stale foreign host; it must come out as 127.0.0.1 —
+    // the first navigate's origin — and not as localhost.
+    patch: 'oracle-fusion',
+    steps: [
+      nav('origin-hop.html'),
+      { action: 'click', type: 'click', locator: { id: 'go', text: 'Hop origin' }, description: 'Hop origin' },
+      { action: 'navigate', type: 'navigate', url: 'http://stale-pod.example.com/fscmUI/redwood/order-management-orders/manage.html' },
+      assertMarker('DEEPLINK-MANAGE'),
+    ],
+    expect: {
+      success: true,
+      statuses: 'ssss',
+      logLike: /origin aligned \(http:\/\/127\.0\.0\.1:\d+\/fscmUI\/redwood\/order-management-orders\/manage\.html/,
+    },
+  },
+
+  // ── ambiguity: a recorded name that is a prefix of another one ────────────
+  //
+  // Found by replaying two real scripts against a live pod, both dying on
+  // "Select Tax Country":
+  //
+  //   strict mode violation: getByRole('option', { name: /United States/i })
+  //     resolved to 2 elements
+  //
+  // A recorded name is replayed as a case-insensitive SUBSTRING match, so a
+  // name that is a strict prefix of another names both. Both fixtures put the
+  // WRONG (longer) row FIRST, so the pre-fix behaviour — take the first painted
+  // match — picks it, and picks it QUIETLY: the recorded name is a substring of
+  // what got chosen, so every read-back check downstream agrees with the wrong
+  // value. A green run carrying the wrong country is worse than a failed one,
+  // which is why both cases assert WHICH row was clicked and not merely that
+  // the step passed.
+  {
+    name: 'REGRESSION/prefix-name-picks-the-exactly-named-option-not-the-first',
+    // The generic half, and it runs under the GENERIC patch on a page with no
+    // vendor attributes at all: the row text IS the name, so comparing the name
+    // exactly is enough and every web app gets this for free. Located by TEXT
+    // with no role, so the ladder's existing role+name-exact candidate cannot
+    // quietly do the work — the tie-break in resolve() has to.
+    steps: [
+      nav('prefix-options.html'),
+      { action: 'click', type: 'click', locator: { text: 'United States' }, description: 'Select Tax Country' },
+      assertMarker('PLAIN-US'),
+    ],
+    expect: { success: true, statuses: 'sss' },
+  },
+  {
+    name: 'REGRESSION/adf-prefix-option-is-disambiguated-by-the-oracle-exact-key',
+    // The Oracle half. ADF paints the country CODE onto the label ("United
+    // States US"), so NO row's text equals the recorded name and the generic
+    // exact-name retry above decides nothing. The only exact key on the page is
+    // data-afr-value — Oracle knowledge, so it reaches the resolver solely
+    // through AppPatch.exactMatch, implemented in patches/oracle.ts and null in
+    // patches/generic.ts. Recorded with role+name exactly as the failing script
+    // carried it.
+    patch: 'oracle-fusion',
+    steps: [
+      nav('adf-prefix-options.html'),
+      {
+        action: 'click', type: 'click',
+        selector: 'internal:role=option[name="United States"i]',
+        description: 'Select Tax Country',
+      },
+      assertMarker('ADF-US'),
+    ],
+    expect: { success: true, statuses: 'sss' },
+  },
+
+  // ── viewport: a control the browser cannot scroll to ──────────────────────
+  // ── The cluster rail: paging clicks that cannot be replayed by count ──────
+  //
+  // `#clusters-right-nav` / `#clusters-left-nav` are RELATIVE moves. A recording
+  // stores N clicks on one of them; N is only true for the window the recording
+  // was made in, and it is wrong in BOTH directions — a wider replay viewport
+  // needs fewer (the surplus ones scroll PAST the target and the destination
+  // click lands on whatever took its place), a narrower one needs more.
+  //
+  // These four cases replaced ONE case that pinned the old corrective
+  // mechanism, `revealTarget`, which only ran after a click had already failed
+  // with "outside of the viewport" and so could only ever ADD paging. It is
+  // deleted, along with the caret-skipping mechanism that could only ever
+  // REMOVE paging. The single loop in engine/relative-nav.ts does both, so both
+  // directions of the defect are now pinned rather than one.
+  //
+  // The fixture pages a fixed window of two clusters, so "reachable" does not
+  // depend on the window these checks happen to run in — see springboard.html.
+  {
+    name: 'REGRESSION/rail-overshoot-clicks-the-wrong-cluster',
+    // Payables comes into the window after TWO carets. The recording holds
+    // five, because it was made where more clusters fitted. Replaying the count
+    // pages past Payables and the destination click then lands on Projects or
+    // My Enterprise — a green step that opened the wrong work area, which is
+    // the worst outcome available. The surplus carets must be dropped.
+    patch: 'oracle-fusion',
+    steps: [
+      nav('springboard.html'),
+      ...Array.from({ length: 5 }, () => ({
+        action: 'click', type: 'click',
+        locator: { id: 'clusters-right-nav' },
+        description: 'Scroll the cluster rail right',
+      })),
+      { action: 'click', type: 'click', locator: { id: 'groupNode_Payables' }, description: 'Open Payables' },
+      assertMarker('OPENED-PAYABLES'),
+    ],
+    // Both halves, in order: the first caret PAGES until Payables is reachable,
+    // and each of the four after it is then recognised as surplus WITHOUT
+    // paging again. Asserting only the first half left the surplus-detection
+    // short-circuit uncovered — a mutation that deleted it still passed,
+    // because the paging loop's own reachability check happened to recover.
+    expect: {
+      success: true,
+      statuses: 'skkkkkss',
+      logLike: /paged the strip until "Open Payables"[\s\S]*"Open Payables" is already reachable — this paging click is surplus/,
+    },
+  },
+  {
+    name: 'REGRESSION/rail-undershoot-leaves-cluster-off-screen',
+    // The mirror defect, and the one the old revealTarget existed for: the
+    // recording was made on a screen where MORE clusters fitted, so FEWER
+    // carets were captured than replay needs. My Enterprise needs five; the
+    // recording has one. Obeying the count leaves it paged off and the
+    // destination click fails on an element that is present and fine.
+    patch: 'oracle-fusion',
+    steps: [
+      nav('springboard.html'),
+      { action: 'click', type: 'click', locator: { id: 'clusters-right-nav' }, description: 'Scroll the cluster rail right' },
+      { action: 'click', type: 'click', locator: { id: 'groupNode_MyEnterprise' }, description: 'Open My Enterprise' },
+      assertMarker('OPENED-MY-ENTERPRISE'),
+    ],
+    expect: { success: true, statuses: 'skss', logLike: /paged the strip until "Open My Enterprise"/ },
+  },
+  {
+    name: 'REGRESSION/absent-cluster-is-reported-as-a-timeout',
+    // Seven of nineteen scripts in one batch failed on a "Register Supplier"
+    // task that was not provisioned on the pod. Every one was reported as an
+    // 80s locator.waitFor timeout, which reads as a selector bug — days were
+    // spent hunting for one. After the whole rail has been paged end to end in
+    // both directions and the selector still matches NOTHING in the document,
+    // the honest verdict is that the feature is not on this instance, and the
+    // message has to say so in those words.
+    patch: 'oracle-fusion',
+    steps: [
+      nav('springboard.html'),
+      { action: 'click', type: 'click', locator: { id: 'clusters-right-nav' }, description: 'Scroll the cluster rail right' },
+      { action: 'click', type: 'click', locator: { id: 'groupNode_RegisterSupplier' }, description: 'Open Register Supplier' },
+      assertMarker('NEVER-REACHED'),
+    ],
+    expect: {
+      success: false,
+      statuses: 'sfkk',
+      errorLike: /NOT PRESENT ON THIS INSTANCE[\s\S]*not a timeout/,
+      // The message alone was never enough. It is prose, and a report that has
+      // to regex prose to learn WHO must act is one reword away from being
+      // wrong. The verdict is the machine-readable half of the same finding.
+      verdict: {
+        category: 'TARGET_NOT_PRESENT',
+        responsibility: 'ENVIRONMENT_ERROR',
+        source: 'thrown',
+        ruleId: 'TargetNotPresentError',
+        confidence: 'certain',
+      },
+    },
+  },
+  {
+    name: 'WIRING/a-thrown-verdict-is-taken-verbatim-and-never-re-derived-from-text',
+    // The engine PROVED this absence — it counted every candidate locator
+    // against the live document. That is strictly better evidence than any
+    // reading of the message, so the verdict must come off the thrown error
+    // (source 'thrown', ruleId naming the class) and not from the rule table.
+    // If this ever reports source 'rule', a throw site has gone back to
+    // throwing a plain Error and the category is being reverse-engineered from
+    // prose again — which is the exact failure mode errors.ts exists to end.
+    patch: 'oracle-fusion',
+    steps: [
+      nav('springboard.html'),
+      {
+        action: 'click', type: 'click',
+        locator: { role: 'link', name: 'Register Supplier', selector: 'internal:role=link[name="Register Supplier"i]' },
+        description: 'Open Register Supplier',
+      },
+      assertMarker('NEVER-REACHED'),
+    ],
+    // Small, so a genuine absence is not paid for at Oracle's worst case.
+    env: { REPLAY_VISIBLE_MS: '2000', REPLAY_ACTION_MS: '2000' },
+    expect: {
+      success: false,
+      statuses: 'sfk',
+      errorLike: /NOT PRESENT ON THIS INSTANCE[\s\S]*not a timeout and not a stale selector/,
+      logLike: /\[verdict\] TARGET_NOT_PRESENT \/ ENVIRONMENT_ERROR \(thrown TargetNotPresentError, certain\)/,
+      verdict: {
+        category: 'TARGET_NOT_PRESENT',
+        responsibility: 'ENVIRONMENT_ERROR',
+        kind: 'Setup Missing',
+        source: 'thrown',
+        ruleId: 'TargetNotPresentError',
+      },
+    },
+  },
+  {
+    name: 'WIRING/TARGET_NOT_PRESENT-never-pays-for-an-AI-heal',
+    // The single largest waste this work exists to remove. A task link the pod
+    // never had is not on the page, so a model looking at that page cannot find
+    // it — yet every one of those failures used to buy a heal attempt, at money
+    // and, worse, at wall-clock charged to the rest of the run.
+    //
+    // Recovery is ENABLED here, deliberately. With the gate in place nothing is
+    // dispatched and no transport is ever contacted; with the gate removed the
+    // engine really does try to recover, 'recovery-start' is emitted, and this
+    // case fails. Asserting only the skip line would pass with recovery
+    // disabled, which is why the negative assertion is on 'recovery-start'.
+    patch: 'oracle-fusion',
+    env: {
+      AI_RECOVERY_ENABLED: 'true',
+      // cli, not api: isRecoveryEnabled() returns true for it without an API
+      // key, so the gate is what stops the dispatch rather than a missing
+      // credential. Nothing is spawned as long as the gate holds.
+      AI_RECOVERY_METHOD: 'cli',
+      REPLAY_VISIBLE_MS: '2000',
+      REPLAY_ACTION_MS: '2000',
+    },
+    steps: [
+      nav('springboard.html'),
+      {
+        action: 'click', type: 'click',
+        locator: { role: 'link', name: 'Register Supplier', selector: 'internal:role=link[name="Register Supplier"i]' },
+        description: 'Open Register Supplier',
+      },
+      assertMarker('NEVER-REACHED'),
+    ],
+    expect: {
+      success: false,
+      statuses: 'sfk',
+      logLike: /\[ai\] skipped — TARGET_NOT_PRESENT: the element is not in the document/,
+      logUnlike: /"type":"recovery-start"/,
+      verdict: { category: 'TARGET_NOT_PRESENT', recoverySkipped: true },
+    },
+  },
+  {
+    name: 'REGRESSION/rail-already-past-the-target-is-never-scanned-back',
+    // The rail starts already scrolled to the far end — which is where a
+    // recording that overshot and was corrected with a left caret leaves it,
+    // and where an earlier step in the same script can leave it. The recorded
+    // caret points RIGHT, and right is exhausted from the first moment, so a
+    // search that only ever pages in the recorded direction gives up
+    // immediately on a cluster that is sitting two pages to the left.
+    patch: 'oracle-fusion',
+    env: { REPLAY_ACTION_MS: '4000' },
+    steps: [
+      nav('springboard.html?page=5'),
+      { action: 'click', type: 'click', locator: { id: 'clusters-right-nav' }, description: 'Scroll the cluster rail right' },
+      { action: 'click', type: 'click', locator: { id: 'groupNode_Payables' }, description: 'Open Payables' },
+      assertMarker('OPENED-PAYABLES'),
+    ],
+    expect: { success: true, statuses: 'skss', logLike: /found "Open Payables" by paging back/ },
+  },
+  {
+    name: 'REGRESSION/no-op-caret-must-not-page-forever',
+    // A caret that stays ENABLED but scrolls nothing. Termination cannot rest
+    // on the control disabling itself, so the search compares the strip's
+    // painted contents before and after each click and stops when a click
+    // achieved nothing. The destination is present in the DOM, merely paged
+    // away, so this is NOT the "not present on this instance" verdict — the
+    // step goes back on the recorded path and is allowed to fail on its own
+    // terms, which is the safety rule this whole mechanism is bound by.
+    patch: 'oracle-fusion',
+    env: { REPLAY_ACTION_MS: '4000' },
+    steps: [
+      nav('springboard.html?stuck=1'),
+      { action: 'click', type: 'click', locator: { id: 'clusters-right-nav' }, description: 'Scroll the cluster rail right' },
+      { action: 'click', type: 'click', locator: { id: 'groupNode_MyEnterprise' }, description: 'Open My Enterprise' },
+      assertMarker('OPENED-MY-ENTERPRISE'),
+    ],
+    expect: { success: false, statuses: 'ssfk', logLike: /is a no-op here/ },
   },
 ];
 
@@ -954,6 +1427,14 @@ for (const [caseIndex, c] of cases.entries()) {
     problems.push(`expected output matching ${c.expect.logLike}`);
   }
 
+  // The negative half of logLike. A case that asserts "recovery was NOT
+  // attempted" cannot be written any other way: the absence of an event is the
+  // whole claim, and asserting only what DID appear would pass just as happily
+  // with the gate deleted.
+  if (c.expect.logUnlike && c.expect.logUnlike.test(stdout)) {
+    problems.push(`output matched ${c.expect.logUnlike}, which it must not`);
+  }
+
   if (c.expect.throws) {
     if (!c.expect.throws.test(stdout)) problems.push(`expected output matching ${c.expect.throws}`);
   } else {
@@ -973,6 +1454,20 @@ for (const [caseIndex, c] of cases.entries()) {
           problems.push(`error ${JSON.stringify(failed?.error ?? null)} did not match ${c.expect.errorLike}`);
         }
       }
+      // The deterministic verdict recorded on the failed step (engine/errors.ts).
+      // Field-by-field rather than a regex over the message, because the message
+      // is prose that may legitimately be reworded and the CATEGORY may not.
+      if (c.expect.verdict) {
+        const failed = r.results.find((x) => x.status === 'failed');
+        const got = failed?.verdict;
+        if (!got) {
+          problems.push(`no verdict was recorded on the failed step (got ${JSON.stringify(failed?.verdict ?? null)})`);
+        } else {
+          for (const [k, want] of Object.entries(c.expect.verdict)) {
+            if (got[k] !== want) problems.push(`verdict.${k} = ${JSON.stringify(got[k])}, expected ${JSON.stringify(want)}`);
+          }
+        }
+      }
       for (const [k, v] of Object.entries(c.expect.outputs || {})) {
         if (r.outputs?.[k] !== v) problems.push(`output ${k}=${JSON.stringify(r.outputs?.[k])}, expected ${JSON.stringify(v)}`);
       }
@@ -984,7 +1479,10 @@ for (const [caseIndex, c] of cases.entries()) {
     }
   }
 
-  const KNOWN = new Set(['success', 'statuses', 'errorLike', 'outputs', 'throws', 'minStepMs', 'logLike']);
+  const KNOWN = new Set([
+    'success', 'statuses', 'errorLike', 'outputs', 'throws', 'minStepMs', 'logLike',
+    'logUnlike', 'verdict',
+  ]);
   for (const k of Object.keys(c.expect)) {
     if (!KNOWN.has(k)) problems.push(`case declares "${k}", which this runner does not check — remove it or implement it`);
   }

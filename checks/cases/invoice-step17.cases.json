@@ -1,0 +1,22 @@
+{
+  "fixture": "invoice-step17.html",
+  "source": "Oracle Fusion Create Invoice - Supplier Click (invoice recording)",
+  "cases": [
+    {
+      "name": "Supplier combobox resolves by label",
+      "action": {
+        "action": "click",
+        "type": "click",
+        "locator": {
+          "role": "combobox",
+          "name": "Supplier",
+          "selector": "internal:role=combobox[name=\"Supplier\"s]"
+        },
+        "description": "Click Supplier"
+      },
+      "expect": {
+        "resolvesTo": "INPUT#pt1:_FOr1:1:_FONSr2:0:MAnt2:1:pm1:r1:0:ap1:r2:0:ic3::content"
+      }
+    }
+  ]
+}

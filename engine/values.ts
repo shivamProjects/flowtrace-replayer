@@ -92,23 +92,42 @@ export function unresolvedParameters(value: unknown): string[] {
  */
 const MONTHS = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
 
+/**
+ * Expand a written year to a full one.
+ *
+ * Oracle Redwood (JET) commits a date and then repaints the field with a
+ * TWO-DIGIT year: typing "4/2/2027" leaves "4/2/27" on screen. Requiring four
+ * digits here made `dateParts` return nothing for the read-back, so
+ * `datesEquivalent` answered false and a correct fill was failed outright —
+ * measured on the live pod, step 10 of redwood-date.
+ *
+ * The pivot is 50, matching what the pod actually does: "26" came back as 2026
+ * and "91" as 1991. It is also what JavaScript's own Date parsing uses, so a
+ * value read back from the page and one parsed here agree.
+ */
+function expandYear(raw: string): number {
+  const n = +raw;
+  if (raw.length > 2) return n;
+  return n <= 49 ? 2000 + n : 1900 + n;
+}
+
 function dateParts(raw: string): Array<{ y: number; m: number; d: number }> {
   const s = norm(raw);
-  const named = s.match(/(\d{1,2})[\s\-\/]+([a-z]{3,})[\s\-\/]+(\d{4})/);
+  const named = s.match(/(\d{1,2})[\s\-\/]+([a-z]{3,})[\s\-\/]+(\d{4}|\d{2})/);
   if (named) {
     const m = MONTHS.indexOf(named[2].slice(0, 3));
-    if (m >= 0) return [{ y: +named[3], m: m + 1, d: +named[1] }];
+    if (m >= 0) return [{ y: expandYear(named[3]), m: m + 1, d: +named[1] }];
   }
-  const namedFirst = s.match(/([a-z]{3,})[\s\-\/]+(\d{1,2})[,\s\-\/]+(\d{4})/);
+  const namedFirst = s.match(/([a-z]{3,})[\s\-\/]+(\d{1,2})[,\s\-\/]+(\d{4}|\d{2})/);
   if (namedFirst) {
     const m = MONTHS.indexOf(namedFirst[1].slice(0, 3));
-    if (m >= 0) return [{ y: +namedFirst[3], m: m + 1, d: +namedFirst[2] }];
+    if (m >= 0) return [{ y: expandYear(namedFirst[3]), m: m + 1, d: +namedFirst[2] }];
   }
-  const numeric = s.match(/^(\d{1,2})[\-\/.](\d{1,2})[\-\/.](\d{4})$/);
+  const numeric = s.match(/^(\d{1,2})[\-\/.](\d{1,2})[\-\/.](\d{4}|\d{2})$/);
   if (numeric) {
     const a = +numeric[1];
     const b = +numeric[2];
-    const y = +numeric[3];
+    const y = expandYear(numeric[3]);
     const out = [];
     if (b >= 1 && b <= 12) out.push({ y, m: b, d: a }); // d/m/y
     if (a >= 1 && a <= 12) out.push({ y, m: a, d: b }); // m/d/y

@@ -1,0 +1,22 @@
+{
+  "fixture": "invoice-step7.html",
+  "source": "Oracle Fusion FuseWelcome - Home Link (invoice recording)",
+  "cases": [
+    {
+      "name": "Home icon link resolves by title / role",
+      "action": {
+        "action": "click",
+        "type": "click",
+        "locator": {
+          "role": "link",
+          "name": "Home",
+          "selector": "internal:role=link[name=\"Home\"s]"
+        },
+        "description": "Open Home"
+      },
+      "expect": {
+        "resolvesTo": "A#pt1:_UIShome"
+      }
+    }
+  ]
+}

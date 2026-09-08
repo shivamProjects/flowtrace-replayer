@@ -12,11 +12,13 @@ import { expect, type Page } from '@playwright/test';
 import * as fs from 'fs';
 import * as path from 'path';
 import type { AppPatch, LogFn, NormalizedAction } from './types';
-import { mustResolve, resolve } from './locators';
+import { mustResolve, proveAbsent, resolve } from './locators';
 import { norm, readValue, unresolvedParameters, valueAccepted, valueMatchesStrict } from './values';
 import { waitUntil, waitForPaint } from './settle';
 import { ABSENCE, PATIENCE } from './timeouts';
+import { inViewport } from './patches/generic';
 import type { CredentialStore } from './credentials';
+import { FillNotCommittedError, TargetNotPresentError, UnresolvedParameterError } from './errors';
 
 const T = {
   action: ABSENCE.action,
@@ -72,6 +74,50 @@ export interface ActionContext {
    * it — and a decrypted credential needs both.
    */
   redact?: (secret: string) => void;
+
+  /**
+   * Origin established by the recording's FIRST navigate step — the login
+   * navigate, whose URL the queue worker re-reads from the instance record on
+   * every run. See AppPatch.rewriteNavigation for why this beats `page.url()` as
+   * the alignment anchor. Absent when the recording has no usable first
+   * navigate, in which case the patch falls back to `currentUrl`.
+   */
+  sessionOrigin?: string;
+
+  /** True only while executing the recording's first navigate step. */
+  isFirstNavigate?: boolean;
+}
+
+/**
+ * The origin every navigate in this run should be aligned to.
+ *
+ * The first navigate of the executed recording is the LOGIN navigate, and login
+ * steps come from `cus_instance_login_steps` for the instance being run — they
+ * are updated when an instance is repointed at a new pod. Business steps carry
+ * the origin the flow was recorded against, which may be stale by months.
+ *
+ * An identity-provider origin is refused: IDCS is where the sign-in happens, not
+ * where the application lives, so retargeting business steps into it would send
+ * every later step to the login host.
+ */
+export const IDENTITY_HOST = /idcs-|identity\.oraclecloud\.com/i;
+
+export function sessionOriginOf(actions: NormalizedAction[]): string | undefined {
+  const first = actions.find((a) => nameOf(a) === 'navigate' && !!a.url);
+  if (!first?.url) return undefined;
+  try {
+    const u = new URL(first.url);
+    if (!/^https?:$/i.test(u.protocol)) return undefined;
+    if (IDENTITY_HOST.test(u.hostname)) return undefined;
+    return u.origin;
+  } catch {
+    return undefined;
+  }
+}
+
+/** Index of the recording's first navigate step, or -1. */
+export function firstNavigateIndex(actions: NormalizedAction[]): number {
+  return actions.findIndex((a) => nameOf(a) === 'navigate' && !!a.url);
 }
 
 // ── wait ───────────────────────────────────────────────────────────────────
@@ -235,14 +281,15 @@ async function doNavigate(a: NormalizedAction, ctx: ActionContext) {
   // Some applications embed per-session state in the URL. The patch owns that
   // judgement — see AppPatch.rewriteNavigation — and may strip the volatile
   // parts or, for an app that cannot be entered directly, skip the step.
-  const target = ctx.patch.rewriteNavigation(a.url);
+  const currentUrl = ctx.page.url();
+  const target = ctx.patch.rewriteNavigation(a.url, currentUrl, ctx.sessionOrigin, ctx.isFirstNavigate);
   if (target === null) {
     ctx.log('  [navigate] skipped to preserve the session — waiting for the app to settle instead');
     await ctx.patch.waitForIdle(ctx.page);
     return;
   }
   if (target !== a.url) {
-    ctx.log('  [navigate] replaying the recorded page with session tokens stripped');
+    ctx.log(`  [navigate] replaying URL with tokens stripped and origin aligned (${target.slice(0, 80)})`);
   }
 
   // Not swallowed: a green navigate makes every later step fail "not found"
@@ -262,12 +309,17 @@ async function doNavigate(a: NormalizedAction, ctx: ActionContext) {
 function assertResolved(a: NormalizedAction, value: string): void {
   const missing = unresolvedParameters(value);
   if (!missing.length) return;
-  throw new Error(
-    `Parameter${missing.length > 1 ? 's' : ''} ${missing.map((m) => `\${${m}}`).join(', ')} ` +
-    `${missing.length > 1 ? 'were' : 'was'} never resolved for ` +
-    `"${a.accessibleName || a.description || a.selector}". ` +
-    `Refusing to type the placeholder into the application.`,
-  );
+  const field = a.accessibleName || a.description || a.selector || '(unnamed field)';
+  // Typed, with the original sentence preserved verbatim.
+  throw new UnresolvedParameterError(missing.join(', '), {
+    field,
+    count: missing.length,
+    message:
+      `Parameter${missing.length > 1 ? 's' : ''} ${missing.map((m) => `\${${m}}`).join(', ')} ` +
+      `${missing.length > 1 ? 'were' : 'was'} never resolved for ` +
+      `"${field}". ` +
+      `Refusing to type the placeholder into the application.`,
+  });
 }
 
 /**
@@ -300,8 +352,37 @@ function valueFor(a: NormalizedAction, ctx: ActionContext): string {
   return secret;
 }
 
+/**
+ * The recorded post-commit value, or undefined when it can no longer be trusted.
+ *
+ * `committedValue` is what the field read after the OPERATOR committed it during
+ * recording. It is the best expectation available — a widget reformats on
+ * commit, and this is the only record of what that reformat looks like — but it
+ * describes the value that was recorded, not the value this run is asked to
+ * enter.
+ *
+ * When a parameter is re-bound for a new execution (`value` edited away from
+ * `originalValue`), `committedValue` still holds the OLD commit and becomes
+ * actively harmful in two ways:
+ *
+ *   - the "already correct" pre-check matches a field still holding the old
+ *     value, so the fill is SKIPPED and the new value is never typed;
+ *   - the post-fill check accepts the old value as a pass.
+ *
+ * Both report success while writing the wrong data, which is worse than failing.
+ * So a re-parameterized step is verified against what it was told to type, and
+ * nothing else.
+ */
+function trustedCommittedValue(a: NormalizedAction): string | undefined {
+  const original = a.originalValue;
+  if (typeof original !== 'string') return a.committedValue;
+  const reparameterized = original.trim() !== String(a.text ?? '').trim();
+  return reparameterized ? undefined : a.committedValue;
+}
+
 async function doFill(a: NormalizedAction, ctx: ActionContext) {
   const { page, patch, log } = ctx;
+  const committed = trustedCommittedValue(a);
   const value = valueFor(a, ctx);
   assertResolved(a, value);
   const el = await mustResolve(page, a, patch, 'fill', log);
@@ -322,7 +403,7 @@ async function doFill(a: NormalizedAction, ctx: ActionContext) {
     // created for ten times the amount, reporting green.
     // Only compare against expectations that actually exist; an absent
     // committedValue must not be read as "expects empty".
-    const expectations = [value, a.committedValue].filter((v): v is string => !!v);
+    const expectations = [value, committed].filter((v): v is string => !!v);
     if (expectations.some((e) => valueMatchesStrict(existing, e))) {
       log(`  [fill] already "${String(existing).slice(0, 60)}" — leaving it`);
       return;
@@ -374,11 +455,13 @@ async function doFill(a: NormalizedAction, ctx: ActionContext) {
   // fires on the field that is actually empty, and nothing commits a blank.
   const landed = await readValue(el);
   if (value && !String(landed).trim()) {
-    throw new Error(
-      `Nothing was entered into "${a.accessibleName || a.description || a.selector}" — ` +
-      `the field is still empty after typing "${value}". ` +
-      `Stopping rather than letting the next step commit a blank value.`,
-    );
+    const field = a.accessibleName || a.description || a.selector || '(unnamed field)';
+    throw new FillNotCommittedError(field, value, '', {
+      message:
+        `Nothing was entered into "${field}" — ` +
+        `the field is still empty after typing "${value}". ` +
+        `Stopping rather than letting the next step commit a blank value.`,
+    });
   }
 
   // The recording commits this field itself — an option pick or the operator's
@@ -402,17 +485,23 @@ async function doFill(a: NormalizedAction, ctx: ActionContext) {
   await patch.waitForIdle(page);
 
   let actual = await readValue(el);
-  if (!valueAccepted(actual, value, a.committedValue)) {
+  if (!valueAccepted(actual, value, committed)) {
     // An LOV that did not resolve on blur still answers to Tab — its own hint
     // reads "Autocompletes on TAB". One retry beats failing a good fill.
     await el.press('Tab', { timeout: T.action }).catch(() => {});
     await patch.waitForIdle(page);
     actual = await readValue(el);
   }
-  if (!valueAccepted(actual, value, a.committedValue)) {
-    throw new Error(
-      `Value mismatch after fill: expected "${String(a.committedValue || value).slice(0, 80)}", ` +
-      `got "${String(actual).slice(0, 80)}"`,
+  if (!valueAccepted(actual, value, committed)) {
+    throw new FillNotCommittedError(
+      a.accessibleName || a.description || a.selector || '(unnamed field)',
+      String(committed || value),
+      String(actual),
+      {
+        message:
+          `Value mismatch after fill: expected "${String(committed || value).slice(0, 80)}", ` +
+          `got "${String(actual).slice(0, 80)}"`,
+      },
     );
   }
   log(`  [fill] "${value}" → "${actual}"`);
@@ -436,6 +525,25 @@ async function doClick(a: NormalizedAction, ctx: ActionContext, isDouble = false
       // remaining step, so the report would blame whichever step ran next
       // rather than this one.
       await patch.dismissOpenList(page, log).catch(() => {});
+    }
+    // Same distinction mustResolve() draws, and for the same reason: a click
+    // target that matches NOTHING in the document is a provisioning gap, not a
+    // selector fault. Costs milliseconds and only runs on the failure path.
+    const target = a.accessibleName || a.description || a.selector || '(no locator)';
+    const { absent, searched } = await proveAbsent(page, a, patch, (m) => log(`  [click] ${m}`));
+    if (absent) {
+      const err: any = new TargetNotPresentError(target, {
+        searched,
+        scope: a.selector || '',
+        message:
+          `"${target}" is NOT PRESENT ON THIS INSTANCE. After the full locate budget ` +
+          `every one of the ${searched} candidate locator(s) matched nothing in the ` +
+          `document — not hidden, not off-screen, absent — so this is not a timeout ` +
+          `and not a stale selector: the feature the script needs is not provisioned ` +
+          `on this environment, or the signed-in user has no access to it.`,
+      });
+      err.failureStage = 'ABSENT';
+      throw err;
     }
     throw new Error(`click target not found: ${a.selector || a.accessibleName || '(no locator)'}`);
   }
@@ -490,10 +598,41 @@ async function doClick(a: NormalizedAction, ctx: ActionContext, isDouble = false
     // validation dialog appears, and the engine prints [commit] accepted for a
     // record that was never submitted.
     if (isCommit) {
-      throw new Error(`Commit "${a.accessibleName || a.description}" was not clickable: ${why}`);
+      const err: any = new Error(`Commit "${a.accessibleName || a.description}" was not clickable: ${why}`);
+      err.failureStage = 'COMMIT';
+      throw err;
     }
-    log(`  [click] not actionable (${why.slice(0, 60)}) — forcing`, 'warn');
-    await hit(el, { button, clickCount, force: true, timeout: T.action });
+    // An element that RESOLVED but is outside the viewport is a different
+    // failure from "not actionable", and forcing does not fix it: force skips
+    // the actionability checks but still dispatches at a point, and a point
+    // outside the window is refused just the same. It needs the element brought
+    // into view.
+    //
+    // Scrolling is the whole of the remedy here, and it is true of every web
+    // page, so it needs no application knowledge. An element parked in a strip
+    // the scrollbar cannot reach used to be handled from here too, by asking the
+    // patch to drive the app's paging controls — but only AFTER a click had
+    // already failed, which meant it could correct a recording that paged too
+    // little and never one that paged too much. That is now handled BEFORE the
+    // paging steps run, in engine/relative-nav.ts.
+    //
+    // Reported as revealed only if the element ENDED UP in the viewport:
+    // `scrollIntoViewIfNeeded` resolves happily inside a container that cannot
+    // scroll, and retrying on that guarantees the identical failure.
+    let revealed = false;
+    if (/outside of the viewport/i.test(String(e.message))) {
+      log('  [click] target is outside the viewport — scrolling to it', 'warn');
+      await el.scrollIntoViewIfNeeded({ timeout: T.visibleShort }).catch(() => {});
+      if (await inViewport(el)) {
+        revealed = await hit(el, { button, clickCount, timeout: T.action }).then(() => true, () => false);
+        log(revealed ? '  [click] revealed and clicked' : '  [click] revealed but still not clickable', revealed ? 'info' : 'warn');
+      }
+    }
+
+    if (!revealed) {
+      log(`  [click] not actionable (${why.slice(0, 60)}) — forcing`, 'warn');
+      await hit(el, { button, clickCount, force: true, timeout: T.action });
+    }
   }
   await patch.waitForIdle(page);
 
@@ -517,7 +656,9 @@ async function doClick(a: NormalizedAction, ctx: ActionContext, isDouble = false
       }
     }
     if (!(await patch.listOpened(page, baseline, true))) {
-      throw new Error(`List did not open for "${a.accessibleName || a.description || 'trigger'}"`);
+      const err: any = new Error(`List did not open for "${a.accessibleName || a.description || 'trigger'}"`);
+      err.failureStage = 'OPEN';
+      throw err;
     }
   }
 
@@ -555,7 +696,11 @@ async function doClick(a: NormalizedAction, ctx: ActionContext, isDouble = false
 async function doLovSelect(a: NormalizedAction, ctx: ActionContext) {
   const { page, patch, log } = ctx;
   const wanted = String(a.text || '').trim();
-  if (!wanted) throw new Error('lovSelect step has no value to select');
+  if (!wanted) {
+    const err: any = new Error('lovSelect step has no value to select');
+    err.failureStage = 'INPUT';
+    throw err;
+  }
   assertResolved(a, wanted);
 
   const container = await mustResolve(page, a, patch, 'lov', log);
@@ -576,13 +721,31 @@ async function doLovSelect(a: NormalizedAction, ctx: ActionContext) {
   const surfaceBaseline = await patch.countListSurfaces(page);
 
   for (const probe of probes) {
-    await input.click({ timeout: ABSENCE.bestEffort }).catch(() => {});
-    await input.fill('', { timeout: ABSENCE.bestEffort }).catch(() => {});
-    await input.pressSequentially(probe, { delay: 30, timeout: T.action });
+    try {
+      await input.click({ timeout: ABSENCE.bestEffort }).catch(() => {});
+      await input.fill('', { timeout: ABSENCE.bestEffort }).catch(() => {});
+      await input.pressSequentially(probe, { delay: 30, timeout: T.action });
+    } catch (err: any) {
+      if (!err.failureStage) err.failureStage = 'INPUT';
+      throw err;
+    }
     await patch.settleAutosuggest(page);
 
-    const picked = await patch.pickListRow(page, wanted, log);
-    if (!picked) await patch.commitTypedValue(page, input);
+    let picked = false;
+    try {
+      picked = await patch.pickListRow(page, wanted, log);
+    } catch (err: any) {
+      if (!err.failureStage) err.failureStage = 'OPEN';
+      throw err;
+    }
+    if (!picked) {
+      try {
+        await patch.commitTypedValue(page, input);
+      } catch (err: any) {
+        if (!err.failureStage) err.failureStage = 'COMMIT';
+        throw err;
+      }
+    }
 
     // Selection has to be PROVEN, and "the field still holds what I typed" does
     // not prove it — that is true by construction unless the widget erased it.
@@ -616,9 +779,11 @@ async function doLovSelect(a: NormalizedAction, ctx: ActionContext) {
   // later step and the report would blame whichever ran next.
   await patch.dismissOpenList(page, log).catch(() => {});
   const finalValue = await readValue(input);
-  throw new Error(
+  const err: any = new Error(
     `lovSelect could not select "${wanted}" — field reads "${finalValue}" after trying: ${probes.join(' | ')}`,
   );
+  err.failureStage = 'VERIFY';
+  throw err;
 }
 
 async function doPress(a: NormalizedAction, ctx: ActionContext) {
@@ -755,12 +920,20 @@ async function doAssertVisible(a: NormalizedAction, ctx: ActionContext) {
 async function doAssertText(a: NormalizedAction, ctx: ActionContext) {
   const el = await mustResolve(ctx.page, a, ctx.patch, 'assertText', ctx.log);
   const expected = normWs(a.text);
-  const actual = normWs(await el.innerText().catch(() => ''));
+  let actual = '';
   // Substring, whitespace-normalised — the recorder asserts the same way.
   // Case-insensitive on top of that, because Oracle's label casing varies
   // between releases and translations and a case flip is never the defect the
-  // operator meant to catch.
-  if (!actual.toLowerCase().includes(expected.toLowerCase())) {
+  // operator meant to catch. Polled via waitUntil to accommodate late-rendering ADF text.
+  const passed = await waitUntil(
+    ctx.page,
+    async () => {
+      actual = normWs(await el.innerText().catch(() => ''));
+      return actual.toLowerCase().includes(expected.toLowerCase());
+    },
+    { maxMs: T.action, pollMs: 50 },
+  );
+  if (!passed) {
     throw new Error(`Assertion failed: expected text "${expected.slice(0, 80)}", element reads "${actual.slice(0, 120)}"`);
   }
   ctx.log(`  [assert] text contains "${expected.slice(0, 60)}"`);
@@ -769,12 +942,20 @@ async function doAssertText(a: NormalizedAction, ctx: ActionContext) {
 async function doAssertValue(a: NormalizedAction, ctx: ActionContext) {
   const el = await mustResolve(ctx.page, a, ctx.patch, 'assertValue', ctx.log);
   const expected = normWs(a.text);
-  const actual = await readValue(el);
+  let actual: string | null = null;
   // STRICT. This is the operator's own stated expectation and the last line of
   // defence for "green means the record is correct" — it must not inherit the
   // LOV-resolution tolerance, under which asserting "100" passes against a
-  // field holding 1000.00.
-  if (!valueMatchesStrict(actual, expected)) {
+  // field holding 1000.00. Polled via waitUntil so asynchronous value binding resolves cleanly.
+  const passed = await waitUntil(
+    ctx.page,
+    async () => {
+      actual = await readValue(el);
+      return valueMatchesStrict(actual, expected);
+    },
+    { maxMs: T.action, pollMs: 50 },
+  );
+  if (!passed) {
     throw new Error(`Assertion failed: expected value "${expected.slice(0, 80)}", field holds "${String(actual).slice(0, 120)}"`);
   }
   ctx.log(`  [assert] value "${String(actual).slice(0, 60)}"`);
@@ -783,9 +964,17 @@ async function doAssertValue(a: NormalizedAction, ctx: ActionContext) {
 async function doAssertChecked(a: NormalizedAction, ctx: ActionContext) {
   const el = await mustResolve(ctx.page, a, ctx.patch, 'assertChecked', ctx.log);
   const want = a.checked !== false; // the recorder writes `checked: false` for unchecked
-  const actual = await el.isChecked().catch(() => null);
-  if (actual === null) throw new Error('Assertion failed: element has no checked state');
-  if (actual !== want) {
+  let actual: boolean | null = null;
+  const passed = await waitUntil(
+    ctx.page,
+    async () => {
+      actual = await el.isChecked().catch(() => null);
+      return actual === want;
+    },
+    { maxMs: T.action, pollMs: 50 },
+  );
+  if (!passed) {
+    if (actual === null) throw new Error('Assertion failed: element has no checked state');
     throw new Error(`Assertion failed: expected ${want ? 'checked' : 'unchecked'}, element is ${actual ? 'checked' : 'unchecked'}`);
   }
   ctx.log(`  [assert] ${want ? 'checked' : 'unchecked'}`);

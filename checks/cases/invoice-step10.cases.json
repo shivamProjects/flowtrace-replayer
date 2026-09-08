@@ -1,0 +1,22 @@
+{
+  "fixture": "invoice-step10.html",
+  "source": "Oracle Fusion FuseWelcome - Open Payables (invoice recording)",
+  "cases": [
+    {
+      "name": "Payables cluster tab resolves by link name",
+      "action": {
+        "action": "click",
+        "type": "click",
+        "locator": {
+          "role": "link",
+          "name": "Payables",
+          "selector": "internal:role=link[name=\"Payables\"i]"
+        },
+        "description": "Open Payables"
+      },
+      "expect": {
+        "resolvesTo": "A#groupNode_payables"
+      }
+    }
+  ]
+}

@@ -20,6 +20,7 @@ import type { Locator, Page } from '@playwright/test';
 import type { AppPatch, LocatorScope, LogFn, NormalizedAction } from './types';
 import { ABSENCE } from './timeouts';
 import { resolveScope } from './frames';
+import { TargetNotPresentError } from './errors';
 
 export const escapeRegExp = (s: string) => String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const cssEscapeValue = (v: string) => String(v).replace(/["\\]/g, '\\$&');
@@ -148,6 +149,18 @@ export function buildLocator(scope: LocatorScope, selector: string): Locator {
 // ── Candidates ─────────────────────────────────────────────────────────────
 
 /**
+ * The text this step is trying to name, from wherever the recording carries it.
+ *
+ * `accessibleName` is normalize.ts's reading of the recorded selector — it
+ * already digs the name out of `internal:role=option[name="X"i]` — and the
+ * explicit locator fields are the schema-v1 route to the same thing.
+ */
+function wantedNameOf(action: NormalizedAction): string {
+  const loc = action.locator || {};
+  return String(action.accessibleName || loc.name || action.text || loc.text || '').trim();
+}
+
+/**
  * Every way this step's target might be addressable, best first.
  *
  * A codegen recording gives one selector, so on the face of it there is nothing
@@ -200,6 +213,15 @@ export function candidatesFor(
     // Exact BEFORE fuzzy — see the header note about "Save".
     add('role+name-exact', () => scope.getByRole(role as any, { name: accessibleName, exact: true }));
   }
+  // The application's own exact key for the wanted item, if it publishes one.
+  //
+  // Placed here — after the exact accessible-name retry, before the recorded
+  // selector — because it only earns its slot when the name has already failed
+  // to name one element. What the key IS stays entirely inside the patch; the
+  // engine passes the wanted text and takes back a locator.
+  const wanted = wantedNameOf(action);
+  if (wanted) add('patch-exact', () => patch.exactMatch(scope, action, wanted));
+
   if (loc.attrSelector) add('attrSelector', () => scope.locator(loc.attrSelector!));
   if (action.selector) add('selector', () => buildLocator(scope, action.selector!));
   // Scraped-guess vendor candidates: still tried, but only once the recorded
@@ -349,6 +371,64 @@ async function indexByRecordedPath(
   return hit;
 }
 
+/**
+ * Break a tie on an EXACT name, before falling back to document order.
+ *
+ * A recorded role+name is replayed as a case-insensitive SUBSTRING match — that
+ * is what the recorder's trailing `i` flag means, and it is right far more often
+ * than not, because ADF concatenates extra columns onto a row's text. The cost
+ * is that a recorded name which is a strict PREFIX of another item names both:
+ *
+ *   getByRole('option', { name: /United States/i })
+ *     → <li …>United States</li>
+ *     → <li …>United States Minor Outlying Islands</li>
+ *
+ * Taking the first painted match is then a bet on DOM order, and the bet is lost
+ * silently — the wrong country is selected and the step reports green, because
+ * the recorded name IS a substring of what got picked, so every read-back check
+ * downstream agrees with it too. That is the worst failure shape this engine
+ * has: a passing run carrying wrong master data.
+ *
+ * So: when several elements match, ask which of them the name describes
+ * EXACTLY. If exactly one does, it is the one the recording meant. If none does
+ * — or several do, which means the name genuinely does not distinguish them —
+ * this decides nothing and the caller falls back as before. Deliberately NOT a
+ * failure: refusing here would break steps that work today.
+ *
+ * Compared case-insensitively and whitespace-normalised, matching how the rest
+ * of the engine reads text; only the substring tolerance is removed.
+ *
+ * Returns the winning index, or -1. Never throws.
+ */
+async function indexByExactName(vis: Locator, count: number, wanted: string): Promise<number> {
+  const want = wanted.replace(/\s+/g, ' ').trim().toLowerCase();
+  if (!want || count <= 1) return -1;
+
+  // Every string a person could reasonably call this element's name. An <input>
+  // has no text at all, so its value and placeholder stand in for one.
+  const names: string[][] = await vis
+    .evaluateAll((els) =>
+      els.map((el) => {
+        const n = el as HTMLElement;
+        const norm = (s: unknown) => String(s ?? '').replace(/\s+/g, ' ').trim();
+        return [
+          norm(n.innerText || n.textContent),
+          norm(n.getAttribute('aria-label')),
+          norm(n.getAttribute('title')),
+          norm((n as HTMLInputElement).value),
+        ].filter(Boolean);
+      }),
+    )
+    .catch(() => [] as string[][]);
+  if (!names.length) return -1;
+
+  const hits: number[] = [];
+  names.forEach((forEl, i) => {
+    if (forEl.some((n) => n.toLowerCase() === want)) hits.push(i);
+  });
+  return hits.length === 1 ? hits[0] : -1;
+}
+
 function warnIfAmbiguous(
   how: string,
   count: number,
@@ -388,14 +468,19 @@ export async function resolve(
         log(`${name} matched ${count} node(s), none painted — skipping`);
         continue;
       }
-      // Ask the recording before falling back to document order.
+      // Ask the recording, then the name, before falling back to document order.
       const byPath = await indexByRecordedPath(vis, count, action);
-      const idx = byPath >= 0 ? byPath : painted;
+      const byName = byPath >= 0 ? -1 : await indexByExactName(vis, count, wantedNameOf(action));
+      const decided = byPath >= 0 ? byPath : byName;
+      const idx = decided >= 0 ? decided : painted;
       if (byPath >= 0 && byPath !== painted) {
         log(`${name} matched ${count} node(s) — recorded component path names match ${byPath + 1}, not ${painted + 1}`);
       }
+      if (byName >= 0 && byName !== painted) {
+        log(`${name} matched ${count} node(s) — only match ${byName + 1} is named "${wantedNameOf(action)}" exactly, not ${painted + 1}`);
+      }
       log(`resolved via ${name}${count > 1 ? ` (match ${idx + 1} of ${count})` : ''}`);
-      if (byPath < 0) warnIfAmbiguous(name, count, idx, action, log);
+      if (decided < 0) warnIfAmbiguous(name, count, idx, action, log);
       return await unwrapLabel(scope, vis.nth(idx));
     } catch (_) { /* candidate is not queryable — try the next */ }
   }
@@ -424,17 +509,74 @@ export async function resolve(
     }
     const waitedCount = await vis.count().catch(() => 1);
     const byPath = await indexByRecordedPath(vis, waitedCount, action);
-    const chosen = byPath >= 0 ? byPath : idx;
+    const byName = byPath >= 0 ? -1 : await indexByExactName(vis, waitedCount, wantedNameOf(action));
+    const decided = byPath >= 0 ? byPath : byName;
+    const chosen = decided >= 0 ? decided : idx;
     if (byPath >= 0 && byPath !== idx) {
       log(`${winner} matched ${waitedCount} node(s) — recorded component path names match ${byPath + 1}, not ${idx + 1}`);
     }
+    if (byName >= 0 && byName !== idx) {
+      log(`${winner} matched ${waitedCount} node(s) — only match ${byName + 1} is named "${wantedNameOf(action)}" exactly, not ${idx + 1}`);
+    }
     log(`resolved via ${winner} (waited)`);
-    if (byPath < 0) warnIfAmbiguous(winner, waitedCount, chosen, action, log);
+    if (decided < 0) warnIfAmbiguous(winner, waitedCount, chosen, action, log);
     return await unwrapLabel(scope, vis.nth(chosen));
   }
 
   log(`unresolved — tried ${cands.map((c) => c.name).join(', ')}`);
   return null;
+}
+
+/**
+ * Is the step's target ABSENT, as opposed to merely unresolved?
+ *
+ * resolve() asks "can I act on this"; three different worlds answer no — the
+ * element is hidden, it is off-canvas, or it does not exist. Only the third is
+ * a statement about the ENVIRONMENT, and it is the one that matters: a task
+ * link a pod never had is not a selector bug, however much a timeout reads like
+ * one.
+ *
+ * The question asked here is the strict one. Every candidate locator is counted
+ * WITHOUT the visible filter, so a hidden or off-screen node — anything the DOM
+ * actually holds — answers "present" and this returns null. Only a document in
+ * which not one candidate matches at all is called absent.
+ *
+ * It costs milliseconds: count() resolves immediately either way and never
+ * waits. It is therefore run AFTER the ordinary locate budget has already been
+ * spent, not instead of it — bailing early would trade a correct verdict for a
+ * fast wrong one on any page still painting.
+ *
+ * Nothing here knows what application it is driving; the candidate list comes
+ * from the patch.
+ */
+export async function proveAbsent(
+  page: Page,
+  action: NormalizedAction,
+  patch: AppPatch,
+  log?: LogFn,
+): Promise<{ absent: boolean; searched: number }> {
+  let scope: LocatorScope;
+  try {
+    scope = await resolveScope(page, action, () => {});
+  } catch (_) {
+    // The frame the step wanted is gone. That is not evidence of absence.
+    return { absent: false, searched: 0 };
+  }
+  const cands = candidatesFor(scope, action, patch);
+  if (!cands.length) return { absent: false, searched: 0 };
+
+  let searched = 0;
+  for (const { name, locator } of cands) {
+    // -1 on a throw, deliberately: an unqueryable candidate is UNKNOWN, and
+    // unknown must never be reported as absent.
+    const n = await locator.count().catch(() => -1);
+    if (n !== 0) {
+      log?.(`present in the DOM via ${name} (${n} node(s)) — not an absence`);
+      return { absent: false, searched };
+    }
+    searched++;
+  }
+  return { absent: true, searched };
 }
 
 /** Resolve or throw, with a message that names the step rather than the DOM. */
@@ -448,9 +590,27 @@ export async function mustResolve(
 ): Promise<Locator> {
   const el = await resolve(page, action, patch, { ...opts, log: (m) => log(`  [${kind}] ${m}`) });
   if (!el) {
-    throw new Error(
+    const target = action.accessibleName || action.description || action.selector || '(no locator)';
+    const { absent, searched } = await proveAbsent(page, action, patch, (m) => log(`  [${kind}] ${m}`));
+    if (absent) {
+      const err: any = new TargetNotPresentError(target, {
+        searched,
+        scope: action.selector || '',
+        message:
+          `"${target}" is NOT PRESENT ON THIS INSTANCE. After the full locate budget ` +
+          `every one of the ${searched} candidate locator(s) matched nothing in the ` +
+          `document — not hidden, not off-screen, absent — so this is not a timeout ` +
+          `and not a stale selector: the feature the script needs is not provisioned ` +
+          `on this environment, or the signed-in user has no access to it.`,
+      });
+      err.failureStage = 'ABSENT';
+      throw err;
+    }
+    const err: any = new Error(
       `${kind} target not found: ${action.selector || action.accessibleName || '(no locator)'}`,
     );
+    err.failureStage = 'LOCATE';
+    throw err;
   }
   return el;
 }

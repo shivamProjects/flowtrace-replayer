@@ -31,23 +31,27 @@ const BUSY_SEL =
   '.AFPopUpLoadingIndicator, .af_statusIndicator, .p_AFLoadingIndicator, .AFLoadingIcon, .af_loadingIndicator';
 
 /**
- * A Redwood (Oracle JET) picker list, open.
+ * A Redwood (Oracle JET) picker list, open. Counted only — see LOV_SURFACE_SEL.
  *
  * JET renders one as `<ul class="oj-listview-element" role="grid"
- * aria-rowcount="3">` — no dialog, no ADF id shape, nothing the selectors below
- * this were written for. Captured live from ibqwjb-test; see
+ * aria-rowcount="3">` — no dialog and no ADF id shape, so none of the ADF
+ * surface selectors match it. Captured live from ibqwjb-test; see
  * `checks/pages/redwood-picker.html` for the unmodified markup.
  *
  * Deliberately NOT a bare `[role=grid]`: an ADF LOV dialog's results table is
- * also a grid, and matching it here would route ADF picks down the Redwood
- * path, which has no Search button and no OK button to press.
+ * also a grid, and counting it here would make a launcher click look like it
+ * opened a second surface when it opened one.
  */
 const REDWOOD_LIST_SEL =
   'ul.oj-listview-element[role="grid"], ul[role="grid"][aria-rowcount], ul[role="grid"]:has(> li[role="row"])';
 
-// A row inside one. The `<li role=row>` carries the volatile id; the gridcell
-// inside it carries the text, which is what a person actually picked.
-const REDWOOD_ROW_SEL = '[role="gridcell"]';
+/**
+ * The carets that page the home springboard's cluster rail sideways.
+ *
+ * Matched against both the recorded selector string and the recorder's bare
+ * element id, because recordings carry the address in either place.
+ */
+const CLUSTER_CARET_RE = /clusters-(?:left|right)-nav/;
 
 // Every surface ADF can open for a launcher click. Counted, never tested for
 // existence: a hidden container per field always exists, so only a RISE over
@@ -61,9 +65,12 @@ const LOV_SURFACE_SEL = [
   '[id*="_afrPopup"]',
   '[role="dialog"]',
   // Redwood (JET). Every entry above is an ADF shape, so on a JET page this
-  // list counted ZERO surfaces however many pickers were open — which made
-  // `listOpened` report that a launcher click opened nothing, and left
-  // `_openListDialog` with nothing to hand `selectFromOpenList`.
+  // list counted ZERO surfaces however many pickers were open, and `listOpened`
+  // reported that a launcher click had opened nothing.
+  //
+  // Covers the oj-listview picker only. The oj-TABLE picker (Business Unit,
+  // Customer) is a <table role=application> and is NOT counted here — left
+  // alone deliberately, since no run has yet failed on it.
   REDWOOD_LIST_SEL,
 ].join(', ');
 
@@ -120,6 +127,52 @@ const OUTPUT_PATTERNS = [
   { name: 'Order Number', re: /order\s+([A-Za-z0-9\-\/]{3,})\s+(?:was|has been)\s+(?:created|submitted)/i },
   { name: 'Confirmation', re: /\b(?:confirmation|reference)\s*(?:number|#)?\s*[:\-]?\s*([A-Za-z0-9\-\/]{4,})/i },
 ];
+
+/**
+ * Oracle's post-login destinations, as they appear in stored recordings.
+ *
+ * Measured over 652 stored scripts: 96.5% open with a navigate, and ~85% of
+ * those go to one of these under /fscmUI/, /hcmUI/ or /crmUI/. 67.6% carry TWO
+ * consecutive landing navigates, which is the login redirect chain
+ * (FuseWelcome then AtkHomePageWelcome) captured as steps.
+ *
+ * `Home` and `Welcome` are only landings when reached through /faces/ — they are
+ * ordinary words and a bare `…/home` elsewhere is not necessarily a landing.
+ */
+const LANDING_LEAVES = new Set([
+  'fusewelcome', 'atkhomepagewelcome', 'fusetasklistmanagertop',
+  'fndoverview', 'fuseoverview',
+]);
+const LANDING_FACES_LEAVES = new Set(['home', 'welcome']);
+
+/**
+ * Is `pathname` one of Oracle's landing pages?
+ *
+ * Matched on the last path SEGMENT, not on a substring: a deeplink such as
+ * /fscmUI/redwood/product-management/landing-page/landing-page must not be
+ * mistaken for a landing, and a substring test on "welcome" or "home" would
+ * catch far more than these pages. A bare "/" or an empty path IS a landing —
+ * that is the origin root the login redirect leaves the browser on.
+ *
+ * A trailing `.html`/`.jsp`/`.jspx` is stripped before matching; Oracle's own
+ * URLs carry no extension, and the checks serve these pages as files.
+ */
+export function isLandingPath(pathname: string): boolean {
+  const segs = String(pathname || '').split('/').filter(Boolean);
+  if (!segs.length) return true;
+  const leaf = segs[segs.length - 1].replace(/\.(html?|jspx?)$/i, '').toLowerCase();
+  if (LANDING_FACES_LEAVES.has(leaf)) return segs.some((s) => s.toLowerCase() === 'faces');
+  return LANDING_LEAVES.has(leaf);
+}
+
+/** Is the browser already sitting on `origin`? Unparseable / about:blank: no. */
+function sameOrigin(currentUrl: string, origin: string): boolean {
+  try {
+    return new URL(currentUrl).origin === origin;
+  } catch {
+    return false;
+  }
+}
 
 export class OraclePatch extends GenericPatch {
   readonly name = 'oracle-fusion';
@@ -406,12 +459,6 @@ export class OraclePatch extends GenericPatch {
     const want = String(wanted || '').trim();
     if (!want) return false;
 
-    // Redwood first. Its list is not a dialog, so `_openListDialog` returns null
-    // for it and the whole ADF path below is unreachable — which is why a
-    // Business Unit row recorded as `[id$="table:1250645336_0"]` had no recovery
-    // at all once that id stopped resolving.
-    if (await this._selectFromRedwoodList(page, want, log)) return true;
-
     const dialog = await this._openListDialog(page);
     if (!dialog) return false;
 
@@ -461,102 +508,6 @@ export class OraclePatch extends GenericPatch {
       }
     }
     return false;
-  }
-
-  /**
-   * Pick a row out of an open Redwood (JET) picker, BY ITS TEXT.
-   *
-   * This is the half the tail rewrite could not supply. A recorder that stores
-   * `[id$="table:1250645336_0"]` gives the replay a stable address for the row,
-   * but that address means nothing to an operator: in the UI they type a
-   * business unit NAME, and it is the name that ends up in the parameter map and
-   * gets overridden per run. So when the recorded id no longer resolves — a
-   * different data set, a filtered list, a row that moved index — recovery has
-   * to work from the value, exactly as a person would.
-   *
-   * Two shapes are handled, in order:
-   *   1. The row is already rendered — click it. A short list (Sales Channel has
-   *      three) never needs filtering, and typing into it would only narrow a
-   *      list that already contains the answer.
-   *   2. It is not — type the value into the combobox that owns the list, let
-   *      JET filter server-side, then click. This is the virtualised case, the
-   *      Redwood equivalent of the ADF dialog's search box.
-   *
-   * Ranking is shared with the ADF path (`_rankRows`), so "MANUAL" cannot select
-   * "MANUAL ADJUSTMENT" here either.
-   */
-  private async _selectFromRedwoodList(page: Page, want: string, log: LogFn): Promise<boolean> {
-    const list = page.locator(REDWOOD_LIST_SEL).filter({ visible: true }).first();
-    if ((await list.count().catch(() => 0)) === 0) return false;
-
-    if (await this._clickRedwoodRow(page, list, want, log)) return true;
-
-    // Not on screen. Filter the way the field is meant to be used.
-    //
-    // The input is NOT inside the list — JET renders the popup as a sibling of
-    // the combobox, or reparents it to <body> entirely — so it is found through
-    // the list's `aria-labelledby`, which points at the field's own label. That
-    // keeps the typing pinned to the field this list belongs to; a page-wide
-    // "first visible combobox" would type into whichever one painted first.
-    const input = await this._redwoodFilterInput(page, list);
-    if (!input) return false;
-
-    log(`  [lov] filtering the Redwood picker for "${want}"`);
-    await input.fill(want, { timeout: ABSENCE.action }).catch(() => {});
-    await this.settleAutosuggest(page);
-
-    return await this._clickRedwoodRow(
-      page,
-      page.locator(REDWOOD_LIST_SEL).filter({ visible: true }).first(),
-      want,
-      log,
-    );
-  }
-
-  /** The combobox input feeding an open JET listview, or null. */
-  private async _redwoodFilterInput(page: Page, list: Locator): Promise<Locator | null> {
-    const labelledBy = await list.getAttribute('aria-labelledby').catch(() => null);
-    if (labelledBy) {
-      // `oj-selectsingle-12-labelled-by` — the id of the field's label element.
-      // Its owning component is the combobox we want to type into.
-      const owned = page
-        .locator(`[aria-labelledby~="${labelledBy.replace(/["\\]/g, '\\$&')}"]`)
-        .locator('input:not([type="hidden"])')
-        .filter({ visible: true })
-        .first();
-      if ((await owned.count().catch(() => 0)) > 0) return owned;
-    }
-
-    // Fall back to the focused input. Opening a JET picker focuses its search
-    // field, so this is right far more often than it looks — and it is only
-    // reached when the list declares no label to pin to.
-    const active = page.locator('input:focus').filter({ visible: true }).first();
-    return (await active.count().catch(() => 0)) > 0 ? active : null;
-  }
-
-  /** Click the best text match among a JET listview's rows. */
-  private async _clickRedwoodRow(page: Page, list: Locator, want: string, log: LogFn): Promise<boolean> {
-    if ((await list.count().catch(() => 0)) === 0) return false;
-    const rows = list.locator(REDWOOD_ROW_SEL);
-    const texts: string[] = await rows
-      .evaluateAll((els) => els.map((e) => ((e as HTMLElement).innerText || '').replace(/\s+/g, ' ').trim()))
-      .catch(() => [] as string[]);
-
-    const best = this._rankRows(texts, want);
-    if (!best) return false;
-
-    if (best.t.toLowerCase() !== want.toLowerCase()) {
-      log(`  [lov] "${want}" -> closest Redwood row "${best.t.slice(0, 60)}"`);
-    }
-    const clicked = await rows
-      .nth(best.i)
-      .click({ timeout: ABSENCE.action })
-      .then(() => true, () => false);
-    if (!clicked) return false;
-
-    await this.waitForIdle(page);
-    log(`  [lov] selected "${best.t.slice(0, 60)}"`);
-    return true;
   }
 
   /**
@@ -802,14 +753,83 @@ export class OraclePatch extends GenericPatch {
    * part, they are meaningless by the time a recording is replayed, and dropping
    * them costs nothing since Oracle mints new ones.
    */
-  rewriteNavigation(url: string): string | null {
+  rewriteNavigation(
+    url: string,
+    currentUrl?: string,
+    sessionOrigin?: string,
+    isFirstNavigate?: boolean,
+  ): string | null {
     if (!url) return url;
-    if (!/\/(fscm|hcm|crm)UI\/faces\//i.test(url)) return url;
     try {
       const u = new URL(url);
+
+      // 1. Recover application entry if recorded URL is an OAuth/IDCS authorize endpoint
+      if (/\/oauth2\/v1\/authorize|\/ui\/v1\/signin/i.test(u.pathname)) {
+        const redirect = u.searchParams.get('redirect_uri') || u.searchParams.get('app_resource_url') || u.searchParams.get('idcs_app_resource_url');
+        if (redirect && /^https?:\/\//i.test(redirect)) {
+          try {
+            return new URL(redirect).origin + '/';
+          } catch {}
+        }
+      }
+
+      // 2. Strip volatile ADF tokens
       for (const p of ['_adf.ctrl-state', '_afrLoop', '_adf.no-new-window-redirect']) {
         u.searchParams.delete(p);
       }
+
+      // 3. Align origin with the LIVE origin if they differ (recorded against
+      //    another environment or pod).
+      //
+      //    `sessionOrigin` is preferred and `currentUrl` is only the fallback.
+      //    The session origin comes from the recording's first navigate — the
+      //    login step, which the queue worker re-reads from the instance record
+      //    on every run — so it is current by construction. `page.url()` is
+      //    merely where the browser happens to be: still `about:blank` before
+      //    the first navigate, and mid-flow possibly a host the flow was passed
+      //    through rather than the one it belongs to.
+      const anchor = sessionOrigin || currentUrl;
+      if (anchor && /^https?:\/\//i.test(anchor) && !/about:blank/i.test(anchor)) {
+        try {
+          const curr = new URL(anchor);
+          // The IDCS guard stays: never retarget INTO the identity provider, or
+          // every business step lands on the sign-in host.
+          if (curr.origin && curr.origin !== u.origin && !/idcs-|identity\.oraclecloud\.com/i.test(curr.hostname)) {
+            u.protocol = curr.protocol;
+            u.host = curr.host;
+            u.port = curr.port;
+          }
+        } catch {}
+      }
+
+      // 4. Skip the redundant post-login landing navigate.
+      //
+      //    After a successful sign-in Oracle redirects to the welcome/home page
+      //    by itself, so replaying the recorded landing navigate re-enters a
+      //    page the run is already on — using a URL that carries state from the
+      //    ORIGINAL recording session. Returning null is the engine's existing
+      //    "skip and wait for the app to settle" signal.
+      //
+      //    Deliberately narrow, because a wrongly skipped navigate strands the
+      //    run on the wrong page and every later step then fails "not found"
+      //    against it:
+      //      a. only for a LANDING pathname — a deeplink such as
+      //         /fscmUI/redwood/order-management-orders/manage is not one, and
+      //         ~13% of stored scripts start with exactly that;
+      //      b. never for the first navigate of the run, which is how the run
+      //         reaches the sign-in page at all;
+      //      c. only when the browser is already on the target's origin — from
+      //         anywhere else we genuinely do have to navigate.
+      if (
+        !isFirstNavigate &&
+        isLandingPath(u.pathname) &&
+        currentUrl &&
+        /^https?:\/\//i.test(currentUrl) &&
+        sameOrigin(currentUrl, u.origin)
+      ) {
+        return null;
+      }
+
       return u.toString();
     } catch {
       // Not parseable as a URL — replay it as recorded rather than dropping the
@@ -976,5 +996,136 @@ export class OraclePatch extends GenericPatch {
       { name: 'lovIcon[title*]', locator: scope.locator(`[title*="${esc(label)}" i]`) },
       { name: 'lovIcon[role=link][name]', locator: scope.getByRole('link', { name: label }) },
     ];
+  }
+
+  /**
+   * ADF publishes a list row's real value on the row, as an exact attribute.
+   *
+   * Seen in the live DOM of a country dropdown:
+   *
+   *   <li role="option" data-afr-value="United States"
+   *       data-afr-label="United States US">United States US</li>
+   *   <li role="option" data-afr-value="United States Minor Outlying Islands"
+   *       data-afr-label="…UM">United States Minor Outlying Islands UM</li>
+   *
+   * The recorded name is "United States", which as a substring match names BOTH
+   * rows — the failure this hook exists for. The engine's own remedy, retrying
+   * the name as an EXACT accessible-name match, decides nothing here: ADF paints
+   * the label with the country code appended, so neither row's text is "United
+   * States" and the exact retry finds zero. `data-afr-value` is the only exact
+   * key on the page, and it names precisely one row.
+   *
+   * `data-afr-label` is offered as well, for the widgets where ADF puts the
+   * displayed string there and the value is an opaque code — the recorded name
+   * is then the label, not the value. Both are exact equality, so an entry that
+   * merely starts with the wanted text still cannot match.
+   */
+  exactMatch(scope: LocatorScope, _action: NormalizedAction, wanted: string): Locator | null {
+    const want = String(wanted || '').trim();
+    if (!want) return null;
+    const esc = (v: string) => v.replace(/["\\]/g, '\\$&');
+    return scope.locator(`[data-afr-value="${esc(want)}"], [data-afr-label="${esc(want)}"]`);
+  }
+
+  // ── The home springboard's cluster rail ─────────────────────────────────
+  //
+  // The Fusion home page paints its work-area groups as one horizontal strip,
+  // scrolled by a pair of carets — `#clusters-right-nav` and
+  // `#clusters-left-nav`. They are RELATIVE moves. A recording that captured
+  // four caret clicks at `_afrMFW=1536` is wrong when replayed maximised at
+  // 1920 (more groups fit per page, so fewer clicks are needed and the surplus
+  // ones scroll PAST the target) and equally wrong when the recording came off
+  // a 2K screen and replay is narrower (more clicks are needed than were
+  // recorded). The saved jobs prove the count is not even a function of the
+  // viewport: Payables sits behind two carets in three jobs, three in four
+  // others and five in two more, with two of those groups recorded at the same
+  // 1707x758.
+  //
+  // These three hooks are the whole of what engine/relative-nav.ts needs to
+  // know about Oracle in order to ignore the count and search instead.
+
+  /** `#clusters-right-nav` / `#clusters-left-nav`, however the recorder wrote it. */
+  isRelativeNavStep(action: NormalizedAction): boolean {
+    if (action.name !== 'click') return false;
+    const address = `${action.selector || ''} ${(action as any)?.locator?.id || ''}`;
+    return CLUSTER_CARET_RE.test(address);
+  }
+
+  /**
+   * The caret pointing the other way.
+   *
+   * Rewritten from the recorded step rather than hard-coded, so whatever shape
+   * the recording used for the address — a bare id, `[id$="…"]`, a full ADF
+   * path — survives the swap and still addresses a real element on this page.
+   */
+  reverseNavStep(action: NormalizedAction): NormalizedAction | null {
+    const swap = (s: string) =>
+      s.replace(/clusters-(right|left)-nav/g, (_m, d) => `clusters-${d === 'right' ? 'left' : 'right'}-nav`);
+
+    const selector = action.selector ? swap(action.selector) : undefined;
+    const id = (action as any)?.locator?.id;
+    if (!selector && !id) return null;
+
+    return {
+      ...action,
+      selector,
+      locator: id ? { ...(action as any).locator, id: swap(String(id)) } : (action as any).locator,
+    } as NormalizedAction;
+  }
+
+  /**
+   * What the rail is showing right now.
+   *
+   * The group ids that are actually PAINTED, in order, plus the rail's own
+   * horizontal scroll offset. Ids alone are not enough — ADF sometimes slides
+   * the strip within a clipping window without changing which nodes are in the
+   * DOM — and the offset alone is not enough either, since a rail rebuilt by a
+   * PPR can reset it. Together they change whenever a caret click achieved
+   * anything, which is the only question asked of this.
+   */
+  async navStripSignature(page: Page): Promise<string> {
+    return page
+      .evaluate(() => {
+        const painted = (el: Element) => {
+          if ((el as any).checkVisibility && !(el as any).checkVisibility({ checkOpacity: true, checkVisibilityCSS: true })) {
+            return false;
+          }
+          const r = el.getBoundingClientRect();
+          return r.width > 1 && r.height > 1 && r.right > 0 && r.left < window.innerWidth;
+        };
+        // CAPTURED from the live dev79 springboard and cross-checked against
+        // every recorded nav selector in the corpus (6 instances) — NOT inferred.
+        //
+        //   [id^="groupNode_"]   27 live hits    a.flat-tabs-text  29 live hits
+        //   #clusters-right-nav   1 live hit, and recorded on ALL SIX instances
+        //                         (509/180/30/14/13/1 occurrences) — it does not
+        //                         vary by pod.
+        //
+        // `[id*=` not `[id^=`: the entries carry an ADF region prefix on some
+        // pages. Both shapes are real, from the corpus:
+        //   #groupNode_receivables                            (bare)
+        //   pt1:_UISnvr:0:nvgpgl2_groupNode_order_management   (prefixed)
+        // The `^=` form silently missed every prefixed one. `quickactions_` is
+        // excluded because it is the Quick Actions widget, not the cluster rail,
+        // and it changes independently of paging.
+        const ids = Array.from(
+          document.querySelectorAll('[id*="groupNode_"]:not([id*="quickactions"]), a.flat-tabs-text'))
+          .filter(painted)
+          .map((el) => el.id || (el.textContent || '').trim())
+          .join(',');
+        // The rail is `#clusters_container`. The previous selectors
+        // (`#clusterList`, `.flat-tabs-scroller`, `[id$="clusterList"]`) were
+        // inferred from a fixture and match NOTHING on the real page — measured
+        // 0 hits live, while `#clusters_container` is present and is also
+        // recorded as a click target on instances 6, 16 and 17.
+        const rail = document.querySelector('#clusters_container, [id$="clusters_container"]') as HTMLElement | null;
+        const offset = rail ? `${rail.scrollLeft}|${rail.getBoundingClientRect().left}` : '';
+        // '' means "I could not read the strip" and the engine must not treat
+        // it as "the strip did not change" — so a page with no rail at all
+        // reports nothing rather than a constant.
+        if (!ids && !offset) return '';
+        return `${ids}#${offset}`;
+      })
+      .catch(() => '');
   }
 }

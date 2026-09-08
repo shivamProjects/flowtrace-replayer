@@ -1,0 +1,22 @@
+{
+  "fixture": "invoice-step12.html",
+  "source": "Oracle Fusion Payables - Tasks Drawer Link (invoice recording)",
+  "cases": [
+    {
+      "name": "Tasks panel launcher resolves by title / link name",
+      "action": {
+        "action": "click",
+        "type": "click",
+        "locator": {
+          "role": "link",
+          "name": "Tasks",
+          "selector": "internal:role=link[name=\"Tasks\"i]"
+        },
+        "description": "Open Tasks"
+      },
+      "expect": {
+        "resolvesTo": "A#pt1:_FOr1:1:_FONSr2:0:_FOTsdiitemNode_InvoiceWorkbench_FndTasksList::disAcr"
+      }
+    }
+  ]
+}

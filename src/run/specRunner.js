@@ -1,11 +1,16 @@
 /**
- * SpecRunner — the bridge between the queue worker and the replay engine.
+ * SpecRunner — the bridge between the HTTP service and the replay engine.
  *
  * The engine is a Playwright test (`engine/main.ts`), not an in-process library,
  * so this module runs it as a CHILD PROCESS — one per execution — and translates
- * its output back into the shape the worker and report generator expect. Process
- * isolation is the point: a browser crash or an OOM takes down one execution
- * rather than the whole service.
+ * its output back into the shape the route expects. Process isolation is the
+ * point: a browser crash or an OOM takes down one execution rather than the
+ * whole service.
+ *
+ * The boundary below this module is load-bearing and must stay pure: the engine
+ * is a function of (actions, env) → (results, screenshots, stdout events). It
+ * makes no HTTP call and reaches no database, which is what lets a replay be
+ * reproduced by hand with two environment variables and no platform at all.
  *
  * The contract it exposes:
  *
@@ -14,11 +19,11 @@
  *     const { success, error, results, outputs } = await runner.replay(actions, opts);
  *     await runner.close();
  *
- * so the worker code below it is a straight port, not a rewrite.
+ * providing clean abstraction between the HTTP controller and engine execution.
  *
  * How the two halves talk:
- *   worker → spec   via env vars (JOB_ACTIONS_PATH / JOB_SCREENSHOT_DIR / …)
- *   spec   → worker via `@@EVENT {json}` lines on stdout (live) and a
+ *   service → spec  via env vars (JOB_ACTIONS_PATH / JOB_SCREENSHOT_DIR / …)
+ *   spec  → service via `@@EVENT {json}` lines on stdout (live) and a
  *                     results.json file (authoritative, read at exit)
  */
 
@@ -27,7 +32,7 @@ const EventEmitter = require("events");
 const fs = require("fs");
 const path = require("path");
 const sharp = require("sharp");
-const { loadCache: loadErrorTypeCache } = require("./errorTypeStore");
+const { writeKnownLabels } = require("./errorTypes");
 
 const PROJECT_ROOT = path.join(__dirname, "..", "..");
 // Relative to PROJECT_ROOT, matching playwright.config.ts `testDir: './engine'`.
@@ -64,12 +69,62 @@ const HL_PADDING_PX = 4;                // breathing room around the element, in
 const EVENT_PREFIX = "@@EVENT ";
 
 /**
- * Spec events that reach the stream ONLY through their action:* equivalent.
+ * How much longer the PARENT waits than the engine it is supervising.
  *
- * Each of these used to go out twice — once raw, once translated by
- * _emitLegacy — so every step cost two messages describing the same thing. The
- * translated shape is the one kept, with the raw shape's extra fields folded
- * into it, so nothing is lost by dropping the duplicate.
+ * The engine needs time after its own deadline expires to unwind: Playwright
+ * tears down the browser context, the engine writes its final results.json and
+ * prints `done`. Kill it inside that window and the run has no verdict, so a
+ * real step failure is reported as a timeout — which is a different incident
+ * class entirely (contract §7). 2 minutes is generous against a teardown that
+ * takes seconds.
+ */
+const OUTER_GRACE_MS = Number(process.env.REPLAY_OUTER_GRACE_MS || 120_000);
+
+/**
+ * The engine's own run deadline, computed HERE and pushed down.
+ *
+ * ── Timeout Invariant ────────────────────────────────────────────────────────
+ * Playwright test execution and parent process monitoring require synchronized
+ * deadlines. The parent process monitoring deadline must remain strictly above
+ * Playwright's test timeout so runs complete verdict emission and persist
+ * accurate step failure details before process termination (contract §7).
+ *
+ * This mirrors playwright.config.ts's runTimeoutMs() directly and passes the
+ * result to the child as REPLAY_RUN_TIMEOUT_MS. The caller derives the outer
+ * watchdog kill deadline as this value plus OUTER_GRACE_MS, guaranteeing that
+ * the outer deadline remains above the inner execution ceiling by construction.
+ *
+ * @param {number} stepCount steps in this run; 0 = unknown, which takes the floor
+ */
+function engineRunTimeoutMs(stepCount) {
+  const override = parseInt(process.env.REPLAY_RUN_TIMEOUT_MS || "", 10);
+  if (Number.isFinite(override) && override > 0) return override;
+
+  const stepBudget = parseInt(process.env.REPLAY_STEP_BUDGET_MS || "", 10) || 90_000;
+  const perStep = parseInt(process.env.REPLAY_RUN_PER_STEP_MS || "", 10) || Math.round(stepBudget / 3);
+  const min = parseInt(process.env.REPLAY_RUN_MIN_MS || "", 10) || 5 * 60 * 1_000;
+  const max = parseInt(process.env.REPLAY_RUN_MAX_MS || "", 10) || 25 * 60 * 1_000;
+
+  const derived = stepCount > 0 ? stepCount * perStep : min;
+  return Math.min(Math.max(derived, min), max);
+}
+
+/**
+ * The deadline the PARENT enforces, for a run of `stepCount` steps.
+ *
+ * Exported so the route can advertise it and so the invariant can be checked
+ * rather than trusted: outerDeadlineMs(n) > engineRunTimeoutMs(n), for all n.
+ */
+function outerDeadlineMs(stepCount) {
+  return engineRunTimeoutMs(stepCount) + OUTER_GRACE_MS;
+}
+
+/**
+ * Spec events routed exclusively via unified action:* event types on the SSE stream.
+ *
+ * Emitting structured action:* envelopes on the SSE firehose while routing
+ * raw events to internal subscribers provides a consistent frontend contract
+ * without duplicate telemetry lines.
  *
  * This filters the SSE firehose only. The named emit is untouched, because the
  * worker's own step logging listens on `step-start` / `step-end` directly.
@@ -225,7 +280,7 @@ class SpecRunner extends EventEmitter {
     }
 
     if (type === "step-start") {
-      const legacy = {
+      const stepPayload = {
         step: payload.index + 1,
         stepIndex: payload.index,
         totalSteps: this.totalSteps,
@@ -233,8 +288,8 @@ class SpecRunner extends EventEmitter {
         details: { action: payload.action, description: payload.description },
         timestamp: Date.now(),
       };
-      this.emit("action:start", legacy);
-      this.emit("event", { type: "action:start", ...legacy });
+      this.emit("action:start", stepPayload);
+      this.emit("event", { type: "action:start", ...stepPayload });
 
       this._emitActivity({
         step: payload.index + 1,
@@ -245,24 +300,22 @@ class SpecRunner extends EventEmitter {
     }
 
     if (type === "step-end") {
-      const legacy = {
+      const stepPayload = {
         step: payload.index + 1,
         stepIndex: payload.index,
         totalSteps: this.totalSteps,
         status: payload.status,
         description: payload.description || "",
         error: payload.error || null,
-        // Carried over from the spec's own step-end, which no longer reaches the
-        // stream on its own — without these, collapsing the two shapes into one
-        // would have quietly dropped them.
+        // Enriched step metrics forwarded on the action:complete stream event
         duration: payload.duration ?? null,
         ...(payload.viaAi ? { viaAi: true } : {}),
         ...(payload.recovered ? { recovered: true } : {}),
         ...(payload.summary ? { summary: payload.summary } : {}),
         timestamp: Date.now(),
       };
-      this.emit("action:complete", legacy);
-      this.emit("event", { type: "action:complete", ...legacy });
+      this.emit("action:complete", stepPayload);
+      this.emit("event", { type: "action:complete", ...stepPayload });
 
       this._emitActivity({
         step: payload.index + 1,
@@ -499,12 +552,8 @@ class SpecRunner extends EventEmitter {
         }
       }
 
-      // mozjpeg costs ~13ms more than baseline JPEG and returns ~25% of the
-      // bytes for it. Worth taking: these frames cross the internet to whoever
-      // is watching, while the CPU they cost sits on a runner that is idle
-      // between steps anyway. It also keeps the change strictly better than the
-      // PNG it replaces on BOTH axes — baseline JPEG is faster still, but
-      // slightly larger than palette PNG on text-heavy screens.
+      // Optimized mozjpeg encoding provides high visual fidelity with reduced
+      // payload size across network streams, balancing compression with runner efficiency.
       return {
         buffer: await resized.jpeg({ quality: LIVE_SCREENSHOT_QUALITY, mozjpeg: true }).toBuffer(),
         mimeType: "image/jpeg",
@@ -520,10 +569,16 @@ class SpecRunner extends EventEmitter {
   /**
    * Run one execution.
    *
-   * @param {Array}  actions  recorded steps (already param-injected by the worker)
-   * @param {Object} options  { headless, screenshotDir, timeout, aiRecovery }
-   *                          aiRecovery:false disables Claude self-healing for
-   *                          THIS run only, whatever the server's .env says.
+   * @param {Array}  actions  resolved steps, exactly as dispatched. They may
+   *                          carry live credentials, so the file this writes
+   *                          them to is deleted in a `finally` below.
+   * @param {Object} options  { headless, screenshotDir, aiRecovery, knownErrorTypes,
+   *                            productName }
+   *                          aiRecovery:false disables self-healing for THIS run
+   *                          only, whatever the server's .env says.
+   *                          There is deliberately NO `timeout` option: the
+   *                          deadline is derived from the engine's, never passed
+   *                          in independently — see engineRunTimeoutMs above.
    * @returns {Promise<{success:boolean, error:string|null, results:Array, outputs:Object}>}
    */
   async replay(actions, options = {}) {
@@ -543,21 +598,32 @@ class SpecRunner extends EventEmitter {
 
     const actionsPath = path.join(this.jobDir, "actions.json");
     const resultsPath = path.join(this.jobDir, "results.json");
-    fs.writeFileSync(actionsPath, JSON.stringify(actions, null, 2), "utf-8");
+    const actionsData = Array.isArray(actions)
+      ? { schemaVersion: 1, patchId: options.patchId || "oracle", actions }
+      : actions;
+    fs.writeFileSync(actionsPath, JSON.stringify(actionsData, null, 2), "utf-8");
 
-    // Hand the spec the Oracle error labels already known, so it only pays the
-    // API for messages nobody has seen. Best-effort — without it the spec works
-    // the labels out fresh, which costs a call, not a run.
+    // Hand the spec the error labels the platform already knows, so it only
+    // pays a model for messages nobody has seen. They arrive in the dispatch
+    // payload rather than being fetched: a read on the critical path would add
+    // a way for a healthy run to fail before it started. Best-effort — without
+    // it the spec works the labels out fresh, which costs a call, not a run.
     let errorTypeCachePath = null;
     try {
-      errorTypeCachePath = await loadErrorTypeCache(this.jobDir);
+      errorTypeCachePath = writeKnownLabels(this.jobDir, options.knownErrorTypes);
     } catch (err) {
-      this._log(`Could not load Oracle error labels: ${err.message}`, "warn");
+      this._log(`Could not stage the known error labels: ${err.message}`, "warn");
     }
 
     // A stale results.json from a previous attempt would be read as this run's
     // outcome if the spec died before writing — remove it up front.
     if (fs.existsSync(resultsPath)) fs.unlinkSync(resultsPath);
+
+    // Both deadlines, from ONE number. See engineRunTimeoutMs for why they are
+    // never set independently.
+    const stepCount = Array.isArray(actions) ? actions.length : 0;
+    const innerDeadline = engineRunTimeoutMs(stepCount);
+    const outerDeadline = outerDeadlineMs(stepCount);
 
     // ── diagnostics ─────────────────────────────────────────────────────
     // Everything needed to tell a path/permission problem apart from a genuine
@@ -573,7 +639,7 @@ class SpecRunner extends EventEmitter {
     const env = {
       ...process.env,
       JOB_ACTIONS_PATH: actionsPath,
-      JOB_SCREENSHOT_DIR: screenshotDir,
+      JOB_SCREENSHOT_DIR: options.captureScreenshots === false ? "" : screenshotDir,
       JOB_RESULTS_PATH: resultsPath,
       JOB_EXECUTION_ID: this.executionId,
       PLAYWRIGHT_HEADLESS: options.headless === false ? "false" : "true",
@@ -584,13 +650,19 @@ class SpecRunner extends EventEmitter {
       // child inherits the server's. An explicit `false` here overrides that
       // for this run only, without touching .env or affecting the worker.
       ...(options.aiRecovery === false ? { AI_RECOVERY_ENABLED: "false" } : {}),
-      // Its presence is also the signal that the worker owns persistence, so
+      // Its presence is also the signal that someone else owns persistence, so
       // the spec emits what it learns instead of writing a file nothing reads.
       ...(errorTypeCachePath ? { COMMIT_TYPE_CACHE_PATH: errorTypeCachePath } : {}),
+      // Synchronize the engine's run deadline with parent process watchdog timers.
+      // playwright.config.ts honours this override directly, guaranteeing deadline alignment.
+      // See engineRunTimeoutMs.
+      REPLAY_RUN_TIMEOUT_MS: String(innerDeadline),
+      // App patch name to force
+      ...(options.patchId ? { APP_PATCH: options.patchId } : {}),
       // The product this script automates, from the execution row. The engine
       // prefers its own patch's productName and reads this only as a fallback,
       // so a stale value here cannot override a matched patch.
-      ...(options.productName ? { JOB_PRODUCT_NAME: options.productName } : {}),
+      ...(options.productName || options.patchId ? { JOB_PRODUCT_NAME: options.productName || options.patchId } : {}),
     };
 
     const testArgs = [
@@ -615,10 +687,26 @@ class SpecRunner extends EventEmitter {
     this._log(`[diag] JOB_SCREENSHOT_DIR=${env.JOB_SCREENSHOT_DIR}`);
     this._log(`[diag] JOB_RESULTS_PATH=${env.JOB_RESULTS_PATH}`);
     this._log(`[diag] PLAYWRIGHT_HEADLESS=${env.PLAYWRIGHT_HEADLESS} DISPLAY=${env.DISPLAY || "(unset)"}`);
+    this._log(`[diag] engine deadline : ${innerDeadline}ms; parent kills at ${outerDeadline}ms`);
     this._log(`Spawning: ${command} ${args.join(" ")}`);
 
     const startedAt = Date.now();
-    const exitInfo = await this._spawnAndStream(command, args, env, options.timeout);
+    let exitInfo;
+    try {
+      exitInfo = await this._spawnAndStream(command, args, env, outerDeadline);
+    } finally {
+      // The actions file holds the RESOLVED steps, and resolved steps carry
+      // live credentials (contract §5 binds them in memory before dispatch).
+      // Prompt deletion ensures credential-bearing action files never persist
+      // on disk across process lifecycle events (including errors or stops).
+      try {
+        if (fs.existsSync(actionsPath)) fs.unlinkSync(actionsPath);
+      } catch (err) {
+        // Loud: a credential-bearing file that would not delete is worth a line
+        // in the log, and worth NOT failing the run over.
+        this._log(`Could not delete the resolved actions file: ${err.message}`, "error");
+      }
+    }
     this._log(`[diag] child exited code=${exitInfo.code} after ${Date.now() - startedAt}ms`);
     this._log(`[diag] results.json exists=${fs.existsSync(resultsPath)}`);
 
@@ -641,29 +729,48 @@ class SpecRunner extends EventEmitter {
       (exitInfo.allLines || []).forEach((l) => this._log(`  | ${l}`, "error"));
       this._log("───────────────────────────────────────────────────────", "error");
 
+      // Classify by CAUSE, not by exit code. The child's exit code is
+      // deliberately not consulted anywhere in this method: a non-zero exit is
+      // the NORMAL outcome of a failed step, so using it to decide pass/fail
+      // would make every red test look like a crash.
       const reason = this.stopped
         ? "Execution stopped by user"
         : exitInfo.timedOut
           ? "Spec timed out before producing results"
           : `Spec produced no results (exit code ${exitInfo.code})${exitInfo.tail ? " — " + exitInfo.tail : ""}`;
 
-      return { success: false, error: reason, results: [], outputs: {}, transactionInfo: null, heals: [] };
+      return {
+        // Contract §7: no results file means the engine died before it could
+        // write a verdict. That is CRASHED — a different incident class from a
+        // real test failure, and it must never share a code path with one. A
+        // user stopping their own run is neither: it is CANCELLED.
+        crashed: !this.stopped,
+        cancelled: this.stopped,
+        success: false,
+        error: reason,
+        results: [],
+        outputs: {},
+        transactionInfo: null,
+        heals: [],
+      };
     }
 
+    // The results file is present, so the engine reached a verdict and the
+    // verdict is trusted — whatever the child's exit code was.
     return {
+      crashed: false,
+      cancelled: this.stopped,
       success: Boolean(parsed.success) && !this.stopped,
       error: this.stopped ? "Execution stopped by user" : parsed.error || null,
       results: Array.isArray(parsed.results) ? parsed.results : [],
       heals: Array.isArray(parsed.heals) ? parsed.heals : [],
       outputs: parsed.outputs && typeof parsed.outputs === "object" ? parsed.outputs : {},
       // The identifier the transaction ended up with, probed for by the spec
-      // around its commit steps. The worker hands this straight to the report,
-      // which renders it as a summary row when a number was found.
+      // around its commit steps.
       transactionInfo:
         parsed.transactionInfo && typeof parsed.transactionInfo === "object"
           ? parsed.transactionInfo
           : null,
-      heals: Array.isArray(parsed.heals) ? parsed.heals : [],
     };
   }
 
@@ -692,7 +799,7 @@ class SpecRunner extends EventEmitter {
               this._log(`Timeout after ${timeoutMs}ms — stopping spec process`, "error");
               child.kill("SIGTERM");
               // unref: a pending SIGKILL timer must not be the thing keeping
-              // this process alive after the child has already gone.
+              // this process alive after the child has already exited.
               setTimeout(() => {
                 if (this.child && this.child.exitCode === null) {
                   this.child.kill("SIGKILL");
@@ -788,7 +895,7 @@ class SpecRunner extends EventEmitter {
         this.child.kill("SIGTERM");
         // Playwright can hold the browser open; escalate if it ignores SIGTERM.
         // unref: a pending SIGKILL timer must not keep this process alive after
-        // the child has already gone.
+        // the child has already exited.
         setTimeout(() => {
           if (this.child && this.child.exitCode === null) {
             try { this.child.kill("SIGKILL"); } catch (_) {}
@@ -802,3 +909,8 @@ class SpecRunner extends EventEmitter {
 }
 
 module.exports = SpecRunner;
+// Named exports alongside the default, so the route can advertise the deadline
+// it will enforce and the checks suite can assert the invariant directly.
+module.exports.engineRunTimeoutMs = engineRunTimeoutMs;
+module.exports.outerDeadlineMs = outerDeadlineMs;
+module.exports.OUTER_GRACE_MS = OUTER_GRACE_MS;

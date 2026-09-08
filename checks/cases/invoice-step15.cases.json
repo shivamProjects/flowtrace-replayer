@@ -1,0 +1,24 @@
+{
+  "fixture": "invoice-step15.html",
+  "source": "Oracle Fusion Create Invoice - Fill Business Unit (invoice recording)",
+  "cases": [
+    {
+      "name": "Business Unit input fills with selected BU value",
+      "action": {
+        "action": "fill",
+        "type": "fill",
+        "locator": {
+          "selector": "[id=\"pt1:_FOr1:1:_FONSr2:0:MAnt2:1:pm1:r1:0:ap1:r2:0:ic2::content\"]"
+        },
+        "value": "Northwind Trading",
+        "description": "Enter Business Unit"
+      },
+      "expect": {
+        "resolvesTo": "INPUT#pt1:_FOr1:1:_FONSr2:0:MAnt2:1:pm1:r1:0:ap1:r2:0:ic2::content",
+        "value": {
+          "pt1:_FOr1:1:_FONSr2:0:MAnt2:1:pm1:r1:0:ap1:r2:0:ic2::content": "Northwind Trading"
+        }
+      }
+    }
+  ]
+}

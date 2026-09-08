@@ -1,0 +1,22 @@
+{
+  "fixture": "invoice-step14.html",
+  "source": "Oracle Fusion Create Invoice - Business Unit (invoice recording)",
+  "cases": [
+    {
+      "name": "Business Unit combobox resolves by accessible role & label",
+      "action": {
+        "action": "click",
+        "type": "click",
+        "locator": {
+          "role": "combobox",
+          "name": "Business Unit",
+          "selector": "internal:role=combobox[name=\"Business Unit\"i]"
+        },
+        "description": "Click Business Unit"
+      },
+      "expect": {
+        "resolvesTo": "INPUT#pt1:_FOr1:1:_FONSr2:0:MAnt2:1:pm1:r1:0:ap1:r2:0:ic2::content"
+      }
+    }
+  ]
+}

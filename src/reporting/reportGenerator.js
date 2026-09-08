@@ -6,7 +6,6 @@ const sharp = require("sharp");
 const S3Helper = require("../utils/s3Helper");
 const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');
 const EnvEncryption = require("../utils/envEncryption");
-const { query } = require("../config/database");
 
 /**
  * Screenshot embedding settings.
@@ -188,56 +187,20 @@ class ReportGenerator {
     }
   }
 
-  // Fetch script audit logs from database
-  async fetchScriptAuditLogs(scriptId) {
-    try {
-      console.log(`[ReportGenerator] ========================================`);
-      console.log(`[ReportGenerator] Fetching audit logs for script ID: ${scriptId}`);
-
-      const sql = `
-        SELECT
-          id,
-          user_id,
-          username,
-          action,
-          entity_type,
-          status,
-          message,
-          metadata,
-          created_at
-        FROM application_logs
-        WHERE entity_id = ?
-          AND (
-            entity_type = 'script' AND action = 'CREATE_SCRIPT_FROM_RECORDING'
-            OR entity_type = 'script_step' AND action IN ('ADD_STEP', 'UPDATE_STEP', 'DELETE_STEP')
-          )
-        ORDER BY created_at ASC
-      `;
-
-      console.log(`[ReportGenerator] Executing SQL query:`, sql);
-      console.log(`[ReportGenerator] With scriptId parameter:`, scriptId);
-
-      const logs = await query(sql, [scriptId]);
-
-      console.log(`[ReportGenerator] Query executed successfully`);
-      console.log(`[ReportGenerator] Fetched ${logs.length} audit logs for script ${scriptId}`);
-
-      if (logs.length > 0) {
-        console.log(`[ReportGenerator] Audit logs summary:`);
-        logs.forEach((log, index) => {
-          console.log(`[ReportGenerator]   ${index + 1}. ${log.action} by ${log.username || 'System'} at ${log.created_at}`);
-        });
-      } else {
-        console.log(`[ReportGenerator] ⚠️ No audit logs found for script ${scriptId}`);
-      }
-
-      console.log(`[ReportGenerator] ========================================`);
-      return logs;
-    } catch (error) {
-      console.error('[ReportGenerator] ❌ Error fetching script audit logs:', error.message);
-      console.error('[ReportGenerator] Error stack:', error.stack);
-      return [];
-    }
+  /**
+   * The Script Audit Trail rows for the report.
+   *
+   * The replayer operates statelessly without database access (contract §1).
+   * Audit trail rows are supplied by the platform caller via `executionData.auditTrail`,
+   * preserving tenant isolation and audit ownership in the platform domain.
+   * When no trail is supplied, an empty array is returned and renders as an empty section.
+   *
+   * @param {Array} auditTrail rows shaped
+   *   { id, user_id, username, action, entity_type, status, message, metadata, created_at }
+   */
+  getScriptAuditLogs(auditTrail) {
+    if (!Array.isArray(auditTrail) || !auditTrail.length) return [];
+    return auditTrail;
   }
 
   // Generate PDF report from execution results
@@ -303,20 +266,15 @@ class ReportGenerator {
         const fileName = `${runId}-${this.executionId}-${scriptCode}-${timestamp}.pdf`;
         const pdfPath = path.join(this.executionReportDir, fileName);
 
-        // bufferPages holds every page open until the end, so "Page X of Y" can
-        // be stamped once the real count is known (see the loop before doc.end()).
-        // The old approach predicted the count up front from row-per-page guesses,
-        // which silently desynced the moment any section changed how it breaks.
+        // bufferPages buffers pages in memory so "Page X of Y" page numbers can
+        // be stamped across all pages after total page count is known.
         const doc = new PDFDocument({ margin: 30, size: "A4", bufferPages: true });
         const stream = fs.createWriteStream(pdfPath);
 
         doc.pipe(stream);
 
-        // Customer logo (top left), or null and the header omits it. The shared
-        // resolver in branding.js rather than a copy of its logic: it is the
-        // tested one, and it additionally verifies the S3 download actually
-        // landed on disk and swallows a rejected download — both of which this
-        // call site used to get wrong.
+        // Customer logo (top left, omitted when null). Uses the shared resolver
+        // in branding.js to verify downloaded assets and handle fetch failures safely.
         let logoPathLeft = null;
         if (executionData.customerLogoPath) {
           await this.createReportDirectory();
@@ -338,17 +296,9 @@ class ReportGenerator {
           scriptName: executionData.scriptName
         });
 
-        const scriptId = executionData.scriptId;
-        console.log(`[ReportGenerator] Using scriptId for audit logs: ${scriptId}`);
-
-        let auditLogs = [];
-        if (scriptId) {
-          console.log(`[ReportGenerator] ✅ Script ID found, fetching audit logs...`);
-          auditLogs = await this.fetchScriptAuditLogs(scriptId);
-          console.log(`[ReportGenerator] ✅ Audit logs fetch completed. Total logs: ${auditLogs.length}`);
-        } else {
-          console.log(`[ReportGenerator] ⚠️ No scriptId in executionData — skipping audit logs`);
-        }
+        // Supplied by the caller, never queried — see getScriptAuditLogs.
+        const auditLogs = this.getScriptAuditLogs(executionData.auditTrail);
+        console.log(`[ReportGenerator] Audit trail rows supplied: ${auditLogs.length}`);
 
         // Fallback: when a run has no normalized (grouped) steps — e.g. new
         // structured recordings / chaining scripts — build the Step Execution
@@ -666,9 +616,7 @@ class ReportGenerator {
 
             drawParamTableHeader();
 
-            // Parameter rows. Without an explicit break the table used to run off
-            // the bottom of the page and PDFKit would paginate mid-row, stranding
-            // a single parameter on a page of its own.
+            // Parameter rows with explicit page boundary checks before each row to prevent mid-row pagination.
             const paramRows = ReportGenerator.prepareParameterRows(
               executionData.scriptParameters,
               paramCol2Width,
@@ -1366,9 +1314,7 @@ class ReportGenerator {
         newPage();
         doc.y = 70;
 
-        // Get all screenshot files
-        // Accept both legacy `step_<N>.png` and new `step_<N>_<slug>.png`
-        // (the slug helps when inspecting the directory by hand).
+        // Matches both index format `step_<N>.png` and descriptive slug format `step_<N>_<slug>.png`.
         const STEP_FILE_RE = /^step_(\d+)(?:_[^.]*)?\.png$/;
         const screenshots = fs
           .readdirSync(this.screenshotsDir)
@@ -1480,9 +1426,7 @@ class ReportGenerator {
               ? result.errorMessages.map((m) => String(m).trim()).filter(Boolean)
               : [];
 
-          // Measure before drawing. The box used to be a fixed 33pt whatever the
-          // message was, so anything that wrapped to a second line ran out
-          // through the bottom border.
+          // Dynamic error box height computed from measured text dimensions before drawing.
           let errorBoxH = 0;
           if (showsError) {
             doc.fontSize(8).font("Helvetica");
@@ -1556,11 +1500,7 @@ class ReportGenerator {
           if (showsError) {
             doc.moveDown(0.3);
 
-            // doc.y is captured ONCE. Every doc.text() advances it, so the old
-            // code drew the label at boxTop+8, then read the already-moved doc.y
-            // for the message and put it at roughly boxTop+26 — on the bottom
-            // border of a 30pt box. That, not the message length, is why it
-            // rendered outside the box.
+            // Anchor boxTop to doc.y before drawing background rectangle and text at explicit offsets.
             const boxTop = doc.y;
             doc.rect(50, boxTop, 495, errorBoxH).fillAndStroke("#FFF3CD", "#FFC107");
 

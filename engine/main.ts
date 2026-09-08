@@ -23,23 +23,35 @@ import * as path from 'path';
 // before spending anything on a model, and reuses one CLI session across runs.
 // ./ai-recovery is still the anthropic API transport underneath it.
 import { recoverWithClaude, isRecoveryEnabled, type RecoveryResult } from './ai-recovery-dispatch';
-import { executeAction, verifyRecovered, type ActionContext } from './actions';
+import {
+  executeAction,
+  verifyRecovered,
+  sessionOriginOf,
+  firstNavigateIndex,
+  type ActionContext,
+} from './actions';
 import { assertReplayable, describeAction, normalizeAction, parseRecording } from './normalize';
+import { resolveRelativeNav } from './relative-nav';
 import { installSettleProbe, waitForPaint } from './settle';
 import {
   RECOVERY_MAX_ATTEMPTS, RECOVERY_RUN_MS, RECOVERY_STEP_MS,
-  SLOW_STEP_MS, STEP_BUDGET_MS, describeTimeouts,
+  LOGIN_SETTLE_MS, SLOW_STEP_MS, STEP_BUDGET_MS, describeTimeouts,
 } from './timeouts';
 import { Redactor } from './values';
 import type { NormalizedAction, StepResult } from './types';
 import { selectPatch } from './patches';
 import { classifyCommitErrors } from './commit-error-type';
+import {
+  buildMessage, classify, isClassifiedError, SessionExpiredError,
+  type Verdict,
+} from './errors';
 import { CredentialStore } from './credentials';
 import {
   buildIdContext, isCommitTrigger, isDismissTrigger, inCaptureTail, clickTargetName,
   readDismissDialogText, captureTransactionInfo, bestCapture,
   type IdContext, type TransactionInfo,
 } from './transaction-capture';
+import { classifyUiCode, inferStage } from './aiFixClassifier';
 
 const JOB_ACTIONS_PATH = process.env.JOB_ACTIONS_PATH || '';
 const JOB_SCREENSHOT_DIR = process.env.JOB_SCREENSHOT_DIR || '';
@@ -58,7 +70,19 @@ const capturedOutputs: Record<string, string> = {};
  * counts as a pass all the way to the PDF. Writing an unverified fix back would
  * teach every later run to replay something that never worked.
  */
-const heals: Array<{ index: number; description: string; reason: string; steps: any[] }> = [];
+const heals: Array<{
+  index: number;
+  description: string;
+  reason: string;
+  steps: any[];
+  failureStage?: string;
+  uiCode?: string;
+  url?: string;
+  action?: string;
+  rawDescription?: string;
+  rawSelector?: string;
+  model?: string;
+}> = [];
 
 /** Best transaction identifier seen so far — module scope so writeResults() can
  *  publish it after every step, not only at the end. */
@@ -248,6 +272,28 @@ test.describe('Dynamic Action Replayer', () => {
     // login steps just because no key was configured.
     const needsCredentials = actions.some((a) => !!a.credentialRef);
     const credentials = needsCredentials ? new CredentialStore() : undefined;
+
+    // Where the login is considered finished, for the "did it actually
+    // authenticate?" guard in the step loop below.
+    //
+    // NOT the credential step itself: a recording types the password and THEN
+    // clicks Sign In, so the page is still legitimately a sign-in screen when
+    // the last `fill` completes. Checking there would fail every login.
+    //
+    // The submit is the first step after the last credential that acts on the
+    // page (a click or a press) — that is the step whose success is supposed to
+    // mean "signed in". A recording that ends on the credential itself gets -1,
+    // which never matches a step index, so the guard is inert rather than
+    // needing a second flag.
+    const lastCredentialStep = actions.reduce(
+      (last, a, idx) => (a.credentialRef ? idx : last),
+      -1,
+    );
+    const loginSubmitStep = lastCredentialStep < 0
+      ? -1
+      : actions.findIndex(
+          (a, idx) => idx > lastCredentialStep && (a.name === 'click' || a.name === 'press'),
+        );
     if (needsCredentials) {
       const refs = [...new Set(actions.map((a) => a.credentialRef).filter(Boolean))];
       const raw = credentials!.rawCount;
@@ -261,6 +307,14 @@ test.describe('Dynamic Action Replayer', () => {
     }
 
     const patch = selectPatch(actions);
+
+    // Decided ONCE, from the recording, before anything navigates. The origin of
+    // the first navigate is the live one — see sessionOriginOf() — and it is the
+    // anchor every later navigate is aligned to, rather than whatever page the
+    // browser happens to be on when that step comes round.
+    const sessionOrigin = sessionOriginOf(actions);
+    const firstNavIndex = firstNavigateIndex(actions);
+    if (sessionOrigin) console.log(`[navigate] session origin: ${sessionOrigin}`);
 
     // What the AI features call this application.
     //
@@ -383,6 +437,107 @@ test.describe('Dynamic Action Replayer', () => {
           await installSettleProbe(page);
           log('  [page] the previous page closed — continuing on the replacement', 'warn');
         }
+      } else {
+        // A step opened a NEW TAB and the old one stayed open.
+        //
+        // Oracle does this for whole sub-applications: on the Suppliers work
+        // area, "Register Supplier" is an ordinary <a href> with target=_blank
+        // pointing at the Redwood registration app. The click succeeds, the
+        // form loads — in a tab this run is not driving. The old page is still
+        // open, so the isClosed() branch above never fires, and every later
+        // step then hunts for Company on the dashboard it never left. The
+        // report blames the locators for a page the run simply was not on.
+        //
+        // Verified on Testing Vision: after that click,
+        // context().pages() holds "Overview - Suppliers" AND "Registration
+        // Internal - Start", the original reports isClosed() === false, and
+        // Company resolves 0 times on it and once on the new tab.
+        //
+        // Follow the newest tab. A tab the application opened deliberately is
+        // where the flow continues — that is what target=_blank means, and it
+        // is what the operator saw when they recorded the step.
+        const live = page.context().pages().filter((p) => !p.isClosed());
+        const newest = live[live.length - 1];
+        if (newest && newest !== page) {
+          page = newest;
+          await installSettleProbe(page);
+          await page.bringToFront().catch(() => {});
+          log(`  [page] a step opened a new tab — following it ("${(await page.title().catch(() => '')).slice(0, 60)}")`, 'warn');
+        }
+      }
+
+      // A step whose click only PAGES a strip sideways cannot be replayed by
+      // count — the count is a property of the recorder's window, not of the
+      // destination. Ask instead whether the destination is reachable, paging
+      // as many times as it actually takes. See engine/relative-nav.ts; this is
+      // a no-op for every application whose patch does not claim such controls.
+      if (patch.isRelativeNavStep(action)) {
+        // Errors here are the deliberate "not present on this instance"
+        // verdict; everything else has already been converted to 'recorded'
+        // inside. Routed through the same failure path as any other step so it
+        // reaches the report as this step's error.
+        let verdict: 'skip' | 'recorded';
+        try {
+          verdict = await resolveRelativeNav(page, actions, i, patch, log);
+        } catch (err: any) {
+          const message = redactor.redact(err?.message || String(err));
+          // Classified on the same terms as any other failure. This path never
+          // reaches AI recovery at all, so there is no gate to apply — but the
+          // report must still carry the verdict, or the one failure the engine
+          // is MOST certain about would be the one it says least about.
+          const railVerdict = classify({ error: err, message });
+          const railSummary = redactor.redact(buildMessage(railVerdict, {
+            step: `Step ${i + 1} (${label})`,
+            target: action.accessibleName || action.description || undefined,
+            raw: message,
+          }));
+          log(
+            `  [verdict] ${railVerdict.category} / ${railVerdict.responsibility} ` +
+            `(${railVerdict.source}${railVerdict.ruleId ? ` ${railVerdict.ruleId}` : ''}) — ${railSummary}`,
+            'error',
+          );
+          emit('verdict', {
+            index: i,
+            category: railVerdict.category,
+            responsibility: railVerdict.responsibility,
+            kind: railVerdict.kind,
+            ruleId: railVerdict.ruleId,
+            source: railVerdict.source,
+            confidence: railVerdict.confidence,
+            summary: railSummary,
+          });
+          results.push({
+            index: i, action: action.name, description: redactor.redact(label), status: 'failed',
+            duration: Date.now() - startedAt, timestamp: Date.now(), error: message, code,
+            skipInReport: action.skipInReport,
+            verdict: {
+              category: railVerdict.category,
+              responsibility: railVerdict.responsibility,
+              kind: railVerdict.kind,
+              ruleId: railVerdict.ruleId,
+              source: railVerdict.source,
+              confidence: railVerdict.confidence,
+              summary: railSummary,
+              recoverySkipped: true,
+            },
+          });
+          emit('step-end', { index: i, status: 'failed', duration: Date.now() - startedAt, error: message });
+          fatalError = `Step ${i + 1} (${label}) failed: ${message}`;
+          writeResults(results, false, fatalError);
+          if (!JOB_MODE) throw err;
+          continue;
+        }
+        if (verdict === 'skip') {
+          results.push({
+            index: i, action: action.name, description: redactor.redact(label), status: 'skipped',
+            duration: Date.now() - startedAt, timestamp: Date.now(),
+            error: 'Surplus paging click — the destination was already reachable', code,
+            skipInReport: action.skipInReport,
+          });
+          emit('step-end', { index: i, status: 'skipped', duration: Date.now() - startedAt });
+          writeResults(results, false, `in progress after step ${i + 1}`);
+          continue;
+        }
       }
 
       const ctx: ActionContext = {
@@ -391,6 +546,8 @@ test.describe('Dynamic Action Replayer', () => {
         log,
         next: actions[i + 1] ?? null,
         outputs: capturedOutputs,
+        sessionOrigin,
+        isFirstNavigate: i === firstNavIndex,
         credentials,
         redact: (secret: string) => redactor.addSecret(secret),
       };
@@ -440,6 +597,50 @@ test.describe('Dynamic Action Replayer', () => {
           log(`  [slow] step ${i + 1} took ${(elapsed / 1000).toFixed(1)}s — ${redactor.redact(label)}`, 'warn');
         }
 
+        // Did the login actually WORK?
+        //
+        // Execution 8336 reported six green steps on a run that never
+        // authenticated: the credential had expired, every sign-in step
+        // dispatched cleanly, and the run then spent 17 more steps failing
+        // against a login page while the report blamed locators. `click Next`
+        // succeeded *as a click* — nobody asked whether it logged anybody in.
+        //
+        // This is the same silent-green class as the checkbox that dispatched
+        // without ticking and the LOV that typed without committing: an action
+        // that achieves nothing while reporting success. The cure is the same —
+        // read the outcome back rather than trusting the action.
+        //
+        // Checked once, after the step that SUBMITS the credentials, because
+        // that is the first moment being on a sign-in page is unambiguously
+        // wrong. On any earlier step — including the password fill — the
+        // sign-in page is exactly where the run should be.
+        if (i === loginSubmitStep) {
+          // Wait for the redirect the submit is supposed to cause before
+          // reading the page. Without this the check races the navigation and
+          // reports "login failed" on a login that was merely still in flight —
+          // and it cannot lean on captureStepScreenshot's paint wait, which is
+          // skipped entirely when screenshots are off.
+          //
+          // IDCS bounces through several redirects, so poll rather than sample
+          // once: leaving the sign-in page at any point within the budget is the
+          // answer, and a run that has genuinely signed in exits immediately.
+          const deadline = Date.now() + LOGIN_SETTLE_MS;
+          let stillOnSignIn = true;
+          while (Date.now() < deadline) {
+            stillOnSignIn = await patch.sessionExpired(page).catch(() => false);
+            if (!stillOnSignIn) break;
+            await page.waitForTimeout(1000);
+          }
+          if (stillOnSignIn) {
+            throw new Error(
+              'Login did not complete — the page is still a sign-in screen after the ' +
+              'credentials were submitted. The account is most likely expired, locked, ' +
+              'or the password supplied for this run is wrong. Nothing after this step ' +
+              'could have run against a signed-in session.',
+            );
+          }
+        }
+
         const status = outcome === 'skipped' ? 'skipped' : 'success';
         results.push({
           index: i, action: action.name, description: redactor.redact(label), status,
@@ -451,6 +652,50 @@ test.describe('Dynamic Action Replayer', () => {
 
       } catch (err: any) {
         const message = redactor.redact(err?.message || String(err));
+        const livePageUrl = page.url();
+        const uiCode = classifyUiCode(livePageUrl);
+        const failureStage = err?.failureStage || inferStage(message);
+
+        // The tab died UNDER the step.
+        //
+        // Following the newest tab is right for a sub-application that opens in
+        // one (Oracle's Register Supplier), but wrong for a transient tab — a
+        // print preview or a download shim that opens and closes itself. The
+        // run follows it, the tab goes away mid-step, and Playwright reports
+        // "Target page, context or browser has been closed" for something that
+        // is not a locator problem at all.
+        //
+        // Fall back to a live page and retry the step ONCE. Retrying is safe
+        // here specifically because the step never ran: the action threw on a
+        // dead handle before it could touch anything, so there is no half-
+        // applied change to repeat.
+        if (/Target page, context or browser has been closed|Target closed/i.test(message)) {
+          const live = page.context().pages().filter((p) => !p.isClosed());
+          const fallback = live[live.length - 1];
+          if (fallback && fallback !== page) {
+            page = fallback;
+            await installSettleProbe(page);
+            await page.bringToFront().catch(() => {});
+            log(`  [page] the tab this step was on closed — retrying on "${(await page.title().catch(() => '')).slice(0, 60)}"`, 'warn');
+            try {
+              const retryCtx: ActionContext = { ...ctx, page };
+              await executeAction(action, retryCtx, i);
+              await captureStepScreenshot(page, i);
+              results.push({
+                index: i, action: action.name, description: redactor.redact(label), status: 'success',
+                duration: Date.now() - startedAt, timestamp: Date.now(), error: null, code,
+                skipInReport: action.skipInReport,
+              });
+              emit('step-end', { index: i, status: 'success', duration: Date.now() - startedAt });
+              writeResults(results, false, `in progress after step ${i + 1}`);
+              continue;
+            } catch (_) {
+              // The retry failed too — fall through and report the ORIGINAL
+              // error, which describes the actual problem better than "the
+              // retry also failed".
+            }
+          }
+        }
 
         // Hand the live page to Claude and let it try to complete the step.
         // Only runs on failure, so a clean replay never calls the API.
@@ -460,9 +705,119 @@ test.describe('Dynamic Action Replayer', () => {
         // login page.
         // The sign-in screen is expected during the initial login sequence (first 4 steps).
         // Only classify as expired if we are past the login sequence (step 5 / index 4 onwards).
-        const expired = i >= 4 && await patch.sessionExpired(page).catch(() => false);
+        let expired = i >= 4 && await patch.sessionExpired(page).catch(() => false);
         if (expired) {
           log('  [session] the page is showing a sign-in screen — the session expired', 'error');
+        }
+
+        // ── THE VERDICT ────────────────────────────────────────────────────
+        //
+        // Decided here, once, before anything spends money or time on this
+        // failure. Two sources and no third:
+        //
+        //   thrown — the step threw a ClassifiedError, so the code that threw
+        //            it had evidence no message text can carry (it enumerated
+        //            the DOM and the target was not in it). Taken verbatim.
+        //   rule   — an ordered table over the message. Deterministic, offline.
+        //
+        // classify() NEVER calls a model, so this costs microseconds even on the
+        // failure path.
+        //
+        // A sign-in page outranks both: the engine looked at the live page and
+        // saw the login screen, which is better evidence than the exception the
+        // step happened to throw against it.
+        const thrown = isClassifiedError(err);
+        let verdict: Verdict = expired && !thrown
+          ? classify({ error: new SessionExpiredError(), stage: 'OTHER' })
+          : classify({ error: err, message, stage: thrown ? undefined : (failureStage as any) });
+
+        // Task 5 — retry: 'refresh-then-reclassify'.
+        //
+        // NOT IMPLEMENTED, deliberately, and said out loud rather than faked.
+        // The rule that asks for it is the "Unauthorized Access: either you do
+        // not have the privilege, or you have not signed in" string, which is
+        // documented as covering BOTH a privilege gap and an expired session.
+        // Resolving it needs the run to sign in again and repeat the step — and
+        // this engine has no re-login path at all: the login steps live at the
+        // FRONT of the recording (see types.ts on `[...loginSteps, ...business]`)
+        // and are not addressable from mid-run, there is no stored credential
+        // handle past the step that used it, and no patch exposes a sign-in.
+        // Inventing one here would be a large, untested change on the failure
+        // path. So the verdict is reported as provisional and the reason named.
+        if (verdict.retry === 'refresh-then-reclassify') {
+          log(
+            `  [verdict] this failure is ambiguous between a privilege gap and an expired session, ` +
+            `and can only be settled by signing in again and retrying. This engine has no re-login ` +
+            `path, so the verdict below is PROVISIONAL — check the session before acting on it.`,
+            'warn',
+          );
+        }
+
+        // A sign-in page is the whole story regardless of what threw.
+        if (verdict.category === 'SESSION_EXPIRED') expired = true;
+
+        const verdictSummary = redactor.redact(
+          buildMessage(verdict, {
+            step: `Step ${i + 1} (${label})`,
+            target: action.accessibleName || action.description || undefined,
+            searched: typeof (err as any)?.context?.searched === 'number'
+              ? (err as any).context.searched
+              : undefined,
+            raw: message,
+          }),
+        );
+        log(
+          `  [verdict] ${verdict.category} / ${verdict.responsibility} ` +
+          `(${verdict.source}${verdict.ruleId ? ` ${verdict.ruleId}` : ''}, ${verdict.confidence}) — ${verdictSummary}`,
+          verdict.responsibility === 'EXPECTED_VALIDATION' ? 'warn' : 'error',
+        );
+        emit('verdict', {
+          index: i,
+          category: verdict.category,
+          responsibility: verdict.responsibility,
+          kind: verdict.kind,
+          ruleId: verdict.ruleId,
+          source: verdict.source,
+          confidence: verdict.confidence,
+          summary: verdictSummary,
+        });
+
+        // ── RECOVERY GATE ──────────────────────────────────────────────────
+        //
+        // Categories where a model looking at the live page CANNOT succeed, so
+        // paying for one is pure loss — both the API cost and, worse, the
+        // wall-clock, which lands on every remaining step of the run.
+        //
+        //   TARGET_NOT_PRESENT — the engine counted every candidate locator and
+        //     the element is not in the document. There is nothing on the page
+        //     for a model to find. This is the case that motivated the module:
+        //     7 of 19 scripts in one batch, each paying a full locate budget and
+        //     then a heal that could not possibly work.
+        //   SESSION_EXPIRED — a login page. Already gated below by `expired`;
+        //     named here so the reason is the verdict rather than a side effect.
+        //   RUN_CANCELLED — an operator stopped the run. Nothing failed, so
+        //     there is nothing to heal, and healing it would fight the operator.
+        //   BROWSER_LOST / RUNNER_FAILED — there is no live page left to send.
+        //     recoverWithClaude would throw on a dead handle and be charged for
+        //     the attempt.
+        //
+        // Deliberately NOT gated: LOCATOR_TIMEOUT and UNCLASSIFIED. Those are
+        // exactly the "the element is there but we could not address it" cases
+        // that recovery exists for, and gating them would remove the feature.
+        // ELEMENT_NOT_INTERACTABLE and AMBIGUOUS_TARGET are likewise left open —
+        // a scroll or a narrower pick is squarely what a model can do.
+        const UNRECOVERABLE = new Set([
+          'TARGET_NOT_PRESENT', 'SESSION_EXPIRED', 'RUN_CANCELLED', 'BROWSER_LOST', 'RUNNER_FAILED',
+        ]);
+        const unrecoverable = UNRECOVERABLE.has(verdict.category);
+        if (unrecoverable && isRecoveryEnabled()) {
+          log(
+            `  [ai] skipped — ${verdict.category}: ${verdict.category === 'TARGET_NOT_PRESENT'
+              ? 'the element is not in the document, so there is nothing on this page for a model to find'
+              : 'no model can act on this class of failure'}. ` +
+            `Recovery would cost time and money and could not succeed.`,
+            'warn',
+          );
         }
 
         // The application REFUSED the data (duplicate key, failed validation).
@@ -471,9 +826,24 @@ test.describe('Dynamic Action Replayer', () => {
         // report the wrong cause. Name the KIND of rejection so the report leads
         // with "Duplicate Data" rather than a sentence — best-effort, a null just
         // means the messages stand on their own.
+        //
+        // AND ONLY WHEN THE RULES COULD NOT DECIDE. `verdict.source` is the
+        // gate: a THROWN or RULE verdict is already certain, and consulting a
+        // model about it would spend an API call to second-guess evidence that
+        // is strictly better than anything the model can see. Only
+        // 'needs-model' — genuinely unrecognised message text — is worth an
+        // API call, which is the entire contract errors.ts was written to.
         const commitRejected = Boolean(err?.commitRejected);
         let errorType: string | null = null;
-        if (commitRejected) {
+        if (commitRejected && verdict.source !== 'needs-model') {
+          log(
+            `  [commit] step ${i + 1} was rejected by the application — skipping recovery. ` +
+            `Not asking the model to name the kind either: ${verdict.ruleId || verdict.category} ` +
+            `already decided it deterministically ("${verdict.kind}").`,
+            'warn',
+          );
+          errorType = verdict.kind;
+        } else if (commitRejected) {
           log(`  [commit] step ${i + 1} was rejected by the application — skipping recovery`, 'warn');
           // productName, not name: this reaches the model as prose, and the slug
           // "oracle-fusion" reads as a typo.
@@ -489,6 +859,14 @@ test.describe('Dynamic Action Replayer', () => {
             // table say the opposite of what the cache is for.
             if (classified.usage) {
               emit('ai-usage', { index: i, model: classified.model, usage: classified.usage });
+            }
+            // Labels this run had to work out are announced, not stored. The
+            // engine keeps no durable state of its own — when the service hands
+            // it a cache file it owns persistence, and this event is how what
+            // was learned gets back out. Still just a line on stdout: the
+            // engine makes no network call and knows nothing about a platform.
+            for (const entry of classified.learned || []) {
+              emit('error-type-learned', { ...entry, model: classified.model });
             }
           }
         }
@@ -511,7 +889,7 @@ test.describe('Dynamic Action Replayer', () => {
         const runBudgetLeft = RECOVERY_RUN_MS - recoveryMsUsed;
         const outOfAttempts = recoveryAttempts >= RECOVERY_MAX_ATTEMPTS;
         const outOfBudget = runBudgetLeft <= 5_000;
-        if (isRecoveryEnabled() && !secretStep && !expired && (outOfAttempts || outOfBudget)) {
+        if (isRecoveryEnabled() && !secretStep && !expired && !unrecoverable && (outOfAttempts || outOfBudget)) {
           log(
             `  [ai] skipped — this run has already used ${recoveryAttempts} recovery attempt(s) ` +
             `and ${(recoveryMsUsed / 1000).toFixed(0)}s of its ${(RECOVERY_RUN_MS / 1000).toFixed(0)}s budget`,
@@ -519,7 +897,7 @@ test.describe('Dynamic Action Replayer', () => {
           );
         }
 
-        if (!expired && !commitRejected && !secretStep && !outOfAttempts && !outOfBudget && isRecoveryEnabled()) {
+        if (!unrecoverable && !expired && !commitRejected && !secretStep && !outOfAttempts && !outOfBudget && isRecoveryEnabled()) {
           emit('recovery-start', { index: i, description: redactor.redact(label) });
           const recoveryStartedAt = Date.now();
           recoveryAttempts++;
@@ -600,11 +978,34 @@ test.describe('Dynamic Action Replayer', () => {
           // The worker picks these up from results.json (see healWriter.saveHeal)
           // and the NEXT run replays them instead of paying for recovery again.
           if (recovery.healSteps?.length) {
+            // Announced live as well as written to results.json. The service
+            // reports a proven fix the MOMENT it exists rather than at the end,
+            // because a stopped or killed run must not lose a fix that has
+            // already been verified to work.
+            emit('heal', {
+              index: i,
+              description: redactor.redact(label),
+              reason: redactor.redact(recovery.summary),
+              failureStage,
+              // Already a classification (ADF | REDWOOD | UNKNOWN), not a URL —
+              // the live page address never goes on the wire.
+              uiCode,
+              action: action.name,
+              model: recovery.model || null,
+              steps: recovery.healSteps,
+            });
             heals.push({
               index: i,
               description: redactor.redact(label),
               reason: redactor.redact(recovery.summary),
               steps: recovery.healSteps,
+              failureStage,
+              uiCode,
+              url: livePageUrl,
+              action: action.name,
+              rawDescription: label,
+              rawSelector: action.selector || (action.locator && action.locator.selector) || '',
+              model: recovery.model || process.env.AI_RECOVERY_MODEL || 'claude-sonnet-5',
             });
           }
 
@@ -635,6 +1036,17 @@ test.describe('Dynamic Action Replayer', () => {
           // Read by the PDF to lead with the KIND of failure — see
           // reportGenerator's `result.errorType` handling.
           ...(errorType ? { errorType } : {}),
+          // Additive. Nothing existing was renamed or removed.
+          verdict: {
+            category: verdict.category,
+            responsibility: verdict.responsibility,
+            kind: verdict.kind,
+            ruleId: verdict.ruleId,
+            source: verdict.source,
+            confidence: verdict.confidence,
+            summary: verdictSummary,
+            ...(unrecoverable ? { recoverySkipped: true } : {}),
+          },
           ...(recovery
             ? {
                 recovery: {

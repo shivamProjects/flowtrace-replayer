@@ -209,6 +209,28 @@ export interface StepResult {
    * with the raw message.
    */
   errorType?: string;
+
+  /**
+   * The deterministic verdict for this failure — WHAT went wrong and WHO must
+   * act. See engine/errors.ts.
+   *
+   * ADDITIVE, never a replacement: `error`, `errorType` and the rest are
+   * untouched, because the queue worker and the report generator read them and
+   * this engine does not get to break their contract from the inside. A reader
+   * that does not know about `verdict` behaves exactly as it did before.
+   */
+  verdict?: {
+    category: string;
+    responsibility: string;
+    kind: string;
+    ruleId: string | null;
+    source: string;
+    confidence: string;
+    /** The human sentence buildMessage() produced. */
+    summary: string;
+    /** True when AI recovery was deliberately not attempted for this category. */
+    recoverySkipped?: boolean;
+  };
 }
 
 export type LogFn = (message: string, level?: 'info' | 'warn' | 'error') => void;
@@ -342,7 +364,27 @@ export interface AppPatch {
    * per-session state it knows to be volatile. Skipping stays available for an
    * app that genuinely cannot be navigated to directly.
    */
-  rewriteNavigation(url: string): string | null;
+  /**
+   * `sessionOrigin` is the origin of the recording's FIRST navigate step, and it
+   * outranks `currentUrl` as the alignment anchor. The queue worker executes
+   * `[...loginSteps, ...businessSteps]`, and the login steps are re-read from the
+   * instance record on every run — so when an instance is repointed at a new pod,
+   * the first navigate carries the CURRENT origin while every business step still
+   * carries the one the flow was recorded against, possibly months stale.
+   * `currentUrl` is only whatever page the browser happens to be sitting on:
+   * `about:blank` before the first navigate, and mid-flow potentially some
+   * unrelated origin.
+   *
+   * `isFirstNavigate` is true only for the recording's first navigate step. A
+   * patch may skip a redundant navigate, but never that one — it is how the run
+   * reaches the sign-in page in the first place.
+   */
+  rewriteNavigation(
+    url: string,
+    currentUrl?: string,
+    sessionOrigin?: string,
+    isFirstNavigate?: boolean,
+  ): string | null;
 
   /**
    * Facts about THIS application's widgets, appended to the AI-recovery system
@@ -380,6 +422,57 @@ export interface AppPatch {
      */
     errorExclusion: string;
   };
+
+  /**
+   * The ONE element `wanted` names, when the recorded name cannot say which.
+   *
+   * A recorded role+name is a case-insensitive SUBSTRING match, so a name that
+   * is a strict prefix of another matches both — "United States" also names
+   * "United States Minor Outlying Islands". The engine's own answer is to retry
+   * the lookup as an exact accessible-name match and take it when exactly one
+   * element matches; that is application-agnostic and lives in locators.ts.
+   *
+   * It is not always enough. An application may render the row's DISPLAY text
+   * as something wider than the value it carries — ADF paints "United States
+   * US" for the value "United States" — so no element's text equals the
+   * recorded name and the exact retry decides nothing. Where the app publishes
+   * the underlying value as an exact key in the DOM, this hook is how the patch
+   * hands that key over. The engine never needs to know what the key is.
+   *
+   * Returns a scope-relative locator (matching zero elements is fine — it is
+   * one candidate among many and is screened for visibility like any other), or
+   * null when this application has nothing better to offer than the name.
+   */
+  exactMatch(scope: LocatorScope, action: NormalizedAction, wanted: string): Locator | null;
+
+  // ── Relative navigation (paged strips) ──────────────────────────────────
+  //
+  // A control whose click MOVES the page's contents by one step instead of
+  // arriving somewhere. Its recorded click count is a property of the window
+  // the recording was made in, not of the destination, so it cannot be
+  // replayed; see engine/relative-nav.ts for the loop that replaces it. An
+  // application with no such control leaves all three at their defaults and the
+  // mechanism never engages.
+
+  /** Does clicking this step merely shift a strip, rather than reach a target? */
+  isRelativeNavStep(action: NormalizedAction): boolean;
+
+  /**
+   * The same control pointing the OTHER way, for scanning back when the strip
+   * ran out in the recorded direction. Null when the application has no
+   * counterpart, which simply ends the search.
+   */
+  reverseNavStep(action: NormalizedAction): NormalizedAction | null;
+
+  /**
+   * A string that changes whenever the strip's contents change, used to catch a
+   * control that stays enabled but moves nothing.
+   *
+   * Returning '' means "I cannot read this strip"; the engine then relies on
+   * the control disabling itself and on its own page cap, and never reads an
+   * unreadable strip as an unchanged one. Must never throw.
+   */
+  navStripSignature(page: Page): Promise<string>;
 
   /**
    * Extra locator candidates that only make sense in this application — e.g.

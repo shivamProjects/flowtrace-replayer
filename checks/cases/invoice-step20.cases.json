@@ -1,0 +1,22 @@
+{
+  "fixture": "invoice-step20.html",
+  "source": "Oracle Fusion Create Invoice - Number Click (invoice recording)",
+  "cases": [
+    {
+      "name": "Invoice Number textbox resolves by label",
+      "action": {
+        "action": "click",
+        "type": "click",
+        "locator": {
+          "role": "textbox",
+          "name": "Number",
+          "selector": "internal:role=textbox[name=\"Number\"i]"
+        },
+        "description": "Click Number"
+      },
+      "expect": {
+        "resolvesTo": "INPUT#pt1:_FOr1:1:_FONSr2:0:MAnt2:1:pm1:r1:0:ap1:r2:0:i2::content"
+      }
+    }
+  ]
+}

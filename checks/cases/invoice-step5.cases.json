@@ -1,0 +1,26 @@
+{
+  "fixture": "invoice-step5.html",
+  "source": "Oracle IDCS Login - Password Fill (invoice recording)",
+  "cases": [
+    {
+      "name": "Password field fills with masked value",
+      "action": {
+        "action": "fill",
+        "type": "fill",
+        "locator": {
+          "role": "textbox",
+          "name": "Password",
+          "selector": "internal:role=textbox[name=\"Password\"i]"
+        },
+        "value": "fixture-password",
+        "description": "Enter Password"
+      },
+      "expect": {
+        "resolvesTo": "INPUT#idcs-signin-basic-signin-form-password|input",
+        "value": {
+          "idcs-signin-basic-signin-form-password|input": "fixture-password"
+        }
+      }
+    }
+  ]
+}

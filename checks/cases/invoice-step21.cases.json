@@ -1,0 +1,26 @@
+{
+  "fixture": "invoice-step21.html",
+  "source": "Oracle Fusion Create Invoice - Fill Number (invoice recording)",
+  "cases": [
+    {
+      "name": "Invoice Number fills with transaction identifier",
+      "action": {
+        "action": "fill",
+        "type": "fill",
+        "locator": {
+          "role": "textbox",
+          "name": "Number",
+          "selector": "internal:role=textbox[name=\"Number\"i]"
+        },
+        "value": "INV-1001",
+        "description": "Enter Number"
+      },
+      "expect": {
+        "resolvesTo": "INPUT#pt1:_FOr1:1:_FONSr2:0:MAnt2:1:pm1:r1:0:ap1:r2:0:i2::content",
+        "value": {
+          "pt1:_FOr1:1:_FONSr2:0:MAnt2:1:pm1:r1:0:ap1:r2:0:i2::content": "INV-1001"
+        }
+      }
+    }
+  ]
+}

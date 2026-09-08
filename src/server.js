@@ -1,15 +1,20 @@
 /**
  * Service entrypoint.
  *
- * Wraps the existing Playwright spec in the three stages ported from the replay
- * service:
+ * The replayer drives Playwright browser executions and reports structured
+ * telemetry over HTTP (integration contract §1). Execution is ephemeral, with
+ * durable state managed by the platform:
  *
- *   3. queue worker    — polls api_execution_history and runs eligible jobs
- *   5. reporting       — PDF with per-step screenshots, uploaded to S3
- *   6. extras          — defect creation + live SSE streaming
+ *   in    POST /api/v1/replay      one run, steps inline, service-token auth
+ *   out   NDJSON on that response  live progress, then a terminal envelope
+ *   out   the dispatch callbacks   per-step rows, heals, labels, heartbeat
  *
- * The replay engine is untouched by any of this: src/queue/specRunner.js drives
- * engine/main.ts as a child process, and nothing under engine/ imports from here.
+ * ── Architecture ────────────────────────────────────────────────────────────
+ * Execution requests arrive exclusively through POST /api/v1/replay as defined
+ * in the integration contract.
+ *
+ * The replay engine runs as an isolated child process via src/run/specRunner.js,
+ * preserving process boundary safety.
  */
 
 require('dotenv').config();
@@ -17,36 +22,38 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 
-const { testConnection } = require('./config/database');
-const queueWorker = require('./queue/queueWorker');
-const executionRoutes = require('./routes/execution.routes');
 const replayRoutes = require('./routes/replay.routes');
 
 const app = express();
 
 app.use(cors());
-// Recorded scripts can be large.
+// Resolved recordings can be large.
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 app.get('/', (req, res) => {
   res.json({
-    service: 'replay-runner',
+    service: 'flowtrace-replayer',
     status: 'ok',
-    message: 'Playwright replay runner is running.',
+    message: 'FlowTrace replayer is running.',
     uptime: process.uptime(),
   });
 });
 
 // Unauthenticated liveness probe.
 app.get('/health', (req, res) => {
-  res.json({ success: true, service: 'replay-runner', uptime: process.uptime() });
+  res.json({
+    success: true,
+    service: 'flowtrace-replayer',
+    uptime: process.uptime(),
+    // Say plainly whether this instance can accept work. A process that is
+    // listening but will 503 every dispatch is the failure mode worth
+    // surfacing here — see requireServiceToken in routes/replay.routes.js.
+    acceptingDispatch: Boolean(process.env.REPLAYER_SERVICE_TOKEN),
+  });
 });
 
-// Same prefix the replay service used, so an existing frontend needs no changes.
-app.use('/api/playwright-execution', executionRoutes);
 // The platform's Java side dispatches here — steps inline, service-token auth.
-// See routes/replay.routes.js for why this does not go through the queue.
 app.use('/api/v1', replayRoutes);
 
 app.use((req, res) => {
@@ -66,43 +73,44 @@ app.use((err, req, res, next) => {
   });
 });
 
-const PORT = process.env.PORT || 9200;
+/**
+ * Port policy moves this service to 4000. It is configurable, and the platform
+ * side's `platform.replayer.url` MUST move with it — the two are a pair, and a
+ * mismatch does not fail loudly, it just means no dispatch ever arrives. See
+ * .env.example.
+ */
+const PORT = Number(process.env.PORT || 4000);
 
 let server = null;
 let shuttingDown = false;
 
-async function start() {
-  // Every stage here reads or writes the queue table, so a dead database means
-  // the service can do nothing useful — fail loudly at boot instead of serving
-  // a healthy-looking process that silently processes nothing.
-  const connected = await testConnection();
-  if (!connected) {
-    throw new Error('Database connection failed — check DEV_DB_* / PROD_DB_* in .env');
+function start() {
+  // There is no boot-time database gate any more, because there is no database.
+  // What DOES decide whether this process can do useful work is the service
+  // token, so say so once at boot rather than only on the first refused
+  // dispatch.
+  if (!process.env.REPLAYER_SERVICE_TOKEN) {
+    console.warn(
+      '! REPLAYER_SERVICE_TOKEN is not set — POST /api/v1/replay will refuse every ' +
+        'request with 503. This is deliberate: an endpoint that drives a real browser ' +
+        'against a live ERP fails closed rather than open.'
+    );
   }
 
-  // Only ONE worker may poll api_execution_history across the whole system. If
-  // the replay service is also running its worker against this database, set
-  // QUEUE_WORKER_ENABLED=false on one side or they will double-process jobs.
-  if (process.env.QUEUE_WORKER_ENABLED !== 'false') {
-    queueWorker.start();
-    console.log('✓ Queue worker started');
-  } else {
-    console.log('• Queue worker disabled (QUEUE_WORKER_ENABLED=false)');
-  }
-
-  // Kept in a module-scoped `server` so shutdown() can close it.
   server = app.listen(PORT, () => {
-    console.log(`✓ Replay runner listening on port ${PORT}`);
+    console.log(`✓ FlowTrace replayer listening on port ${PORT}`);
   });
 }
 
-// Leave running executions in a truthful state rather than stuck at
-// 'in_execution' forever when the process is stopped.
-//
-// That is what the comment always claimed; until queueWorker.shutdown() existed
-// it was not what the code did — stop() only cleared the poll interval and the
-// immediate exit(0) orphaned every spawned Playwright child. The hard timer
-// below is the backstop: a shutdown that hangs is worse than an abrupt one.
+/**
+ * Stop accepting new work, then let what is running finish.
+ *
+ * A replay mutates a live ERP and is not idempotent, so an in-flight run is not
+ * something to abandon lightly — but a shutdown that hangs is worse than an
+ * abrupt one, so the hard timer below is the backstop. Runs that do not make it
+ * lose their socket, not their record: the platform has the per-step callbacks,
+ * and heartbeat expiration indicates process termination.
+ */
 async function shutdown(signal) {
   if (shuttingDown) return;
   shuttingDown = true;
@@ -116,20 +124,12 @@ async function shutdown(signal) {
 
   if (server) server.close();
 
-  try {
-    await queueWorker.shutdown();
-  } catch (err) {
-    console.error('Error while shutting down the queue worker:', err.message);
-  }
   clearTimeout(hardExit);
   process.exit(0);
 }
 process.on('SIGINT', () => shutdown('SIGINT'));
 process.on('SIGTERM', () => shutdown('SIGTERM'));
 
-start().catch((err) => {
-  console.error('✗ Failed to start replay runner:', err.message);
-  process.exit(1);
-});
+start();
 
 module.exports = app;

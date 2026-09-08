@@ -1,0 +1,26 @@
+{
+  "fixture": "supplier-login-step3.html",
+  "source": "Oracle IDCS Login - Fill Username (supplier login recording)",
+  "cases": [
+    {
+      "name": "Username field fills with user email",
+      "action": {
+        "action": "fill",
+        "type": "fill",
+        "locator": {
+          "role": "textbox",
+          "name": "Username",
+          "selector": "internal:role=textbox[name=\"Username\"i]"
+        },
+        "value": "supplier.admin@example.com",
+        "description": "Enter Username"
+      },
+      "expect": {
+        "resolvesTo": "INPUT#idcs-signin-basic-signin-form-username|input",
+        "value": {
+          "idcs-signin-basic-signin-form-username|input": "supplier.admin@example.com"
+        }
+      }
+    }
+  ]
+}

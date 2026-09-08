@@ -137,6 +137,19 @@ export const RECOVERY_MAX_ATTEMPTS = num('REPLAY_RECOVERY_MAX_ATTEMPTS', 3);
 
 export const SLOW_STEP_MS = num('REPLAY_SLOW_STEP_MS', 15_000);
 
+/**
+ * How long to let a submitted login leave the sign-in page before calling it
+ * failed.
+ *
+ * Generous on purpose. This budget is only ever spent on a run that is ABOUT to
+ * be declared a login failure — a successful sign-in leaves the page and exits
+ * the poll immediately — so a high ceiling costs nothing on the happy path and
+ * a low one would fail slow IDCS redirects that were going to succeed. Oracle
+ * bounces through several hops (authorize → signin → the app), and the whole
+ * chain has been observed taking over 20s on a cold pod.
+ */
+export const LOGIN_SETTLE_MS = num('REPLAY_LOGIN_SETTLE_MS', 45_000);
+
 /** Log the effective configuration — a slow run's first question is "what were the limits?". */
 export function describeTimeouts(): string {
   return (

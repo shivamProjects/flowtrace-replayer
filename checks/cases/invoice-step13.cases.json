@@ -1,0 +1,22 @@
+{
+  "fixture": "invoice-step13.html",
+  "source": "Oracle Fusion Payables - Create Invoice Task (invoice recording)",
+  "cases": [
+    {
+      "name": "Create Invoice regional task link resolves by name",
+      "action": {
+        "action": "click",
+        "type": "click",
+        "locator": {
+          "role": "link",
+          "name": "Create Invoice",
+          "selector": "internal:role=link[name=\"Create Invoice\"s]"
+        },
+        "description": "Open Create Invoice"
+      },
+      "expect": {
+        "resolvesTo": "A#pt1:_FOr1:1:_FONSr2:0:_FOTRaT:0:RAtl1"
+      }
+    }
+  ]
+}

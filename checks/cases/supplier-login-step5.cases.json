@@ -1,0 +1,26 @@
+{
+  "fixture": "supplier-login-step5.html",
+  "source": "Oracle IDCS Login - Fill Password (supplier login recording)",
+  "cases": [
+    {
+      "name": "Password field fills with password value",
+      "action": {
+        "action": "fill",
+        "type": "fill",
+        "locator": {
+          "role": "textbox",
+          "name": "Password",
+          "selector": "internal:role=textbox[name=\"Password\"i]"
+        },
+        "value": "SuppPass@123",
+        "description": "Enter Password"
+      },
+      "expect": {
+        "resolvesTo": "INPUT#idcs-signin-basic-signin-form-password|input",
+        "value": {
+          "idcs-signin-basic-signin-form-password|input": "SuppPass@123"
+        }
+      }
+    }
+  ]
+}

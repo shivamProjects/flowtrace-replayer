@@ -1,0 +1,24 @@
+{
+  "fixture": "invoice-step18.html",
+  "source": "Oracle Fusion Create Invoice - Fill Supplier (invoice recording)",
+  "cases": [
+    {
+      "name": "Supplier input fills with vendor name",
+      "action": {
+        "action": "fill",
+        "type": "fill",
+        "locator": {
+          "selector": "[id=\"pt1:_FOr1:1:_FONSr2:0:MAnt2:1:pm1:r1:0:ap1:r2:0:ic3::content\"]"
+        },
+        "value": "Contoso Electric Ltd",
+        "description": "Enter Supplier"
+      },
+      "expect": {
+        "resolvesTo": "INPUT#pt1:_FOr1:1:_FONSr2:0:MAnt2:1:pm1:r1:0:ap1:r2:0:ic3::content",
+        "value": {
+          "pt1:_FOr1:1:_FONSr2:0:MAnt2:1:pm1:r1:0:ap1:r2:0:ic3::content": "Contoso Electric Ltd"
+        }
+      }
+    }
+  ]
+}

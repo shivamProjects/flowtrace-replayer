@@ -14,7 +14,7 @@
  */
 
 import type { Locator, Page } from '@playwright/test';
-import type { AppPatch, LogFn, NormalizedAction } from '../types';
+import type { AppPatch, LocatorScope, LogFn, NormalizedAction } from '../types';
 import { waitForQuiet } from '../settle';
 import { ABSENCE, PATIENCE, QUIET } from '../timeouts';
 
@@ -173,7 +173,12 @@ export class GenericPatch implements AppPatch {
 
   /** A plain web app keeps no session state in the URL. */
   /** Nothing to strip — a recorded URL is replayed exactly as captured. */
-  rewriteNavigation(url: string): string | null {
+  rewriteNavigation(
+    url: string,
+    _currentUrl?: string,
+    _sessionOrigin?: string,
+    _isFirstNavigate?: boolean,
+  ): string | null {
     return url;
   }
 
@@ -199,4 +204,45 @@ export class GenericPatch implements AppPatch {
       errorExclusion: '[role="alert"][aria-invalid="true"]',
     };
   }
+
+  /**
+   * A plain web app publishes no exact key beyond the accessible name itself,
+   * and the engine has already retried the name exactly by the time it asks.
+   * Returning null means "the name is all there is" — which is the honest
+   * answer, and it leaves the engine's own exact-name retry as the whole fix.
+   */
+  exactMatch(_scope: LocatorScope, _action: NormalizedAction, _wanted: string): Locator | null {
+    return null;
+  }
+
+  /**
+   * A plain web page has no paged strip: every link is either on the page or it
+   * is not, and an out-of-view one is reached by scrolling. Saying "no" here is
+   * what keeps the relative-nav loop from engaging on applications that do not
+   * need it — it is the whole opt-in.
+   */
+  isRelativeNavStep(_action: NormalizedAction): boolean {
+    return false;
+  }
+
+  /** No paging control, so no opposite one. */
+  reverseNavStep(_action: NormalizedAction): NormalizedAction | null {
+    return null;
+  }
+
+  /** Nothing to read. '' is "unreadable", which the engine treats as no signal. */
+  async navStripSignature(_page: Page): Promise<string> {
+    return '';
+  }
+}
+
+/** Is this element's box inside the visible window right now? */
+export async function inViewport(el: Locator): Promise<boolean> {
+  return el
+    .evaluate((n: any) => {
+      const r = n.getBoundingClientRect();
+      if (r.width <= 1 || r.height <= 1) return false;
+      return r.right > 0 && r.bottom > 0 && r.left < window.innerWidth && r.top < window.innerHeight;
+    })
+    .catch(() => false);
 }

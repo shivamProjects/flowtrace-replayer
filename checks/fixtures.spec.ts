@@ -108,7 +108,7 @@ async function applyAction(page: Page, raw: any): Promise<string> {
   if (!control) throw new Error(`no candidate resolved for: ${action.description || action.name}`);
 
   if (action.name === 'fill') {
-    await control.fill('');
+    await control.fill('', { force: true });
     if (action.text) await control.pressSequentially(String(action.text), { timeout: 5_000 });
     return describeEl(control);
   }
@@ -123,11 +123,11 @@ async function applyAction(page: Page, raw: any): Promise<string> {
     .catch(() => null);
 
   if (state !== null) {
-    if (!state) await control.check({ timeout: 5_000 });
+    if (!state) await control.check({ timeout: 5_000, force: true });
     return describeEl(control);
   }
 
-  await control.click({ timeout: 5_000 });
+  await control.click({ timeout: 5_000, force: true });
   return describeEl(control);
 }
 

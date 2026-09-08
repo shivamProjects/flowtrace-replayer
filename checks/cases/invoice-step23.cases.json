@@ -1,0 +1,26 @@
+{
+  "fixture": "invoice-step23.html",
+  "source": "Oracle Fusion Create Invoice - Fill Amount (invoice recording)",
+  "cases": [
+    {
+      "name": "Invoice Amount fills with currency value",
+      "action": {
+        "action": "fill",
+        "type": "fill",
+        "locator": {
+          "role": "textbox",
+          "name": "Amount",
+          "selector": "internal:role=textbox[name=\"Amount\"i]"
+        },
+        "value": "500.00",
+        "description": "Enter Amount"
+      },
+      "expect": {
+        "resolvesTo": "INPUT#pt1:_FOr1:1:_FONSr2:0:MAnt2:1:pm1:r1:0:ap1:r2:0:i3::content",
+        "value": {
+          "pt1:_FOr1:1:_FONSr2:0:MAnt2:1:pm1:r1:0:ap1:r2:0:i3::content": "500.00"
+        }
+      }
+    }
+  ]
+}

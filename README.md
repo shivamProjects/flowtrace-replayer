@@ -7,7 +7,7 @@ Two halves, deliberately separated:
 
 ```
 engine/     the replay engine — runs inside Playwright, one process per execution
-src/        the service around it — HTTP API, queue worker, reporting
+src/        the service around it — the HTTP API and the platform callbacks
 checks/     behaviour checks for the engine
 ```
 
@@ -63,40 +63,50 @@ rule must hold under both.
   in full on every failure, so it stays short.
 - **QUIET** — how long the DOM must be still before a step counts as settled.
 
-Getting this backwards is why the old engine slept a fixed interval per step.
+Classifying waits ensures adaptive timing rather than fixed sleep intervals.
 
 ## src/
 
 ```
-server.js         entry point: express app + queue worker
-config/           database pool, encrypted-vars manifest
-middleware/       JWT auth
-routes/           HTTP API under /api/playwright-execution
-queue/
-  queueWorker.js  polls api_execution_history, owns pass/fail
-  specRunner.js   spawns engine/main.ts, translates its output back
+server.js         entry point: the express app, and nothing else
+config/           encrypted-vars manifest
+routes/
+  replay.routes.js  POST /api/v1/replay — the ONLY way a run starts
+platform/
+  callbackClient.js the only place this service talks back to the platform,
+                    and the one file listing every endpoint it calls
+run/
+  specRunner.js     spawns engine/main.ts, translates its output back
+  healReporter.js   makes a self-healed fix safe to store, then reports it
+  aiFixLibrary.js   generalises a fix into a library entry (classifier only)
+  errorTypes.js     learned error labels in, learned error labels out
 reporting/
-  reportGenerator.js  the PDF, and its S3 upload
+  reportGenerator.js  standalone PDF renderer for post-run document generation
   branding.js         which logo goes where, and what to do when one is missing
   assets/             logos drawn into the PDF
 utils/            S3 helper, env decryption
 ```
 
-`specRunner` talks to the engine two ways: `@@EVENT {json}` lines on stdout for
+**Stateless HTTP Execution.** The replayer owns ephemeral browser execution:
+runs arrive via `POST /api/v1/replay` with resolved steps inline, and execution
+telemetry is transmitted back to the `callbackUrl` provided in the dispatch
+payload (integration contract §1, §6).
+
+`specRunner` coordinates with the engine two ways: `@@EVENT {json}` lines on stdout for
 live progress, and a `results.json` file that is authoritative at exit. The file
-wins — it distinguishes a genuine step failure from a crashed process, which
-stdout alone cannot.
+distinguishes a step outcome from process-level interruptions.
 
 ## checks/
 
 ```bash
-npm run checks              # branding checks, then all 45 engine checks
+pnpm test                   # branding, ai-fix + callback, service, engine checks
 node checks/run.mjs lov     # just the engine cases matching "lov"
 ```
 
-No database, no network, no Oracle instance — the engine cases run against
-static HTML fixtures in `checks/pages/`, and `branding.mjs` is a plain unit
-check with no browser at all.
+The engine cases run independently against static HTML fixtures in
+`checks/pages/`, `branding.mjs` and `ai-fix.mjs` are plain unit checks with no
+browser at all, and `service.mjs` boots the server on loopback to verify
+clean startup and token enforcement.
 
 A case that names a patch is asserted to have *run* under it. `selectPatch`
 falls back to auto-detection when `APP_PATCH` is not a registered name, so
@@ -123,19 +133,20 @@ split it.
 ## Running it
 
 ```bash
-npm install
-cp .env.example .env     # fill in the blanks
-npm run checks           # verify the engine, no infrastructure needed
-npm start                # queue worker + HTTP API
+pnpm install
+cp .env.example .env     # set REPLAYER_SERVICE_TOKEN; that is the only required key
+pnpm test                # verify everything, no infrastructure needed
+pnpm start               # the HTTP API, on PORT (default 4000)
 ```
 
-To replay one recording by hand, without the queue:
+To replay one recording by hand, with no service and no platform at all — the
+engine is a pure function of (actions, env), which is what makes this possible:
 
 ```bash
 JOB_ACTIONS_PATH=./my-recording.json JOB_RESULTS_PATH=./out.json npx playwright test
 ```
 
-A hand-run is **headed** by default, so you can watch it. The queue worker sets
+A hand-run is **headed** by default, so you can watch it. The service sets
 `PLAYWRIGHT_HEADLESS=true` for its own runs, which is why a server needs no
 display; set it yourself to replay headless by hand.
 
@@ -144,9 +155,15 @@ display; set it yourself to replay headless by hand.
 `.env.example` is the complete list, with each variable's real default. It is a
 reference; the reasoning that is too long to sit beside a variable lives here.
 
-Only four things are actually required: the database credentials, `JWT_SECRET`,
-and `ENCRYPTION_KEY` if any variable is stored as an `ENC:` ciphertext. Every
-other variable has a working default.
+Exactly one thing is required: `REPLAYER_SERVICE_TOKEN`. Add `ENCRYPTION_KEY`
+only if some variable is stored as an `ENC:` ciphertext. Every other variable has
+a working default, and there are no database credentials because there is no
+database.
+
+One pairing matters more than any default: **`PORT` here and
+`platform.replayer.url` on the platform side must move together.** A mismatch
+does not raise an error — dispatch simply never arrives, and every run sits in
+`QUEUED` looking like a slow replayer instead of a misconfigured one.
 
 ### Timeouts
 
@@ -213,9 +230,8 @@ Resolution order, strongest first:
 
 1. The matched patch's own `productName` — it identified the product from the
    recording's URLs, which beats any assertion made from outside.
-2. The value the queue worker supplies for the execution.
+2. The `patchId` supplied in the dispatch payload.
 3. `PRODUCT_NAME`.
 
-So `PRODUCT_NAME` only takes effect when no patch matched and the run fell back to
-`generic`. The worker's value is currently a constant in its query, because no
-database column holds it yet; when one is added only that line changes.
+So `PRODUCT_NAME` only takes effect when no patch matched and the run fell back
+to `generic`.

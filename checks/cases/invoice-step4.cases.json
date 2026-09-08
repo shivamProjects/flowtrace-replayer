@@ -1,0 +1,22 @@
+{
+  "fixture": "invoice-step4.html",
+  "source": "Oracle IDCS Login - Password Click (invoice recording)",
+  "cases": [
+    {
+      "name": "Password field resolves and clicks by role and accessible name",
+      "action": {
+        "action": "click",
+        "type": "click",
+        "locator": {
+          "role": "textbox",
+          "name": "Password",
+          "selector": "internal:role=textbox[name=\"Password\"i]"
+        },
+        "description": "Click Password"
+      },
+      "expect": {
+        "resolvesTo": "INPUT#idcs-signin-basic-signin-form-password|input"
+      }
+    }
+  ]
+}

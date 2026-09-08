@@ -1,16 +1,22 @@
 {
   "name": "flowtrace-replayer",
   "version": "1.0.0",
-  "description": "FlowTrace Replayer \u2014 replays a recording and reports what happened",
+  "description": "FlowTrace Replayer — replays a recording and reports what happened",
   "main": "src/server.js",
   "type": "commonjs",
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "checks": "node checks/branding.mjs && node checks/run.mjs",
+    "checks": "node checks/branding.mjs && node checks/ai-fix.mjs && node checks/service.mjs && node checks/run.mjs",
+    "checks:aifix": "node checks/ai-fix.mjs",
+    "checks:errors": "node checks/errors.mjs",
     "checks:engine": "node checks/run.mjs",
     "replay": "playwright test",
-    "replay:headed": "PLAYWRIGHT_HEADLESS=false playwright test"
+    "replay:headed": "PLAYWRIGHT_HEADLESS=false playwright test",
+    "test": "node checks/branding.mjs && node checks/ai-fix.mjs && node checks/service.mjs && node checks/run.mjs",
+    "typecheck": "tsc --noEmit",
+    "checks:service": "node checks/service.mjs",
+    "test:fixtures": "playwright test --config=checks/fixtures.config.ts"
   },
   "nodemonConfig": {
     "watch": [
@@ -38,9 +44,6 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.21.2",
-    "jsonwebtoken": "^9.0.3",
-    "mysql2": "^3.16.0",
-    "node-cron": "^4.6.0",
     "openai": "^7.4.0",
     "pdfkit": "^0.18.0",
     "sharp": "^0.34.5",

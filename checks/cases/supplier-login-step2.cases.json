@@ -1,0 +1,22 @@
+{
+  "fixture": "supplier-login-step2.html",
+  "source": "Oracle IDCS Login - Username (supplier login recording)",
+  "cases": [
+    {
+      "name": "Username field resolves by role and accessible name",
+      "action": {
+        "action": "click",
+        "type": "click",
+        "locator": {
+          "role": "textbox",
+          "name": "Username",
+          "selector": "internal:role=textbox[name=\"Username\"i]"
+        },
+        "description": "Click Username"
+      },
+      "expect": {
+        "resolvesTo": "INPUT#idcs-signin-basic-signin-form-username|input"
+      }
+    }
+  ]
+}

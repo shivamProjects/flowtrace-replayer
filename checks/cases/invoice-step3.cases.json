@@ -1,0 +1,26 @@
+{
+  "fixture": "invoice-step3.html",
+  "source": "Oracle IDCS Login - Username Fill (invoice recording)",
+  "cases": [
+    {
+      "name": "Username field fills with user email",
+      "action": {
+        "action": "fill",
+        "type": "fill",
+        "locator": {
+          "role": "textbox",
+          "name": "Username",
+          "selector": "internal:role=textbox[name=\"Username\"i]"
+        },
+        "value": "test.user@example.com",
+        "description": "Enter Username"
+      },
+      "expect": {
+        "resolvesTo": "INPUT#idcs-signin-basic-signin-form-username|input",
+        "value": {
+          "idcs-signin-basic-signin-form-username|input": "test.user@example.com"
+        }
+      }
+    }
+  ]
+}

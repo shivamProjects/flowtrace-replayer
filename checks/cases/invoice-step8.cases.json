@@ -1,0 +1,20 @@
+{
+  "fixture": "invoice-step8.html",
+  "source": "Oracle Fusion FuseWelcome - Cluster Right Nav (invoice recording)",
+  "cases": [
+    {
+      "name": "Cluster right navigation resolves by ID",
+      "action": {
+        "action": "click",
+        "type": "click",
+        "locator": {
+          "selector": "#clusters-right-nav"
+        },
+        "description": "Navigate Right"
+      },
+      "expect": {
+        "resolvesTo": "DIV#clusters-right-nav"
+      }
+    }
+  ]
+}

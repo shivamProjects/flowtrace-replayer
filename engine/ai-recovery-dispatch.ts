@@ -386,13 +386,29 @@ async function recoverViaCliWithSessionReuse(
     }
   }
 
-  const result = await recoverWithClaudeViaCli(page, ctx, {
-    model, maxIterations, timeoutMs,
-    resumeSessionId: lib.lastSessionId,
-    redact: opts.redact,
-    recoveryHints: opts.recoveryHints,
-    productName: opts.productName,
-  });
+  const callCli = (resumeSessionId?: string) =>
+    recoverWithClaudeViaCli(page, ctx, {
+      model, maxIterations, timeoutMs,
+      resumeSessionId,
+      redact: opts.redact,
+      recoveryHints: opts.recoveryHints,
+      productName: opts.productName,
+    });
+
+  let result = await callCli(lib.lastSessionId);
+
+  // A stored session id outlives the CLI's own conversation store — a different
+  // machine, a cleared cache, an expired session. `--resume` then fails outright
+  // with "No conversation found with session ID", and because the dead id is
+  // never cleared this used to disable recovery permanently rather than for one
+  // run. Resuming is an optimisation (it keeps prior context); starting fresh is
+  // always valid, so drop the id and try once more.
+  if (lib.lastSessionId && !result.recovered && /No conversation found with session ID/i.test(result.apiError || '')) {
+    console.log('[AI] stored session is gone from the CLI — starting a fresh one');
+    lib.lastSessionId = undefined;
+    lib.approxSessionTokens = 0;
+    result = await callCli(undefined);
+  }
 
   if (result.sessionId) lib.lastSessionId = result.sessionId;
   const approxNewChars = result.actions.join('\n').length + (result.summary?.length ?? 0);
