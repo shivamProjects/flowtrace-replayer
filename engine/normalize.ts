@@ -3,7 +3,9 @@
  *
  * THREE dialects reach this service and all three have to keep working:
  *
- *   schema v1  { schemaVersion: 1, actions: [ { action, locator, … } ] }
+ *   schema v1  { schemaVersion: 1, actions: [ { action, locator, … } ], steps?: [ { type: 'code', actionIndex, … } ] }
+ *              actions is the sole canonical source of truth for execution & parameter binding;
+ *              steps is an optional derived convenience with actionIndex mapping back to actions.
  *   legacy     { action: "click", locator: { … }, value, committedValue }  ~366 recordings
  *   codegen    { frame, action: { name, selector, text }, startTime }      ~413 recordings
  *
