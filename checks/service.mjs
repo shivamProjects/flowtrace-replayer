@@ -22,6 +22,8 @@ import { createServer } from 'node:http';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { runBoundaryChecks } from './callbackBoundary.mjs';
+
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, '..');
 
@@ -346,12 +348,29 @@ try {
   const callbackAuth = { authorization: `Bearer ${'a'.repeat(64)}`, 'content-type': 'application/json' };
 
   {
-    const runId = 'outputs-1';
+    // The two identifiers are given DIFFERENT values, deliberately.
+    //
+    // This check previously read `const runId = 'outputs-1'` and dispatched it
+    // as `jobExecutionId`, then asserted the path contained it. One value for
+    // both identifiers means the assertion held whichever field the sender
+    // read, so it could not distinguish a correct sender from one posting to an
+    // id the receiver has never heard of. The fixture supplied the very thing
+    // under test.
+    //
+    // Separating them is the single change that converts that assertion from
+    // decorative to real. `runId` is a uuid because `runs.id` is one.
+    const runId = '3f2504e0-4f89-11d3-9a0c-0305e82c3301';
+    const jobExecutionId = 'job-outputs-1';
     const res = await fetch(`${configured.base}/api/v1/replay`, {
       method: 'POST',
       headers: callbackAuth,
       body: JSON.stringify({
-        jobExecutionId: runId,
+        jobExecutionId,
+        // Carried so the sender HAS the contracted value available. Today it
+        // ignores this field entirely — CallbackClient's constructor accepts
+        // only jobExecutionId — which is the defect the path assertion below
+        // now surfaces instead of hiding.
+        runId,
         patchId: 'generic',
         schemaVersion: 1,
         captureScreenshots: false,
@@ -379,7 +398,19 @@ try {
 
     const lines = await readNdjsonTimed(res);
     const envelope = lines.find((l) => l.type === 'result') || null;
-    const outputsPosts = receiver.received.filter((r) => r.kind === 'outputs' && r.path.includes(runId));
+    // Scoped by KIND and by the id this run is DISPATCHED under, never by the
+    // id the path is asserted to carry.
+    //
+    // Matching on `path.includes(runId)` would silently return zero the moment
+    // the two identifiers differ, and AT-1 would fail with "saw 0 outputs
+    // callbacks" — reporting a missing callback when the real defect is a
+    // callback sent to the wrong id. A filter must never encode the property
+    // being asserted, or the failure describes the wrong defect. Scoping on
+    // `jobExecutionId` keeps this block isolated from the two below, which share
+    // this receiver, while leaving the path itself free to be judged.
+    const outputsPosts = receiver.received.filter(
+      (r) => r.kind === 'outputs' && r.path.includes(jobExecutionId)
+    );
 
     // AT-1. The whole point of the ticket.
     assert(
@@ -417,10 +448,20 @@ try {
       'outputs/the-callback-is-authenticated-with-the-dispatched-token',
       String(outputsPosts[0]?.auth)
     );
+    // The full path, with the id segment judged on PROVENANCE.
+    //
+    // flowtrace-v1.yaml:1883-1895 rules `runs.id` "the ONLY identifier on any
+    // internal callback path… the worker MUST echo it back unchanged. There is
+    // no second identifier." The sender has no `runId` field at all, so it
+    // interpolates its own jobExecutionId and every callback lands on an id the
+    // app has never heard of — a clean 404 the sender discards, because `_post`
+    // resolves false and its callers drain with allSettled. Values lost, suite
+    // green. This is the assertion that ends that.
     assert(
       outputsPosts[0]?.path === `/internal/runs/${runId}/outputs`,
-      'outputs/it-posts-to-the-contracted-path',
-      String(outputsPosts[0]?.path)
+      'outputs/it-posts-to-the-contracted-path-with-the-id-from-runId',
+      `path was ${outputsPosts[0]?.path} — expected the id segment to be the ` +
+        `dispatched runId ${runId}, not the jobExecutionId ${jobExecutionId}`
     );
 
     // AT-2. The envelope is the platform's "done" signal today, so it must
@@ -569,6 +610,17 @@ try {
   if (fixtures) fixtures.child.kill('SIGKILL');
   if (receiver) receiver.server.close();
 }
+
+/* ── 7. Callback boundary invariants (TRACE-18) ─────────────────────────────
+ *
+ * Run from here so there is ONE entry point for the suite. These need no server
+ * — they check what the sender constructs, not what a socket carries — and they
+ * run last so a boundary failure never masks a transport failure above it.
+ */
+console.log('');
+const boundary = runBoundaryChecks();
+passed += boundary.passed;
+failed += boundary.failed;
 
 console.log(`\n${passed}/${passed + failed} service checks passed\n`);
 process.exitCode = failed > 0 ? 1 : 0;
