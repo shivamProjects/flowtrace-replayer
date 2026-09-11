@@ -950,10 +950,6 @@ test.describe('Dynamic Action Replayer', () => {
           // Charged whether or not it worked — a failed recovery costs the same
           // wall-clock as a successful one.
           recoveryMsUsed += Date.now() - recoveryStartedAt;
-          emit('recovery-end', {
-            index: i, recovered: recovery?.recovered ?? false,
-            summary: redactor.redact(recovery?.summary ?? 'recovery produced no result'),
-          });
         }
 
         // Capture AFTER any recovery, so the report shows how the page really
@@ -970,6 +966,31 @@ test.describe('Dynamic Action Replayer', () => {
             log(`  [verify] recovery claimed success but ${unproven}`, 'error');
             recovery = { ...recovery, recovered: false, summary: `${recovery.summary} — rejected on re-check: ${unproven}` };
           }
+        }
+
+        // Announced HERE, not at the end of the recovery call above, and there is
+        // exactly one emit of this event. specRunner renders `recovered: true` as
+        // a green `Recovered "<step>"` row in the operator's activity feed, and
+        // nothing re-emits a correction — so announcing before verifyRecovered()
+        // published the model's own verdict for the one case the re-check exists
+        // to catch: a mis-selection the model is confident about. `recovery` is
+        // null unless the block above ran (it assigns on every path, throws
+        // included), so this fires exactly when recovery was attempted.
+        //
+        // ORDERING INVARIANT: everything between 'recovery-start' and this emit
+        // must be incapable of throwing. A throw in that gap leaves the feed with
+        // a permanent "Working out how to complete ..." row at status running,
+        // because nothing else ever closes that event. Both occupants hold today
+        // — captureStepScreenshot catches everything and only logs, verifyRecovered
+        // catches everything and RETURNS a string ("re-verification could not run")
+        // so a broken verifier is reported as a failed recovery, not a lost event.
+        // Do not add a call here that can throw, and do not let either grow a
+        // rethrow, without moving this emit back ahead of it.
+        if (recovery) {
+          emit('recovery-end', {
+            index: i, recovered: recovery.recovered,
+            summary: redactor.redact(recovery.summary ?? 'recovery produced no result'),
+          });
         }
 
         if (recovery?.recovered) {
