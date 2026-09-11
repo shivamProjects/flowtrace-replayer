@@ -34,6 +34,10 @@
  *       `"type": "result"` and carrying the full StepResult array. Per-step rows
  *       also go to the platform callback AS THEY ARRIVE, not only at the end,
  *       so the socket the client is holding is never the only record of a run.
+ *       The values the run CAPTURED go the same way, via the outputs callback,
+ *       once the run has a verdict and before the envelope is written. They
+ *       used to exist only inside the envelope, which is why every run with a
+ *       `copy` step lost them.
  *
  * A response that ends WITHOUT a terminal envelope means the engine died
  * (contract §7). That is CRASHED, and it is a different incident class from a
@@ -273,6 +277,21 @@ router.post('/replay', requireServiceToken, async function (req, res) {
       console.error(`[replay ${jobExecutionId}] engine produced no verdict: ${result.error}`);
       return;
     }
+
+    // Captured values, sent once now that the run has a verdict — and AWAITED,
+    // so the platform can never read the envelope (its "done" signal today)
+    // before the values that envelope describes have landed.
+    //
+    // This is deliberately below the `crashed` return: SpecRunner's no-results
+    // path hard-codes `outputs` to `{}`, so posting from above here would tell
+    // the platform a dead run captured nothing, when the truth is that nobody
+    // ever looked. Only a parsed result licenses this call.
+    const outputs = result.outputs || {};
+    const posted = await callbacks.postOutputs(outputs);
+    console.log(
+      `[replay ${jobExecutionId}] ${Object.keys(outputs).length} captured value(s)` +
+        ` -> outputs callback ${callbacks.enabled ? (posted ? 'ok' : 'FAILED') : 'off'}`
+    );
 
     // The engine's own verdict, passed through unchanged. Softening a failure
     // here would show a green job for a red run.

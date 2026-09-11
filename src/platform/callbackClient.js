@@ -16,6 +16,7 @@
  *   POST {callbackUrl}/{jobExecutionId}/heals        one self-healed step fix
  *   POST {callbackUrl}/{jobExecutionId}/ai-fixes     one generalised library fix
  *   POST {callbackUrl}/{jobExecutionId}/error-types  one learned error label
+ *   POST {callbackUrl}/{jobExecutionId}/outputs      every captured value, once
  *   POST {callbackUrl}/{jobExecutionId}/heartbeat    lease renewal (§7)
  *
  * A dispatch that carries no `callbackUrl` is legal: the run still executes and
@@ -115,6 +116,51 @@ class CallbackClient {
   /** One learned label for an application validation message. */
   postErrorType(entry) {
     return this._post('error-types', entry);
+  }
+
+  /**
+   * Every value the run captured, by name, sent once when the run reaches a
+   * verdict.
+   *
+   * Until this existed the captured values reached exactly one place — the
+   * terminal envelope on the open socket — and the platform dumped that whole
+   * node into a blob it never read by name, so every run with a `copy` step
+   * lost a real captured value. This is the callback that makes them durable.
+   *
+   * CALL IT ONLY FROM THE PARSED-RESULT PATH. A run that produced no results
+   * file must post NOTHING here rather than an empty map, because `{}` from a
+   * finished run means "captured nothing" and `{}` from a crashed run would
+   * mean "we never looked" — the same conflation the CRASHED status exists to
+   * prevent (contract §7).
+   *
+   * WIRE SHAPE IS `{ outputs: { name: value } }`, NOT the bare map. The
+   * contract is `RunOutputsReport` in app/openapi/flowtrace-v1.yaml (the
+   * flowtrace-app repo, branch feat/WP0-contracts-and-schema): an object with
+   * `additionalProperties: false` and `required: [outputs]`. A bare map puts
+   * every captured name at the top level, so a conformant receiver answers 422
+   * and the values are lost at exactly the boundary this callback exists to
+   * close. docs/SAAS-BUILD-PLAN.md:187 shows the bare map and is stale.
+   *
+   * Values are contracted `string | null`, so they are normalised here rather
+   * than passed through: one non-string value would 422 the whole batch and
+   * lose every other value with it. Copy steps yield strings today, so this
+   * only ever fires for something new.
+   *
+   * @param {Object<string, *>} outputs  name -> value, possibly empty
+   */
+  postOutputs(outputs) {
+    const values = {};
+    for (const [name, value] of Object.entries(outputs || {})) {
+      values[name] =
+        value == null
+          ? null
+          : typeof value === 'string'
+            ? value
+            : typeof value === 'object'
+              ? JSON.stringify(value)
+              : String(value);
+    }
+    return this._post('outputs', { outputs: values });
   }
 
   /**

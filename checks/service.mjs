@@ -18,6 +18,7 @@
  */
 
 import { spawn } from 'node:child_process';
+import { createServer } from 'node:http';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -93,11 +94,97 @@ async function readNdjson(res) {
     .map((l) => JSON.parse(l));
 }
 
+/**
+ * The same, but stamping each line with the moment IT arrived rather than the
+ * moment the body finished.
+ *
+ * Ordering between the socket and the callbacks is a real guarantee here — the
+ * platform must never be able to read the terminal envelope before the values
+ * it describes have landed — and `await res.text()` collapses the whole stream
+ * to one timestamp, which would make that guarantee untestable.
+ */
+async function readNdjsonTimed(res) {
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  const lines = [];
+  let buffer = '';
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const at = Date.now();
+    let nl;
+    while ((nl = buffer.indexOf('\n')) >= 0) {
+      const raw = buffer.slice(0, nl).trim();
+      buffer = buffer.slice(nl + 1);
+      if (raw) lines.push({ at, ...JSON.parse(raw) });
+    }
+  }
+  if (buffer.trim()) lines.push({ at: Date.now(), ...JSON.parse(buffer.trim()) });
+  return lines;
+}
+
+/**
+ * Stand in for the platform's callback receiver.
+ *
+ * Records every POST with the moment it was RECEIVED, so the checks below can
+ * assert on ordering and not merely on arrival.
+ */
+function startCallbackReceiver() {
+  const received = [];
+  const server = createServer((req, res) => {
+    let body = '';
+    req.on('data', (d) => (body += d));
+    req.on('end', () => {
+      let parsed = null;
+      try {
+        parsed = JSON.parse(body || 'null');
+      } catch (_) {
+        parsed = { unparseable: body };
+      }
+      received.push({
+        at: Date.now(),
+        path: req.url || '',
+        kind: String(req.url || '').split('/').pop(),
+        auth: req.headers.authorization || null,
+        body: parsed,
+      });
+      res.writeHead(204, { connection: 'close' });
+      res.end();
+    });
+  });
+  return new Promise((ok) => {
+    server.listen(0, '127.0.0.1', () =>
+      ok({ received, server, base: `http://127.0.0.1:${server.address().port}/internal/runs` })
+    );
+  });
+}
+
+/** Serve checks/pages out of its own process, exactly as checks/run.mjs does. */
+function startFixtureServer() {
+  const child = spawn(process.execPath, [join(HERE, 'fixture-server.mjs')], {
+    stdio: ['ignore', 'pipe', 'inherit'],
+  });
+  return new Promise((ok, fail) => {
+    let buf = '';
+    child.stdout.on('data', (d) => {
+      buf += d;
+      const m = buf.match(/PORT=(\d+)/);
+      if (m) ok({ child, origin: `http://127.0.0.1:${m[1]}` });
+    });
+    child.on('exit', (code) => fail(new Error(`fixture server exited (${code}) before listening`)));
+    setTimeout(() => fail(new Error('fixture server did not report a port within 10s')), 10_000).unref();
+  });
+}
+
 const PORT_A = 4731;
 const PORT_B = 4732;
+const PORT_C = 4733;
 
 let unconfigured = null;
 let configured = null;
+let receiver = null;
+let fixtures = null;
 
 try {
   /* ── 1. It boots with no database at all ───────────────────────────────── */
@@ -127,7 +214,16 @@ try {
 
   /* ── 3. Configured: the token is actually checked ──────────────────────── */
 
-  configured = await startServer({ REPLAYER_SERVICE_TOKEN: 'a'.repeat(64) }, PORT_B);
+  configured = await startServer(
+    {
+      REPLAYER_SERVICE_TOKEN: 'a'.repeat(64),
+      // The fixture server is on loopback, which the engine blocks by default.
+      // This is the flag an on-premise install needs anyway — no test-only
+      // escape hatch is added to production code for it.
+      REPLAY_ALLOW_PRIVATE_HOSTS: 'true',
+    },
+    PORT_B
+  );
   assert(configured.body.acceptingDispatch === true, 'health/reports-ready-once-the-token-is-set');
 
   {
@@ -234,12 +330,244 @@ try {
     const log = configured.output.join('');
     assert(!log.includes('a'.repeat(64)), 'secrets/the-service-token-is-never-logged');
   }
+
+  /* ── 6. The outputs callback (C1.2) ────────────────────────────────────── */
+  //
+  // The defect being pinned: the engine captures `copy`-step values correctly
+  // and they reach exactly ONE place — the terminal envelope on the socket —
+  // where the platform drops the whole node into a blob it never reads by name.
+  // Every run with a copy step loses a real captured value. These checks fail
+  // if that callback ever stops firing, or fires when it must not.
+
+  receiver = await startCallbackReceiver();
+  fixtures = await startFixtureServer();
+
+  const CAPTURED = 'McGrath RentCorp';
+  const callbackAuth = { authorization: `Bearer ${'a'.repeat(64)}`, 'content-type': 'application/json' };
+
+  {
+    const runId = 'outputs-1';
+    const res = await fetch(`${configured.base}/api/v1/replay`, {
+      method: 'POST',
+      headers: callbackAuth,
+      body: JSON.stringify({
+        jobExecutionId: runId,
+        patchId: 'generic',
+        schemaVersion: 1,
+        captureScreenshots: false,
+        callbackUrl: receiver.base,
+        callbackToken: 'callback-secret',
+        steps: [
+          { action: 'navigate', type: 'navigate', url: `${fixtures.origin}/adf.html` },
+          {
+            action: 'fill',
+            type: 'fill',
+            locator: { id: 'bu', label: 'Business Unit' },
+            value: CAPTURED,
+            description: 'Fill Business Unit',
+          },
+          {
+            action: 'copy',
+            type: 'copy',
+            locator: { id: 'bu', label: 'Business Unit' },
+            outputName: 'businessUnit',
+            description: 'Copy the value the application assigned',
+          },
+        ],
+      }),
+    });
+
+    const lines = await readNdjsonTimed(res);
+    const envelope = lines.find((l) => l.type === 'result') || null;
+    const outputsPosts = receiver.received.filter((r) => r.kind === 'outputs' && r.path.includes(runId));
+
+    // AT-1. The whole point of the ticket.
+    assert(
+      outputsPosts.length === 1,
+      'outputs/a-copy-step-run-posts-its-captured-values-exactly-once',
+      `saw ${outputsPosts.length} outputs callback(s); envelope outputs=${JSON.stringify(envelope?.outputs ?? null)}`
+    );
+    assert(
+      outputsPosts[0]?.body?.outputs?.businessUnit === CAPTURED,
+      'outputs/the-captured-value-arrives-by-name-not-buried-in-a-blob',
+      JSON.stringify(outputsPosts[0]?.body ?? null)
+    );
+
+    // The body shape is the CONTRACT's, not ours. RunOutputsReport
+    // (app/openapi/flowtrace-v1.yaml, flowtrace-app @ feat/WP0-contracts-and-schema)
+    // is `additionalProperties: false` with `required: [outputs]`, so a bare
+    // map — which is what SAAS-BUILD-PLAN.md:187 still shows — is a 422 and the
+    // value is lost at the very boundary this callback closes. Asserted against
+    // the spec's rule rather than against our own receiver, which was written in
+    // the same commit as the sender and cannot disagree with it.
+    assert(
+      JSON.stringify(Object.keys(outputsPosts[0]?.body ?? {}).sort()) === '["outputs"]',
+      'outputs/the-body-carries-exactly-the-contracted-outputs-property',
+      JSON.stringify(outputsPosts[0]?.body ?? null)
+    );
+    assert(
+      Object.values(outputsPosts[0]?.body?.outputs ?? { x: 0 }).every(
+        (v) => v === null || typeof v === 'string'
+      ),
+      'outputs/every-value-is-string-or-null-as-contracted',
+      JSON.stringify(outputsPosts[0]?.body?.outputs ?? null)
+    );
+    assert(
+      outputsPosts[0]?.auth === 'Bearer callback-secret',
+      'outputs/the-callback-is-authenticated-with-the-dispatched-token',
+      String(outputsPosts[0]?.auth)
+    );
+    assert(
+      outputsPosts[0]?.path === `/internal/runs/${runId}/outputs`,
+      'outputs/it-posts-to-the-contracted-path',
+      String(outputsPosts[0]?.path)
+    );
+
+    // AT-2. The envelope is the platform's "done" signal today, so it must
+    // never be readable before the values it describes have landed. Compared on
+    // ARRIVAL times, which is why the body is read line-by-line above.
+    assert(
+      envelope && outputsPosts[0] && outputsPosts[0].at <= envelope.at,
+      'outputs/never-lands-after-the-terminal-envelope-it-describes',
+      `outputs at ${outputsPosts[0]?.at}, envelope at ${envelope?.at}`
+    );
+
+    // The envelope keeps carrying them too. The callback is an addition, not a
+    // migration — the live Java client still reads the envelope.
+    assert(
+      envelope?.outputs?.businessUnit === CAPTURED,
+      'outputs/the-terminal-envelope-still-carries-them-for-the-live-client',
+      JSON.stringify(envelope?.outputs ?? null)
+    );
+
+    // And the captured value itself is never written to this service's log.
+    assert(
+      !configured.output.join('').includes(CAPTURED),
+      'secrets/a-captured-value-is-counted-in-the-log-never-printed'
+    );
+  }
+
+  {
+    // A finished run that captured nothing still posts — an empty map from a
+    // run that reached a verdict is a real fact ("captured nothing"), and the
+    // platform is entitled to record it.
+    const runId = 'outputs-empty-1';
+    const res = await fetch(`${configured.base}/api/v1/replay`, {
+      method: 'POST',
+      headers: callbackAuth,
+      body: JSON.stringify({
+        jobExecutionId: runId,
+        patchId: 'generic',
+        schemaVersion: 1,
+        captureScreenshots: false,
+        callbackUrl: receiver.base,
+        callbackToken: 'callback-secret',
+        steps: [{ action: 'navigate', type: 'navigate', url: 'not-a-url' }],
+      }),
+    });
+
+    const lines = await readNdjson(res);
+    const envelope = lines.find((l) => l.type === 'result') || null;
+    const outputsPosts = receiver.received.filter((r) => r.kind === 'outputs' && r.path.includes(runId));
+
+    assert(
+      Boolean(envelope) && outputsPosts.length === 1,
+      'outputs/a-run-that-reached-a-verdict-posts-even-when-it-captured-nothing',
+      `envelope=${Boolean(envelope)} posts=${outputsPosts.length}`
+    );
+    // "Captured nothing" is still the wrapped shape — an empty `outputs`
+    // property, not an empty body. Required means required even when empty.
+    assert(
+      JSON.stringify(outputsPosts[0]?.body ?? null) === '{"outputs":{}}',
+      'outputs/captured-nothing-is-an-empty-outputs-property-not-an-empty-body',
+      JSON.stringify(outputsPosts[0]?.body ?? null)
+    );
+  }
+
+  {
+    // AT-5, and it is the check that matters most. A run that never produced a
+    // results file must post NO outputs AT ALL. `{}` from a finished run means
+    // "captured nothing"; `{}` from a dead one would mean "we never looked",
+    // and nothing downstream could tell those apart afterwards — the same
+    // conflation the CRASHED status exists to prevent.
+    //
+    // SpecRunner's no-results path hard-codes `outputs` to `{}`, so a naive
+    // implementation posts that lie. The crash is MANUFACTURED rather than
+    // hoped for: a 1ms engine deadline kills the child long before it can write
+    // results, which is the real no-verdict path and not a simulation of one.
+    const crashed = await startServer(
+      {
+        REPLAYER_SERVICE_TOKEN: 'a'.repeat(64),
+        REPLAY_ALLOW_PRIVATE_HOSTS: 'true',
+        REPLAY_RUN_TIMEOUT_MS: '1',
+      },
+      PORT_C
+    );
+    try {
+      const runId = 'outputs-crash-1';
+      const res = await fetch(`${crashed.base}/api/v1/replay`, {
+        method: 'POST',
+        headers: callbackAuth,
+        body: JSON.stringify({
+          jobExecutionId: runId,
+          patchId: 'generic',
+          schemaVersion: 1,
+          captureScreenshots: false,
+          callbackUrl: receiver.base,
+          callbackToken: 'callback-secret',
+          steps: [{ action: 'navigate', type: 'navigate', url: `${fixtures.origin}/adf.html` }],
+        }),
+      });
+
+      const lines = await readNdjson(res);
+      const envelope = lines.find((l) => l.type === 'result') || null;
+      const outputsPosts = receiver.received.filter((r) => r.kind === 'outputs' && r.path.includes(runId));
+
+      assert(
+        envelope === null,
+        'outputs/the-manufactured-crash-really-did-reach-no-verdict',
+        'a terminal envelope arrived — this case is no longer testing what it claims'
+      );
+      assert(
+        outputsPosts.length === 0,
+        'outputs/a-run-with-no-verdict-posts-nothing-rather-than-an-empty-map',
+        `saw ${outputsPosts.length}: ${JSON.stringify(outputsPosts.map((p) => p.body))}`
+      );
+    } finally {
+      await stop(crashed);
+    }
+  }
+
+  {
+    // AT-3. A dispatch carrying no callbackUrl at all is still legal and the
+    // response shape is unchanged — the callback must not have become required.
+    const res = await fetch(`${configured.base}/api/v1/replay`, {
+      method: 'POST',
+      headers: callbackAuth,
+      body: JSON.stringify({
+        jobExecutionId: 'outputs-no-callback',
+        patchId: 'generic',
+        schemaVersion: 1,
+        captureScreenshots: false,
+        steps: [{ action: 'navigate', type: 'navigate', url: 'not-a-url' }],
+      }),
+    });
+    assert(res.status === 200, 'outputs/a-dispatch-with-no-callbackUrl-still-runs', `got ${res.status}`);
+    const lines = await readNdjson(res);
+    const envelope = lines.find((l) => l.type === 'result');
+    assert(
+      !envelope || 'outputs' in envelope,
+      'outputs/the-envelope-shape-is-unchanged-with-callbacks-off'
+    );
+  }
 } catch (err) {
   console.error('FAIL  suite threw —', err.message);
   failed++;
 } finally {
   await stop(unconfigured);
   await stop(configured);
+  if (fixtures) fixtures.child.kill('SIGKILL');
+  if (receiver) receiver.server.close();
 }
 
 console.log(`\n${passed}/${passed + failed} service checks passed\n`);
