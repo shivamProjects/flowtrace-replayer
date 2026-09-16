@@ -924,16 +924,19 @@ async function doAssertText(a: NormalizedAction, ctx: ActionContext) {
   // Substring, whitespace-normalised — the recorder asserts the same way.
   // Case-insensitive on top of that, because Oracle's label casing varies
   // between releases and translations and a case flip is never the defect the
-  // operator meant to catch. Polled via waitUntil to accommodate late-rendering ADF text.
-  const passed = await waitUntil(
-    ctx.page,
-    async () => {
+  // operator meant to catch. Polled via expect.poll to accommodate late-rendering ADF text natively.
+  //
+  // `intervals` is a single entry on purpose. Playwright repeats the LAST entry
+  // until the timeout, so a ramp like [50, 100, 250] is not a ramp — it is a
+  // 250ms polling grain over the whole 15s window, and a late assertion is then
+  // detected up to 250ms after it becomes true. 50ms flat, as the waitUntil this
+  // replaced did. The same reasoning applies to the two assertions below.
+  try {
+    await expect.poll(async () => {
       actual = normWs(await el.innerText().catch(() => ''));
       return actual.toLowerCase().includes(expected.toLowerCase());
-    },
-    { maxMs: T.action, pollMs: 50 },
-  );
-  if (!passed) {
+    }, { timeout: T.action, intervals: [50] }).toBe(true);
+  } catch {
     throw new Error(`Assertion failed: expected text "${expected.slice(0, 80)}", element reads "${actual.slice(0, 120)}"`);
   }
   ctx.log(`  [assert] text contains "${expected.slice(0, 60)}"`);
@@ -946,16 +949,13 @@ async function doAssertValue(a: NormalizedAction, ctx: ActionContext) {
   // STRICT. This is the operator's own stated expectation and the last line of
   // defence for "green means the record is correct" — it must not inherit the
   // LOV-resolution tolerance, under which asserting "100" passes against a
-  // field holding 1000.00. Polled via waitUntil so asynchronous value binding resolves cleanly.
-  const passed = await waitUntil(
-    ctx.page,
-    async () => {
+  // field holding 1000.00. Polled via expect.poll so asynchronous value binding resolves cleanly.
+  try {
+    await expect.poll(async () => {
       actual = await readValue(el);
       return valueMatchesStrict(actual, expected);
-    },
-    { maxMs: T.action, pollMs: 50 },
-  );
-  if (!passed) {
+    }, { timeout: T.action, intervals: [50] }).toBe(true);
+  } catch {
     throw new Error(`Assertion failed: expected value "${expected.slice(0, 80)}", field holds "${String(actual).slice(0, 120)}"`);
   }
   ctx.log(`  [assert] value "${String(actual).slice(0, 60)}"`);
@@ -965,15 +965,12 @@ async function doAssertChecked(a: NormalizedAction, ctx: ActionContext) {
   const el = await mustResolve(ctx.page, a, ctx.patch, 'assertChecked', ctx.log);
   const want = a.checked !== false; // the recorder writes `checked: false` for unchecked
   let actual: boolean | null = null;
-  const passed = await waitUntil(
-    ctx.page,
-    async () => {
+  try {
+    await expect.poll(async () => {
       actual = await el.isChecked().catch(() => null);
       return actual === want;
-    },
-    { maxMs: T.action, pollMs: 50 },
-  );
-  if (!passed) {
+    }, { timeout: T.action, intervals: [50] }).toBe(true);
+  } catch {
     if (actual === null) throw new Error('Assertion failed: element has no checked state');
     throw new Error(`Assertion failed: expected ${want ? 'checked' : 'unchecked'}, element is ${actual ? 'checked' : 'unchecked'}`);
   }
