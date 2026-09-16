@@ -653,12 +653,23 @@ try {
   const posts = () => skipReceiver.received.filter((r) => r.kind === 'heal-skipped');
 
   // A DECLINED skip: nothing was attempted, so there is no candidate to describe.
+  //
+  // `heal` IS SUPPLIED HERE ON PURPOSE, and it is the difference between a real
+  // check and a vacuous one. The first version of this omitted it, so
+  // `heal?.method` was undefined either way and the category rule could not be
+  // wrong — mutating `rejected ? … : null` into an unconditional read left the
+  // suite fully green. The fixture was withholding the input under test.
+  //
+  // With a candidate supplied, the assertion below is a genuine claim: a
+  // DECLINED skip must report nulls EVEN WHEN heal data is available, because
+  // the category — not the availability of data — is what decides.
   await reportHealSkipped({
     index: 3,
     category: SKIP_DECLINED,
     reason: 'the element is not in the document, so there is nothing for a model to find',
     stepLabel: 'Click Submit',
     errorClass: 'TARGET_NOT_PRESENT',
+    heal: { method: 'ai-recovery', confidence: 0.77, from: '#a', to: '#b' },
     callbacks: client,
     jobExecutionId: 'skip-1',
   });
