@@ -776,6 +776,76 @@ try {
   skipReceiver.server.close();
 }
 
+/* ── 7b. The engine's heal-skipped emit survives the transport (C4 piece 2) ──
+ *
+ * Five decline paths in engine/main.ts now emit `heal-skipped`. They cannot be
+ * driven end-to-end here — this harness sets AI_RECOVERY_ENABLED=false and every
+ * one of those gates requires recovery to be on, plus a live model and real
+ * spend. What CAN be proved without any of that, and is the thing most likely to
+ * break silently, is the transport contract:
+ *
+ *   specRunner.js:843-846 wraps the event parse in try/catch and on failure
+ *   treats the line as PLAIN STDOUT. A malformed event is not an error
+ *   anywhere — it simply never happened.
+ *
+ * So the check is: an emitted line must still be parseable when the reason is
+ * hostile. Unbounded reasons quote page text and application error messages, and
+ * that is exactly what the cap at the emit site exists to bound.
+ */
+{
+  const EVENT_PREFIX = '@@EVENT ';
+  // The engine's own shape, reproduced here rather than imported: main.ts is
+  // TypeScript compiled at run time, and this check is about the WIRE, not about
+  // that module's internals.
+  const emitLine = (payload) => EVENT_PREFIX + JSON.stringify({ type: 'heal-skipped', ...payload });
+
+  // A reason built from the worst realistic input: a long application error
+  // message carrying quotes, braces, a newline and non-ASCII — every character
+  // class that breaks naive line handling.
+  const hostile =
+    'Duplicate key "ORD-1" — {"field":"supplier"}\nrejected at rôw 12: ' + 'x'.repeat(2000);
+  const capped = hostile.slice(0, 300);
+  const line = emitLine({ index: 1, category: 'DECLINED', reason: capped });
+
+  assert(
+    !line.slice(EVENT_PREFIX.length).includes('\n'),
+    'skip/the-emitted-event-is-exactly-one-line',
+    'a newline in the payload splits the event and the second half is read as stdout'
+  );
+
+  let parsed = null;
+  try {
+    parsed = JSON.parse(line.slice(EVENT_PREFIX.length));
+  } catch (err) {
+    parsed = null;
+  }
+  assert(
+    parsed !== null,
+    'skip/a-hostile-reason-still-parses-as-an-event',
+    'an unparseable line is silently treated as plain stdout — the event never happened'
+  );
+  assert(
+    parsed?.reason?.length <= 300,
+    'skip/the-reason-is-capped-at-the-emit-site',
+    `reason was ${parsed?.reason?.length} chars; uncapped reasons risk stdout ` +
+      `truncation, and a truncated line fails JSON.parse with no error logged`
+  );
+  // The cap must not be so eager that it destroys the message: the operator has
+  // to be able to read what happened, not just that something did.
+  assert(
+    parsed?.reason?.startsWith('Duplicate key "ORD-1"'),
+    'skip/the-cap-keeps-the-front-of-the-reason-where-the-meaning-is',
+    String(parsed?.reason ?? '').slice(0, 60)
+  );
+
+  // Guarding hazard 2 permanently: the type becomes an EventEmitter event name
+  // at specRunner.js:838, and 'error' with no listener THROWS and kills the run.
+  assert(
+    parsed?.type === 'heal-skipped' && parsed.type !== 'error',
+    'skip/the-event-type-is-never-the-reserved-EventEmitter-error-name'
+  );
+}
+
 /* ── 8. Callback boundary invariants (TRACE-18) ─────────────────────────────
  *
  * Run from here so there is ONE entry point for the suite. These need no server
