@@ -53,7 +53,7 @@ const fs = require('fs');
 const SpecRunner = require('../run/specRunner');
 const { outerDeadlineMs } = require('../run/specRunner');
 const { CallbackClient } = require('../platform/callbackClient');
-const { reportHeal } = require('../run/healReporter');
+const { reportHeal, reportHealSkipped } = require('../run/healReporter');
 const { buildFixRecord, reportAiFix } = require('../run/aiFixLibrary');
 const { reportLearned } = require('../run/errorTypes');
 
@@ -245,6 +245,42 @@ router.post('/replay', requireServiceToken, async function (req, res) {
           const fix = buildFixRecord({ heal, originalStep: steps[heal.index], aiSteps: record });
           console.log(`[replay ${jobExecutionId}] ${await reportAiFix(callbacks, fix)}`);
         }
+      })().catch(() => {})
+    );
+  });
+
+  // A heal the engine declined to attempt, or attempted and then rejected on
+  // re-check (C4). Separate from 'heal' on purpose: that event means a fix was
+  // APPLIED, this one means it was not, and a receiver must never be able to
+  // read one as the other.
+  //
+  // The engine composes the reason and redacts it at the emit site — decline
+  // reasons quote page text and application error messages, and `emit` does not
+  // redact on its own. Nothing is re-derived here.
+  //
+  // Pushed onto the same `pending` array as the heal and step callbacks so it
+  // lands before the terminal envelope: the envelope is the platform's "done"
+  // signal, and a reason arriving after it describes a run the reader has
+  // already filed.
+  runner.on('heal-skipped', (skip) => {
+    pending.push(
+      (async () => {
+        const { log } = await reportHealSkipped({
+          index: skip.index,
+          category: skip.category,
+          reason: skip.reason,
+          stepLabel: skip.stepLabel ?? null,
+          errorClass: skip.failureStage ?? null,
+          heal: {
+            method: skip.healMethod ?? null,
+            confidence: skip.healConfidence ?? null,
+            from: skip.healFrom ?? null,
+            to: skip.healTo ?? null,
+          },
+          callbacks,
+          jobExecutionId,
+        });
+        console.log(`[replay ${jobExecutionId}] ${log}`);
       })().catch(() => {})
     );
   });

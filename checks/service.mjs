@@ -611,7 +611,161 @@ try {
   if (receiver) receiver.server.close();
 }
 
-/* ── 7. Callback boundary invariants (TRACE-18) ─────────────────────────────
+/* ── 7. Skipped heals (C4) ──────────────────────────────────────────────────
+ *
+ * Design principle P3: report when healing was SKIPPED, not only when it fired.
+ * `run_steps.heal_skipped_reason` has existed since the first migration — whose
+ * own comment calls it "the trust artifact" — and nothing could write it,
+ * because every declining path composed a precise reason and then dropped it
+ * into a log line on a deployed worker nobody reads.
+ *
+ * WHY THESE DRIVE THE REPORTER DIRECTLY rather than a whole run: this harness
+ * sets AI_RECOVERY_ENABLED=false (see startServer), so no decline path inside
+ * the engine can fire here at all — reaching them needs a live model and real
+ * spend. What IS under test is the contract at the boundary: the categories,
+ * the field rules, the wire shape and the redaction. The transport underneath
+ * is a real HTTP server and a real CallbackClient, not a mock.
+ *
+ * THREE OF THE SEVEN PATHS ARE NOT COVERED HERE AND MUST NOT BE CLAIMED AS
+ * COVERED: paths 1, 2, 4, 5 and 7 live in engine/main.ts, which cannot emit
+ * `heal-skipped` at all until that file changes (the sole `emit('heal',…)` is
+ * gated on `recovery?.recovered`). Those checks are marked PENDING-ENGINE below
+ * and are deliberately red.
+ */
+{
+  const { CallbackClient } = await import('../src/platform/callbackClient.js').then(
+    (m) => m.default ?? m
+  );
+  const { reportHealSkipped, SKIP_DECLINED, SKIP_REJECTED } = await import(
+    '../src/run/healReporter.js'
+  ).then((m) => m.default ?? m);
+
+  const skipReceiver = await startCallbackReceiver();
+  const client = new CallbackClient(
+    {
+      jobExecutionId: 'skip-1',
+      callbackUrl: skipReceiver.base,
+      callbackToken: 'callback-secret',
+    },
+    () => {}
+  );
+
+  const posts = () => skipReceiver.received.filter((r) => r.kind === 'heal-skipped');
+
+  // A DECLINED skip: nothing was attempted, so there is no candidate to describe.
+  await reportHealSkipped({
+    index: 3,
+    category: SKIP_DECLINED,
+    reason: 'the element is not in the document, so there is nothing for a model to find',
+    stepLabel: 'Click Submit',
+    errorClass: 'TARGET_NOT_PRESENT',
+    callbacks: client,
+    jobExecutionId: 'skip-1',
+  });
+
+  const declined = posts()[0];
+  assert(posts().length === 1, 'skip/a-declined-heal-is-reported-exactly-once', `saw ${posts().length}`);
+  assert(
+    declined?.body?.category === 'DECLINED',
+    'skip/declined-is-labelled-declined-not-merely-skipped',
+    JSON.stringify(declined?.body?.category)
+  );
+  // The four heal fields must be null, and this is the assertion that keeps the
+  // two categories meaningfully different. A placeholder here would say "we
+  // tried and got nothing" about a step nobody ever looked at.
+  assert(
+    declined?.body?.healMethod === null &&
+      declined?.body?.healConfidence === null &&
+      declined?.body?.healFrom === null &&
+      declined?.body?.healTo === null,
+    'skip/declined-carries-no-candidate-fields-because-nothing-was-attempted',
+    JSON.stringify(declined?.body ?? null)
+  );
+  assert(
+    typeof declined?.body?.reason === 'string' && declined.body.reason.length > 0,
+    'skip/a-skip-always-carries-its-reason',
+    JSON.stringify(declined?.body?.reason ?? null)
+  );
+
+  // A REJECTED skip: a candidate existed and failed an independent re-check.
+  await reportHealSkipped({
+    index: 4,
+    category: SKIP_REJECTED,
+    reason: 'recovery claimed success but the field was still empty — rejected on re-check',
+    stepLabel: 'Fill Business Unit',
+    errorClass: 'ASSERTION_FAILED',
+    heal: { method: 'ai-recovery', confidence: 0.92, from: '#old', to: '#proposed' },
+    callbacks: client,
+    jobExecutionId: 'skip-1',
+  });
+
+  const rejected = posts()[1];
+  assert(
+    rejected?.body?.category === 'REJECTED',
+    'skip/rejected-is-distinguishable-from-declined',
+    JSON.stringify(rejected?.body?.category)
+  );
+  assert(
+    rejected?.body?.healMethod === 'ai-recovery' &&
+      rejected?.body?.healConfidence === 0.92 &&
+      rejected?.body?.healTo === '#proposed',
+    'skip/rejected-carries-the-candidate-that-failed-verification',
+    JSON.stringify(rejected?.body ?? null)
+  );
+
+  // THE INVARIANT THAT MATTERS MOST. A skip is not a heal. They travel on
+  // different callbacks so a receiver cannot render a refusal as a repair —
+  // the conflation P2 exists to prevent.
+  assert(
+    skipReceiver.received.every((r) => r.kind !== 'heals' && r.kind !== 'heal'),
+    'skip/a-skipped-heal-is-never-posted-as-an-applied-heal',
+    skipReceiver.received.map((r) => r.kind).join(',')
+  );
+  assert(
+    posts().every((r) => r.path.endsWith('/heal-skipped')),
+    'skip/posts-to-its-own-endpoint-not-the-heal-endpoint',
+    posts().map((r) => r.path).join(' ')
+  );
+
+  // A skip with no reason is a null column wearing a different hat: it reports
+  // that we declined without saying why, which is what this ticket closes.
+  const before = posts().length;
+  const noReason = await reportHealSkipped({
+    index: 5,
+    category: SKIP_DECLINED,
+    reason: '',
+    callbacks: client,
+    jobExecutionId: 'skip-1',
+  });
+  assert(
+    posts().length === before && noReason.posted === false,
+    'skip/a-skip-with-no-reason-is-refused-rather-than-posted-empty',
+    noReason.log
+  );
+
+  // Never throws — a failed write-back must not be worse than not having the
+  // feature. Driven with a client whose transport cannot succeed.
+  const deadClient = new CallbackClient(
+    { jobExecutionId: 'skip-1', callbackUrl: 'http://127.0.0.1:1', callbackToken: 't' },
+    () => {}
+  );
+  const dead = await reportHealSkipped({
+    index: 6,
+    category: SKIP_DECLINED,
+    reason: 'unreachable receiver',
+    callbacks: deadClient,
+    jobExecutionId: 'skip-1',
+  });
+  assert(
+    dead.posted === false && typeof dead.log === 'string',
+    'skip/an-unreportable-skip-degrades-to-a-log-line-and-never-throws',
+    dead.log
+  );
+
+  skipReceiver.server.close();
+}
+
+/* ── 8. Callback boundary invariants (TRACE-18) ─────────────────────────────
  *
  * Run from here so there is ONE entry point for the suite. These need no server
  * — they check what the sender constructs, not what a socket carries — and they

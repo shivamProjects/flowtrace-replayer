@@ -164,6 +164,35 @@ class CallbackClient {
   }
 
   /**
+   * A heal that was deliberately NOT applied, and why (C4, design principle P3).
+   *
+   * P3 requires reporting when healing was SKIPPED, not only when it fired.
+   * `run_steps.heal_skipped_reason` has existed since the first migration —
+   * whose own comment calls it "the trust artifact" — and nothing could write
+   * it, because every declining path composed a precise reason and dropped it
+   * into a log line. This is the callback that makes those reasons durable.
+   *
+   * A SKIP IS NOT A HEAL. `postHeal` reports an applied fix; this reports the
+   * absence of one. They are separate callbacks so that a receiver cannot
+   * render a refusal as a repair — the exact conflation P2 exists to prevent.
+   *
+   * TWO CATEGORIES, and they are not interchangeable:
+   *   DECLINED  nothing was attempted; the four heal fields are null.
+   *   REJECTED  a candidate existed and failed an independent re-check.
+   * A user reading "skipped" for both learns nothing about which happened, and
+   * the second case — a model's confident fix caught being wrong — is the
+   * strongest trust signal this product can show.
+   *
+   * TARGET: this is an APP-boundary callback
+   * (`/api/v1/internal/runs/{runId}/…`), not one of the five that go to the
+   * platform on `/api/internal/replay/{jobExecutionId}/…`. Two consumers, not a
+   * migration — the platform's five are correct and must not move.
+   */
+  postHealSkipped(record) {
+    return this._post('heal-skipped', record);
+  }
+
+  /**
    * Lease renewal (§7): liveness is a lease, not a timeout. Platform expires a
    * run whose lease lapses, in seconds — it does not reconcile on a timer.
    */

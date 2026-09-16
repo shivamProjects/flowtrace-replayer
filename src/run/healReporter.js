@@ -173,7 +173,18 @@ async function reportHeal({ heal, dispatchedSteps, parameters, callbacks, jobExe
   const tag = `[heal ${jobExecutionId}]`;
   try {
     if (!Array.isArray(heal.steps) || !heal.steps.length) {
-      return { log: `${tag} skipped — recovery produced no replayable steps`, record: null };
+      // DECLINED, not silence. Recovery ran and produced nothing replayable —
+      // a real fact about this step that the operator is entitled to see.
+      const { log } = await reportHealSkipped({
+        index: heal.index,
+        category: SKIP_DECLINED,
+        reason: 'recovery produced no replayable steps',
+        stepLabel: heal.description || null,
+        errorClass: heal.failureStage || null,
+        callbacks,
+        jobExecutionId,
+      });
+      return { log, record: null };
     }
 
     // The step the engine was DISPATCHED, at the index the engine reports. No
@@ -189,10 +200,27 @@ async function reportHeal({ heal, dispatchedSteps, parameters, callbacks, jobExe
       reason: heal.reason,
     });
     if (built.volatile) {
-      return {
-        log: `${tag} not reported — the fix is pinned to a session-specific id that will be dead next run`,
-        record: null,
-      };
+      // REJECTED, not DECLINED — and the distinction is the whole point of the
+      // two categories. A candidate DID exist here and it did work on this run;
+      // it is refused because it is pinned to a session-specific id that is
+      // already dead by the next run, so storing it is worse than storing
+      // nothing (execution 2069 lost 90s to exactly that).
+      //
+      // `from`/`to` are deliberately NOT populated: the rejected selector is the
+      // volatile id itself, and putting it in `heal_to` would hand the UI a dead
+      // locator to render beside a live one. The reason says what happened; the
+      // selector that must not be reused is not re-published to say it.
+      const { log } = await reportHealSkipped({
+        index: heal.index,
+        category: SKIP_REJECTED,
+        reason: 'the fix is pinned to a session-specific id that will be dead next run',
+        stepLabel: heal.description || null,
+        errorClass: heal.failureStage || null,
+        heal: { method: heal.model ? 'ai-recovery' : null, confidence: null },
+        callbacks,
+        jobExecutionId,
+      });
+      return { log, record: null };
     }
 
     const record = {
@@ -222,7 +250,104 @@ async function reportHeal({ heal, dispatchedSteps, parameters, callbacks, jobExe
   }
 }
 
+/* ── Skipped heals (C4) ───────────────────────────────────────────────────── */
+
+/**
+ * The two categories a skipped heal can fall into. They are NOT one event.
+ *
+ *   DECLINED  No candidate was ever produced. The gate refused before spending
+ *             anything: there is no method, no confidence, no before/after.
+ *   REJECTED  A candidate existed, passed its own check, and FAILED an
+ *             independent re-check. All four heal fields are populatable.
+ *
+ * Collapsing them would tell a user the same thing about a step nobody looked at
+ * and a step where a model proposed a fix that was caught being wrong. Those
+ * carry opposite trust signals — the first says "out of scope", the second says
+ * "our verification worked", which is the strongest claim this product makes.
+ */
+const SKIP_DECLINED = 'DECLINED';
+const SKIP_REJECTED = 'REJECTED';
+
+/**
+ * Report that a heal was deliberately NOT applied.
+ *
+ * ── Why this exists ─────────────────────────────────────────────────────────
+ *
+ * Design principle P3: report when healing was SKIPPED, not only when it fired.
+ * `run_steps.heal_skipped_reason` has existed since the first migration, whose
+ * own comment calls it "the trust artifact" — and nothing has ever been able to
+ * write it, because every path that declines a heal composes a precise reason
+ * and then discards it into a log line on a deployed worker nobody reads.
+ *
+ * A skip is NOT a heal and must never be reported as one: `reportHeal` posts
+ * an applied fix, this posts the absence of one. They go to different callbacks
+ * precisely so the UI cannot confuse them.
+ *
+ * ── Contract ────────────────────────────────────────────────────────────────
+ *
+ * Never throws, exactly like `reportHeal` — a failed write-back must never be
+ * worse than not having the feature. Returns `{ log, posted }` so the caller can
+ * say what happened without inspecting the transport.
+ *
+ * `reason` is REQUIRED. A skip with no reason is the thing this closes: it
+ * reports that we declined without saying why, which is a null column wearing a
+ * different hat.
+ *
+ * @returns {Promise<{ log: string, posted: boolean }>} — never throws
+ */
+async function reportHealSkipped({
+  index,
+  category,
+  reason,
+  stepLabel = null,
+  errorClass = null,
+  heal = null,
+  callbacks,
+  jobExecutionId,
+}) {
+  const tag = `[heal ${jobExecutionId}]`;
+  try {
+    if (category !== SKIP_DECLINED && category !== SKIP_REJECTED) {
+      return { log: `${tag} skip not reported — unknown category "${category}"`, posted: false };
+    }
+    if (typeof reason !== 'string' || !reason.trim()) {
+      return { log: `${tag} skip not reported — no reason given for step ${index}`, posted: false };
+    }
+
+    // The four heal fields are populated ONLY on REJECTED, where a candidate
+    // genuinely existed. On DECLINED they are null because nothing was
+    // attempted — and a null here means "we did not try", which is a different
+    // fact from "we tried and it produced nothing". Defaulting them to a
+    // placeholder would erase that distinction.
+    const rejected = category === SKIP_REJECTED;
+    const record = {
+      index,
+      category,
+      reason,
+      stepLabel,
+      errorClass,
+      healMethod: rejected ? heal?.method ?? null : null,
+      healConfidence: rejected ? heal?.confidence ?? null : null,
+      healFrom: rejected ? heal?.from ?? null : null,
+      healTo: rejected ? heal?.to ?? null : null,
+    };
+
+    const ok = callbacks ? await callbacks.postHealSkipped(record) : false;
+    return {
+      log: ok
+        ? `${tag} reported ${category} for step ${index}: ${reason}`
+        : `${tag} could not report ${category} for step ${index} — the reason is lost, the run is not`,
+      posted: ok,
+    };
+  } catch (err) {
+    return { log: `${tag} failed to report skip: ${err.message}`, posted: false };
+  }
+}
+
 module.exports = {
+  SKIP_DECLINED,
+  SKIP_REJECTED,
+  reportHealSkipped,
   reportHeal,
   // exported for the checks suite
   reparameterizeValue,

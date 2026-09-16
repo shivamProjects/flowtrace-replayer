@@ -90,8 +90,14 @@ export const TARGETS = {
     base: 'https://app.example/api/v1/internal/runs',
     /** `runs.id`. Ruled, and the ONLY identifier on this boundary. */
     idField: 'runId',
-    /** Singular. The difference from the platform set is not cosmetic. */
-    suffixes: ['step', 'heal', 'error', 'outputs', 'heartbeat', 'complete'],
+    /**
+     * Singular. The difference from the platform set is not cosmetic.
+     *
+     * `heal-skipped` (C4) is an APP-boundary callback and appears only here: a
+     * skip is not a heal, so it does not share `heal`'s suffix, and the
+     * platform has no receiver for it at all.
+     */
+    suffixes: ['step', 'heal', 'heal-skipped', 'error', 'outputs', 'heartbeat', 'complete'],
   },
 };
 
@@ -144,6 +150,7 @@ const METHOD_FOR = {
   'error-types': 'postErrorType',
   outputs: 'postOutputs',
   heartbeat: 'postHeartbeat',
+  'heal-skipped': 'postHealSkipped',
 };
 
 /**
