@@ -36,24 +36,38 @@ const TIMEOUT_MS = Number(process.env.CALLBACK_TIMEOUT_MS || 10_000);
 class CallbackClient {
   /**
    * @param {Object}  dispatch
-   * @param {string}  dispatch.jobExecutionId
+   * @param {string} [dispatch.jobExecutionId]
+   * @param {string} [dispatch.runId]
    * @param {string} [dispatch.callbackUrl]    base URL; absent = callbacks off
    * @param {string} [dispatch.callbackToken]  bearer token for the above
    * @param {(msg: string) => void} [log]
    */
-  constructor({ jobExecutionId, callbackUrl, callbackToken }, log) {
-    this.jobExecutionId = String(jobExecutionId);
+  constructor({ jobExecutionId, runId, callbackUrl, callbackToken } = {}, log) {
+    this.jobExecutionId = jobExecutionId ? String(jobExecutionId) : null;
+    this.runId = runId ? String(runId) : null;
     // Trailing slashes are the classic way to turn a working URL into a 404.
     this.baseUrl = callbackUrl ? String(callbackUrl).replace(/\/+$/, '') : null;
     this.token = callbackToken || null;
     this.log = log || (() => {});
     this.enabled = Boolean(this.baseUrl);
     this.failures = 0;
+
+    // Discriminate target consumer:
+    // App base carries /internal/runs (e.g. https://app.example/api/v1/internal/runs)
+    this.isApp = Boolean(this.baseUrl && /\/internal\/runs(?:\/|$)/i.test(this.baseUrl));
   }
 
   /** Absolute URL for one of the paths documented at the top of this file. */
   _url(suffix) {
-    return `${this.baseUrl}/${encodeURIComponent(this.jobExecutionId)}/${suffix}`;
+    if (this.isApp) {
+      if (!this.runId) {
+        // App base REQUIRES runId; never leak jobExecutionId onto app path
+        return `${this.baseUrl}/<missing-run-id>/${suffix}`;
+      }
+      return `${this.baseUrl}/${encodeURIComponent(this.runId)}/${suffix}`;
+    }
+    const id = this.jobExecutionId ?? this.runId ?? '';
+    return `${this.baseUrl}/${encodeURIComponent(id)}/${suffix}`;
   }
 
   /**
@@ -94,17 +108,18 @@ class CallbackClient {
 
   /**
    * One StepResult, the moment it lands rather than only at the end.
-   *
-   * §6(b): "Never let the only record of a run be the socket the client is
-   * holding." A killed run must not be reportable as "failed, zero steps".
+   * Platform routes to 'steps'; App routes to 'step'.
    */
   postStep(stepResult) {
-    return this._post('steps', stepResult);
+    return this._post(this.isApp ? 'step' : 'steps', stepResult);
   }
 
-  /** One self-healed step fix, for platform to place against the recording. */
+  /**
+   * One self-healed step fix.
+   * Platform routes to 'heals'; App routes to 'heal'.
+   */
   postHeal(heal) {
-    return this._post('heals', heal);
+    return this._post(this.isApp ? 'heal' : 'heals', heal);
   }
 
   /** One generalised, de-identified fix for the shared library. */
@@ -115,6 +130,42 @@ class CallbackClient {
   /** One learned label for an application validation message. */
   postErrorType(entry) {
     return this._post('error-types', entry);
+  }
+
+  /**
+   * A heal that was deliberately NOT applied, and why (C4, design principle P3).
+   * App boundary only: /api/v1/internal/runs/{runId}/heal-skipped
+   */
+  postHealSkipped(record) {
+    return this._post('heal-skipped', record);
+  }
+
+  /** Terminal error callback for the app boundary. */
+  postError(err) {
+    return this._post('error', err);
+  }
+
+  /** Terminal completion callback for the app boundary. */
+  postComplete(result) {
+    return this._post('complete', result);
+  }
+
+  /**
+   * Every value the run captured, by name, sent once when the run reaches a verdict.
+   */
+  postOutputs(outputs) {
+    const values = {};
+    for (const [name, value] of Object.entries(outputs || {})) {
+      values[name] =
+        value == null
+          ? null
+          : typeof value === 'string'
+            ? value
+            : typeof value === 'object'
+              ? JSON.stringify(value)
+              : String(value);
+    }
+    return this._post('outputs', { outputs: values });
   }
 
   /**
