@@ -34,6 +34,10 @@
  *       `"type": "result"` and carrying the full StepResult array. Per-step rows
  *       also go to the platform callback AS THEY ARRIVE, not only at the end,
  *       so the socket the client is holding is never the only record of a run.
+ *       The values the run CAPTURED go the same way, via the outputs callback,
+ *       once the run has a verdict and before the envelope is written. They
+ *       used to exist only inside the envelope, which is why every run with a
+ *       `copy` step lost them.
  *
  * A response that ends WITHOUT a terminal envelope means the engine died
  * (contract §7). That is CRASHED, and it is a different incident class from a
@@ -49,7 +53,7 @@ const fs = require('fs');
 const SpecRunner = require('../run/specRunner');
 const { outerDeadlineMs } = require('../run/specRunner');
 const { CallbackClient } = require('../platform/callbackClient');
-const { reportHeal } = require('../run/healReporter');
+const { reportHeal, reportHealSkipped } = require('../run/healReporter');
 const { buildFixRecord, reportAiFix } = require('../run/aiFixLibrary');
 const { reportLearned } = require('../run/errorTypes');
 
@@ -106,6 +110,7 @@ function writeLine(res, object) {
 router.post('/replay', requireServiceToken, async function (req, res) {
   const {
     jobExecutionId,
+    runId,
     steps,
     patchId,
     schemaVersion,
@@ -133,7 +138,7 @@ router.post('/replay', requireServiceToken, async function (req, res) {
   );
 
   const callbacks = new CallbackClient(
-    { jobExecutionId, callbackUrl, callbackToken },
+    { jobExecutionId, runId, callbackUrl, callbackToken },
     (msg) => console.log(`[replay ${jobExecutionId}] ${msg}`)
   );
 
@@ -245,6 +250,42 @@ router.post('/replay', requireServiceToken, async function (req, res) {
     );
   });
 
+  // A heal the engine declined to attempt, or attempted and then rejected on
+  // re-check (C4). Separate from 'heal' on purpose: that event means a fix was
+  // APPLIED, this one means it was not, and a receiver must never be able to
+  // read one as the other.
+  //
+  // The engine composes the reason and redacts it at the emit site — decline
+  // reasons quote page text and application error messages, and `emit` does not
+  // redact on its own. Nothing is re-derived here.
+  //
+  // Pushed onto the same `pending` array as the heal and step callbacks so it
+  // lands before the terminal envelope: the envelope is the platform's "done"
+  // signal, and a reason arriving after it describes a run the reader has
+  // already filed.
+  runner.on('heal-skipped', (skip) => {
+    pending.push(
+      (async () => {
+        const { log } = await reportHealSkipped({
+          index: skip.index,
+          category: skip.category,
+          reason: skip.reason,
+          stepLabel: skip.stepLabel ?? null,
+          errorClass: skip.failureStage ?? null,
+          heal: {
+            method: skip.healMethod ?? null,
+            confidence: skip.healConfidence ?? null,
+            from: skip.healFrom ?? null,
+            to: skip.healTo ?? null,
+          },
+          callbacks,
+          jobExecutionId,
+        });
+        console.log(`[replay ${jobExecutionId}] ${log}`);
+      })().catch(() => {})
+    );
+  });
+
   runner.on('error-type-learned', (entry) => {
     pending.push(
       reportLearned(callbacks, entry)
@@ -273,6 +314,21 @@ router.post('/replay', requireServiceToken, async function (req, res) {
       console.error(`[replay ${jobExecutionId}] engine produced no verdict: ${result.error}`);
       return;
     }
+
+    // Captured values, sent once now that the run has a verdict — and AWAITED,
+    // so the platform can never read the envelope (its "done" signal today)
+    // before the values that envelope describes have landed.
+    //
+    // This is deliberately below the `crashed` return: SpecRunner's no-results
+    // path hard-codes `outputs` to `{}`, so posting from above here would tell
+    // the platform a dead run captured nothing, when the truth is that nobody
+    // ever looked. Only a parsed result licenses this call.
+    const outputs = result.outputs || {};
+    const posted = await callbacks.postOutputs(outputs);
+    console.log(
+      `[replay ${jobExecutionId}] ${Object.keys(outputs).length} captured value(s)` +
+        ` -> outputs callback ${callbacks.enabled ? (posted ? 'ok' : 'FAILED') : 'off'}`
+    );
 
     // The engine's own verdict, passed through unchanged. Softening a failure
     // here would show a green job for a red run.

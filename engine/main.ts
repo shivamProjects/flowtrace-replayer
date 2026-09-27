@@ -99,7 +99,80 @@ function emit(type: string, payload: Record<string, any>): void {
   // Prefix must stay byte-identical to EVENT_PREFIX in src/queue/specRunner.js —
   // a mismatch is silent: every event is parsed as ordinary stdout and the live
   // view simply shows nothing while the run proceeds normally.
+  //
+  // NEVER emit a type literally named `error`. The service calls
+  // this.emit(type, rest) at specRunner.js:838, so the type becomes an
+  // EventEmitter event name — and 'error' with no listener attached THROWS and
+  // takes the run down. Found before anyone did it; left here so nobody does.
   console.log('@@EVENT ' + JSON.stringify({ type, executionId: JOB_EXECUTION_ID, ...payload }));
+}
+
+/** Longest reason that may go on the wire. See `emitHealSkipped`. */
+const SKIP_REASON_MAX = 300;
+
+/**
+ * Announce a heal that was deliberately NOT applied, and why (C4, principle P3).
+ *
+ * P3 says report when healing was SKIPPED, not only when it fired.
+ * `run_steps.heal_skipped_reason` has existed since the first migration — whose
+ * own comment calls it "the trust artifact" — and nothing could write it,
+ * because every declining path below composes a precise reason and then drops it
+ * into a log line on a deployed worker nobody reads.
+ *
+ * TWO CATEGORIES, and they must not be collapsed:
+ *   DECLINED  nothing was attempted — no candidate, no confidence, no
+ *             before/after. The gate refused before spending anything.
+ *   REJECTED  a candidate existed, passed its own check, and failed an
+ *             independent re-check.
+ * One says the system never looked; the other says the system looked, proposed a
+ * fix, and caught itself being wrong. A UI rendering both as "skipped" destroys
+ * the only evidence we have that verification works.
+ *
+ * ── Why the strings are capped, which is load-bearing and not hygiene ────────
+ *
+ * specRunner.js:843-846 wraps the event parse in try/catch and, on failure,
+ * falls through and treats the line as PLAIN STDOUT. Silently. So a malformed
+ * event is not an error anywhere — it simply never happened.
+ *
+ * These reasons are the likeliest payload in the engine to trigger that: they
+ * quote page text and application error messages and are otherwise unbounded, so
+ * a long enough single line risks truncation in the stdout pipe, and a truncated
+ * line fails JSON.parse. An uncapped reason is how this feature would fail in
+ * production without one error being logged — the same silent-success shape C4
+ * exists to eliminate. `actions.ts` already sets the precedent at 40–120 chars.
+ *
+ * Redaction is applied HERE rather than trusted to the caller, because `emit`
+ * does not redact — only `log()` does — and every one of these strings can carry
+ * a customer value.
+ */
+function emitHealSkipped(opts: {
+  index: number;
+  category: 'DECLINED' | 'REJECTED';
+  reason: string;
+  label?: string | null;
+  failureStage?: string | null;
+  healMethod?: string | null;
+  healConfidence?: number | null;
+  healFrom?: string | null;
+  healTo?: string | null;
+}): void {
+  const cap = (s: unknown, n: number): string | null =>
+    s == null ? null : redactor.redact(String(s)).slice(0, n);
+
+  emit('heal-skipped', {
+    index: opts.index,
+    category: opts.category,
+    reason: cap(opts.reason, SKIP_REASON_MAX),
+    stepLabel: cap(opts.label, 120),
+    failureStage: opts.failureStage ?? null,
+    // Populated only on REJECTED, where a candidate genuinely existed. A null on
+    // DECLINED means "we did not try", which is a different fact from "we tried
+    // and got nothing" — defaulting them would erase the distinction.
+    healMethod: opts.category === 'REJECTED' ? (opts.healMethod ?? null) : null,
+    healConfidence: opts.category === 'REJECTED' ? (opts.healConfidence ?? null) : null,
+    healFrom: opts.category === 'REJECTED' ? cap(opts.healFrom, 200) : null,
+    healTo: opts.category === 'REJECTED' ? cap(opts.healTo, 200) : null,
+  });
 }
 
 /** Every user-visible line goes through here — recordings carry passwords. */
@@ -811,13 +884,22 @@ test.describe('Dynamic Action Replayer', () => {
         ]);
         const unrecoverable = UNRECOVERABLE.has(verdict.category);
         if (unrecoverable && isRecoveryEnabled()) {
+          const why = verdict.category === 'TARGET_NOT_PRESENT'
+            ? 'the element is not in the document, so there is nothing on this page for a model to find'
+            : 'no model can act on this class of failure';
           log(
-            `  [ai] skipped — ${verdict.category}: ${verdict.category === 'TARGET_NOT_PRESENT'
-              ? 'the element is not in the document, so there is nothing on this page for a model to find'
-              : 'no model can act on this class of failure'}. ` +
+            `  [ai] skipped — ${verdict.category}: ${why}. ` +
             `Recovery would cost time and money and could not succeed.`,
             'warn',
           );
+          // The reason above is precise and, until now, went only to a log line.
+          emitHealSkipped({
+            index: i,
+            category: 'DECLINED',
+            reason: `${verdict.category}: ${why}`,
+            label,
+            failureStage,
+          });
         }
 
         // The application REFUSED the data (duplicate key, failed validation).
@@ -835,6 +917,21 @@ test.describe('Dynamic Action Replayer', () => {
         // API call, which is the entire contract errors.ts was written to.
         const commitRejected = Boolean(err?.commitRejected);
         let errorType: string | null = null;
+        if (commitRejected) {
+          // Emitted once for BOTH branches below, because they differ only in
+          // how the KIND of rejection was named (deterministically, or by
+          // asking a model). The fact worth reporting is the same either way:
+          // the application refused the data, so no selector fix could help.
+          emitHealSkipped({
+            index: i,
+            category: 'DECLINED',
+            reason:
+              'the application rejected the submitted data, so this is not a selector ' +
+              'problem and no model can fix it',
+            label,
+            failureStage,
+          });
+        }
         if (commitRejected && verdict.source !== 'needs-model') {
           log(
             `  [commit] step ${i + 1} was rejected by the application — skipping recovery. ` +
@@ -881,6 +978,20 @@ test.describe('Dynamic Action Replayer', () => {
         const secretStep = redactor.isSecretStep(i);
         if (secretStep && isRecoveryEnabled()) {
           log('  [ai] skipped — this step carries a credential', 'warn');
+          // Worth surfacing in its own right: "we refused to send your
+          // credential to a third-party model" is a deliberate safety decision,
+          // and P3 exists precisely so the operator can see decisions like it.
+          // The step LABEL is deliberately omitted — on a credential-bearing
+          // step it is the one field most likely to name the secret's field.
+          emitHealSkipped({
+            index: i,
+            category: 'DECLINED',
+            reason:
+              'this step carries a credential, and recovery would transmit the value, ' +
+              'the element and a page dump to a third-party API',
+            label: null,
+            failureStage,
+          });
         }
 
         // Both caps are checked here rather than inside recoverWithClaude,
@@ -890,11 +1001,21 @@ test.describe('Dynamic Action Replayer', () => {
         const outOfAttempts = recoveryAttempts >= RECOVERY_MAX_ATTEMPTS;
         const outOfBudget = runBudgetLeft <= 5_000;
         if (isRecoveryEnabled() && !secretStep && !expired && !unrecoverable && (outOfAttempts || outOfBudget)) {
-          log(
-            `  [ai] skipped — this run has already used ${recoveryAttempts} recovery attempt(s) ` +
-            `and ${(recoveryMsUsed / 1000).toFixed(0)}s of its ${(RECOVERY_RUN_MS / 1000).toFixed(0)}s budget`,
-            'warn',
-          );
+          const spent =
+            `this run has already used ${recoveryAttempts} recovery attempt(s) and ` +
+            `${(recoveryMsUsed / 1000).toFixed(0)}s of its ${(RECOVERY_RUN_MS / 1000).toFixed(0)}s budget`;
+          log(`  [ai] skipped — ${spent}`, 'warn');
+          // A cap, not a judgement about this step. Without this the operator
+          // sees an unhealed step and cannot tell whether the system judged it
+          // unfixable or simply ran out of room — opposite conclusions about
+          // whether raising the cap would have helped.
+          emitHealSkipped({
+            index: i,
+            category: 'DECLINED',
+            reason: `recovery was not attempted: ${spent}`,
+            label,
+            failureStage,
+          });
         }
 
         if (!unrecoverable && !expired && !commitRejected && !secretStep && !outOfAttempts && !outOfBudget && isRecoveryEnabled()) {
@@ -964,6 +1085,32 @@ test.describe('Dynamic Action Replayer', () => {
           const unproven = await verifyRecovered(action, ctx);
           if (unproven) {
             log(`  [verify] recovery claimed success but ${unproven}`, 'error');
+            // THE ONE THAT MATTERS MOST. This is the mis-selection case the
+            // literature calls very hard to detect — a model confident it
+            // succeeded, on an element that was not the right one — and the one
+            // that otherwise produces a green build. verifyRecovered IS that
+            // detection. Until now we caught it, wrote a precise reason into
+            // recovery.summary, and then dropped it: the emit below is gated on
+            // `recovery.recovered`, which the next line sets to false.
+            //
+            // REJECTED, not DECLINED: a candidate existed and failed an
+            // independent re-check, so the four heal fields are real.
+            //
+            // healTo carries a selector PROPOSED AND PROVEN WRONG. It is sent
+            // because the operator needs to see what was tried, but any UI that
+            // renders it identically to a live locator repeats this same
+            // conflation one layer down. Flagged to the design system.
+            emitHealSkipped({
+              index: i,
+              category: 'REJECTED',
+              reason: `recovery claimed success but ${unproven}`,
+              label,
+              failureStage,
+              healMethod: recovery.model || 'ai-recovery',
+              healConfidence: null,
+              healFrom: action?.locator?.selector ?? null,
+              healTo: recovery.healSteps?.[0]?.locator?.selector ?? null,
+            });
             recovery = { ...recovery, recovered: false, summary: `${recovery.summary} — rejected on re-check: ${unproven}` };
           }
         }

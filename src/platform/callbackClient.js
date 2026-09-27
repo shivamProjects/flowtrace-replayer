@@ -16,6 +16,7 @@
  *   POST {callbackUrl}/{jobExecutionId}/heals        one self-healed step fix
  *   POST {callbackUrl}/{jobExecutionId}/ai-fixes     one generalised library fix
  *   POST {callbackUrl}/{jobExecutionId}/error-types  one learned error label
+ *   POST {callbackUrl}/{jobExecutionId}/outputs      every captured value, once
  *   POST {callbackUrl}/{jobExecutionId}/heartbeat    lease renewal (§7)
  *
  * A dispatch that carries no `callbackUrl` is legal: the run still executes and
@@ -151,7 +152,12 @@ class CallbackClient {
   }
 
   /**
-   * Every value the run captured, by name, sent once when the run reaches a verdict.
+   * Every value the run captured, by name, sent once when the run reaches a
+   * verdict.
+   *
+   * Wire shape is `{ outputs: { name: value } }`, NOT the bare map.
+   *
+   * @param {Object<string, *>} outputs  name -> value, possibly empty
    */
   postOutputs(outputs) {
     const values = {};
