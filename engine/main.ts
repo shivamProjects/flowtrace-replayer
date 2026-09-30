@@ -529,10 +529,17 @@ test.describe('Dynamic Action Replayer', () => {
         // Follow the newest tab. A tab the application opened deliberately is
         // where the flow continues — that is what target=_blank means, and it
         // is what the operator saw when they recorded the step.
-        const live = page.context().pages().filter((p) => !p.isClosed());
-        const newest = live[live.length - 1];
+        let live = page.context().pages().filter((p) => !p.isClosed());
+        let newest = live[live.length - 1];
+        if (!newest || newest === page) {
+          // If a click in the previous step might have opened a tab asynchronously, give it a moment
+          await page.waitForTimeout(200).catch(() => {});
+          live = page.context().pages().filter((p) => !p.isClosed());
+          newest = live[live.length - 1];
+        }
         if (newest && newest !== page) {
           page = newest;
+          await page.waitForLoadState('domcontentloaded').catch(() => {});
           await installSettleProbe(page);
           await page.bringToFront().catch(() => {});
           log(`  [page] a step opened a new tab — following it ("${(await page.title().catch(() => '')).slice(0, 60)}")`, 'warn');
