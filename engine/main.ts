@@ -473,6 +473,14 @@ test.describe('Dynamic Action Replayer', () => {
       emit('output', { name: 'transactionNumber', value: num });
     };
 
+    // ── Multi-surface page resolver ──────────────────────────────────────────
+    // Maps surfaceId (e.g. 'surface_main', 'surface_popup_...') to Playwright Page handles.
+    const surfacePages = new Map<string, Page>();
+    const declaredSurfaces = new Set(actions.map((a) => a.surfaceId).filter(Boolean));
+    const rootSurfaceId = actions.find((a) => a.surfaceId)?.surfaceId || 'surface_main';
+    surfacePages.set(rootSurfaceId, page);
+    surfacePages.set('surface_main', page);
+
     for (let i = 0; i < actions.length; i++) {
       const action = actions[i];
       const label = describeAction(action, i);
@@ -497,54 +505,68 @@ test.describe('Dynamic Action Replayer', () => {
       writeResults(results, false, `in progress at step ${i + 1} (${redactor.redact(label)})`);
       console.log(`\n[${i + 1}/${actions.length}] ${action.name} — ${redactor.redact(label)}`);
 
-      // Re-acquire the page if a step closed or replaced it.
-      //
-      // Oracle IDCS sign-in, and any flow that opens a new window, can close
-      // the tab this run was bound to. The fixture hands `page` over once and
-      // never revisits it, so without this every remaining step fails against a
-      // dead handle and the report blames the locators for a lost page.
-      if (page.isClosed()) {
+      // ── Surface Resolution ──────────────────────────────────────────────────
+      let targetPage = page;
+      if (action.surfaceId) {
+        if (surfacePages.has(action.surfaceId) && !surfacePages.get(action.surfaceId)!.isClosed()) {
+          targetPage = surfacePages.get(action.surfaceId)!;
+        } else if (action.surfaceId !== rootSurfaceId && action.surfaceId !== 'surface_main') {
+          // If action targets a popup surface, check live pages in context
+          let live = page.context().pages().filter((p) => !p.isClosed());
+          let popupCandidate = live.find((p) => p !== page && !Array.from(surfacePages.values()).includes(p));
+          if (!popupCandidate) {
+            // Give asynchronous window opening a moment
+            await page.waitForTimeout(250).catch(() => {});
+            live = page.context().pages().filter((p) => !p.isClosed());
+            popupCandidate = live.find((p) => p !== page && !Array.from(surfacePages.values()).includes(p)) ||
+                             (live.length > 1 ? live[live.length - 1] : undefined);
+          }
+
+          if (popupCandidate && popupCandidate !== page) {
+            targetPage = popupCandidate;
+            surfacePages.set(action.surfaceId, targetPage);
+            await targetPage.waitForLoadState('domcontentloaded').catch(() => {});
+            await installSettleProbe(targetPage);
+            await targetPage.bringToFront().catch(() => {});
+            log(`  [surface] resolved surface "${action.surfaceId}" to new window ("${(await targetPage.title().catch(() => '')).slice(0, 60)}")`, 'warn');
+          } else if (surfacePages.has(action.surfaceId) && surfacePages.get(action.surfaceId)!.isClosed()) {
+            throw new Error(`Surface "${action.surfaceId}" was closed before step ${i + 1} could act on it.`);
+          } else if (declaredSurfaces.size > 1) {
+            // Multi-surface recording where target popup page is absent: fail closed
+            throw new Error(
+              `Target surface "${action.surfaceId}" not found in browser context. ` +
+              `Refusing to replay popup action against the main page.`,
+            );
+          }
+        }
+      }
+
+      // Re-acquire target page if closed or replaced
+      if (targetPage.isClosed()) {
         const live = page.context().pages().filter((p) => !p.isClosed());
         if (live.length) {
-          page = live[live.length - 1];
-          await installSettleProbe(page);
+          targetPage = live[live.length - 1];
+          await installSettleProbe(targetPage);
           log('  [page] the previous page closed — continuing on the replacement', 'warn');
         }
-      } else {
-        // A step opened a NEW TAB and the old one stayed open.
-        //
-        // Oracle does this for whole sub-applications: on the Suppliers work
-        // area, "Register Supplier" is an ordinary <a href> with target=_blank
-        // pointing at the Redwood registration app. The click succeeds, the
-        // form loads — in a tab this run is not driving. The old page is still
-        // open, so the isClosed() branch above never fires, and every later
-        // step then hunts for Company on the dashboard it never left. The
-        // report blames the locators for a page the run simply was not on.
-        //
-        // Verified on Testing Vision: after that click,
-        // context().pages() holds "Overview - Suppliers" AND "Registration
-        // Internal - Start", the original reports isClosed() === false, and
-        // Company resolves 0 times on it and once on the new tab.
-        //
-        // Follow the newest tab. A tab the application opened deliberately is
-        // where the flow continues — that is what target=_blank means, and it
-        // is what the operator saw when they recorded the step.
+      } else if (!action.surfaceId) {
+        // Fallback for untagged legacy steps: follow newest live tab if opened
         let live = page.context().pages().filter((p) => !p.isClosed());
         let newest = live[live.length - 1];
-        if (!newest || newest === page) {
-          // If a click in the previous step might have opened a tab asynchronously, give it a moment
-          await page.waitForTimeout(200).catch(() => {});
+        if (!newest || newest === targetPage) {
+          await targetPage.waitForTimeout(200).catch(() => {});
           live = page.context().pages().filter((p) => !p.isClosed());
           newest = live[live.length - 1];
         }
-        if (newest && newest !== page) {
-          page = newest;
-          await page.waitForLoadState('domcontentloaded').catch(() => {});
-          await installSettleProbe(page);
-          await page.bringToFront().catch(() => {});
-          log(`  [page] a step opened a new tab — following it ("${(await page.title().catch(() => '')).slice(0, 60)}")`, 'warn');
+        if (newest && newest !== targetPage) {
+          targetPage = newest;
+          await targetPage.waitForLoadState('domcontentloaded').catch(() => {});
+          await installSettleProbe(targetPage);
+          await targetPage.bringToFront().catch(() => {});
+          log(`  [page] a step opened a new tab — following it ("${(await targetPage.title().catch(() => '')).slice(0, 60)}")`, 'warn');
         }
       }
+      page = targetPage;
 
       // A step whose click only PAGES a strip sideways cannot be replayed by
       // count — the count is a property of the recorder's window, not of the

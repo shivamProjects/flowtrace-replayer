@@ -38,9 +38,13 @@ export interface RecordedFrame {
   url?: string;
   /** The iframe's name / title / id, whichever the recorder could read. */
   name?: string;
-  /** Codegen-era nested frame path. Presence still fails the recording. */
+  /** Primary CSS selector of the iframe in its parent document. */
+  selector?: string;
+  /** Chained frame path through nested iframes (standardized). */
+  path?: string[];
+  /** Codegen-era nested frame path alias (backwards-compatible). */
   framePath?: string[];
-  /** Codegen-era page handle. Anything but `page` still fails the recording. */
+  /** Codegen-era page handle. */
   pageAlias?: string;
 }
 
@@ -82,6 +86,7 @@ export interface RecordedLocator {
 /** One recorded step, flattened from whichever shape the recorder emitted. */
 export interface NormalizedAction {
   name: string;
+  surfaceId?: string;
   url?: string;
   selector?: string;
   text?: string;

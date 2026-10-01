@@ -196,6 +196,7 @@ export function normalizeAction(entry: any, schemaVersion: SchemaVersion = null)
 
   const action: NormalizedAction = {
     name: resolveVerb(name, isActionObj, schemaVersion),
+    surfaceId: entry?.surfaceId ?? (isActionObj ? entry.action.surfaceId : undefined),
     schemaVersion,
     url,
     selector,
@@ -265,33 +266,14 @@ export function normalizeAction(entry: any, schemaVersion: SchemaVersion = null)
  */
 /**
  * Steps that target a document the engine cannot route to.
- *
- * This guard has NARROWED, and the line it now draws is the important part:
- *
- *   `frame: { url, name }`      — RESOLVED, not refused. See engine/frames.ts.
- *                                 Oracle ADF renders dialogs and embedded
- *                                 regions in iframes, so refusing these made a
- *                                 large share of genuine recordings unreplayable
- *                                 for what is really a routing detail.
- *
- *   `frame: { framePath: […] }` — still refused. A path through NESTED frames is
- *                                 not what the recorder emits today, and the
- *                                 resolver addresses one level; pretending
- *                                 otherwise would resolve the outer frame and
- *                                 act in the wrong document.
- *
- *   `frame: { pageAlias: … }`   — still refused, and it is a different problem
- *                                 entirely: the runner owns exactly ONE page.
- *                                 A second page is not a locator-scoping
- *                                 question, and replaying its steps against the
- *                                 first page acts on the wrong window.
  */
-function misroutedSteps(entries: any[]): string[] {
+function misroutedSteps(entries: any[], schemaVersion: SchemaVersion = null): string[] {
   const out: string[] = [];
   entries.forEach((e, i) => {
     const f = e?.frame;
     if (!f) return;
-    const framed = Array.isArray(f.framePath) && f.framePath.length > 0;
+    // Legacy codegen recordings with framePath are refused because codegen format lacked resolver semantics
+    const framed = schemaVersion === null && Array.isArray(f.framePath) && f.framePath.length > 0;
     const otherPage = f.pageAlias && f.pageAlias !== 'page';
     if (framed) out.push(`step ${i + 1} was recorded inside an iframe (${f.framePath.join(' > ')})`);
     else if (otherPage) out.push(`step ${i + 1} was recorded on a second page (${f.pageAlias})`);
@@ -299,11 +281,11 @@ function misroutedSteps(entries: any[]): string[] {
   return out;
 }
 
-export function assertReplayable(entries: unknown): asserts entries is any[] {
+export function assertReplayable(entries: unknown, schemaVersion: SchemaVersion = null): asserts entries is any[] {
   if (!Array.isArray(entries)) throw new Error('Recording is not an array of steps');
   if (!entries.length) throw new Error('Recording contains no steps');
 
-  const misrouted = misroutedSteps(entries);
+  const misrouted = misroutedSteps(entries, schemaVersion);
   if (misrouted.length) {
     throw new Error(
       `This recording cannot be replayed faithfully: ${misrouted.length} step(s) target a frame or ` +

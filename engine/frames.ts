@@ -77,6 +77,8 @@ const eqi = (a: string, b: string) => !!a && !!b && a.toLowerCase() === b.toLowe
  */
 export function isTopFrame(page: Page, frame?: RecordedFrame): boolean {
   if (!frame) return true;
+  if (Array.isArray(frame.path) && frame.path.length > 0) return false;
+  if (frame.selector) return false;
   if (frame.name) return false;
   if (!frame.url) return true; // nothing to address a frame BY
   return sameDocument(frame.url, page.url());
@@ -157,6 +159,8 @@ function describeAvailable(els: FrameElementInfo[]): string {
 }
 
 const describeWanted = (f: RecordedFrame) =>
+  f.path ? `along path [${f.path.join(' > ')}]` :
+  f.selector ? `matching selector "${f.selector}"` :
   f.name ? `named "${f.name}"` : `at URL "${String(f.url).slice(0, 120)}"`;
 
 /**
@@ -175,6 +179,22 @@ export async function resolveScope(
 ): Promise<LocatorScope> {
   const want = action.frame;
   if (isTopFrame(page, want)) return page;
+
+  // 1. Hierarchical nested frame path: recursively chain FrameLocators
+  if (want?.path && Array.isArray(want.path) && want.path.length > 0) {
+    let scope: LocatorScope = page;
+    for (const segment of want.path) {
+      scope = scope.frameLocator(segment);
+    }
+    log(`nested frame resolved via path: ${want.path.join(' -> ')}`);
+    return scope;
+  }
+
+  // 2. Direct single frame selector
+  if (want?.selector) {
+    log(`frame resolved via selector: ${want.selector}`);
+    return page.frameLocator(want.selector);
+  }
 
   const deadline = Date.now() + FRAME_TIMEOUT;
   let els: FrameElementInfo[] = [];
