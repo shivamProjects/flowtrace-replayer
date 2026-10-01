@@ -85,6 +85,7 @@ export interface NormalizedAction {
   url?: string;
   selector?: string;
   text?: string;
+  value?: string;
   key?: string;
   button?: string;
   clickCount?: number;
