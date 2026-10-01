@@ -104,6 +104,7 @@ export declare const SurfaceInfoSchema: z.ZodObject<{
     title?: string | undefined;
 }>;
 export declare const RecordedLocatorSchema: z.ZodObject<{
+    id: z.ZodOptional<z.ZodString>;
     selector: z.ZodOptional<z.ZodString>;
     primary: z.ZodOptional<z.ZodString>;
     name: z.ZodOptional<z.ZodString>;
@@ -114,29 +115,31 @@ export declare const RecordedLocatorSchema: z.ZodObject<{
     componentId: z.ZodOptional<z.ZodString>;
     candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
     backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-}, "strip", z.ZodTypeAny, {
-    name?: string | undefined;
-    label?: string | undefined;
-    selector?: string | undefined;
-    primary?: string | undefined;
-    role?: string | undefined;
-    attrSelector?: string | undefined;
-    testId?: string | undefined;
-    componentId?: string | undefined;
-    candidates?: string[] | undefined;
-    backupSelectors?: string[] | undefined;
-}, {
-    name?: string | undefined;
-    label?: string | undefined;
-    selector?: string | undefined;
-    primary?: string | undefined;
-    role?: string | undefined;
-    attrSelector?: string | undefined;
-    testId?: string | undefined;
-    componentId?: string | undefined;
-    candidates?: string[] | undefined;
-    backupSelectors?: string[] | undefined;
-}>;
+}, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+    id: z.ZodOptional<z.ZodString>;
+    selector: z.ZodOptional<z.ZodString>;
+    primary: z.ZodOptional<z.ZodString>;
+    name: z.ZodOptional<z.ZodString>;
+    label: z.ZodOptional<z.ZodString>;
+    role: z.ZodOptional<z.ZodString>;
+    attrSelector: z.ZodOptional<z.ZodString>;
+    testId: z.ZodOptional<z.ZodString>;
+    componentId: z.ZodOptional<z.ZodString>;
+    candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+}, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+    id: z.ZodOptional<z.ZodString>;
+    selector: z.ZodOptional<z.ZodString>;
+    primary: z.ZodOptional<z.ZodString>;
+    name: z.ZodOptional<z.ZodString>;
+    label: z.ZodOptional<z.ZodString>;
+    role: z.ZodOptional<z.ZodString>;
+    attrSelector: z.ZodOptional<z.ZodString>;
+    testId: z.ZodOptional<z.ZodString>;
+    componentId: z.ZodOptional<z.ZodString>;
+    candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+}, z.ZodTypeAny, "passthrough">>;
 export declare const StepEffectSchema: z.ZodObject<{
     type: z.ZodString;
     targetUrl: z.ZodOptional<z.ZodString>;
@@ -185,6 +188,7 @@ export declare const PointerPositionSchema: z.ZodObject<{
 export declare const NavigateStepSchema: z.ZodObject<{
     action: z.ZodLiteral<"navigate">;
     value: z.ZodString;
+    url: z.ZodOptional<z.ZodString>;
     surfaceId: z.ZodOptional<z.ZodString>;
     frame: z.ZodOptional<z.ZodUnion<[z.ZodString, z.ZodObject<{
         url: z.ZodOptional<z.ZodString>;
@@ -203,6 +207,7 @@ export declare const NavigateStepSchema: z.ZodObject<{
         url?: string | undefined;
     }>]>>;
     locator: z.ZodOptional<z.ZodObject<{
+        id: z.ZodOptional<z.ZodString>;
         selector: z.ZodOptional<z.ZodString>;
         primary: z.ZodOptional<z.ZodString>;
         name: z.ZodOptional<z.ZodString>;
@@ -213,29 +218,31 @@ export declare const NavigateStepSchema: z.ZodObject<{
         componentId: z.ZodOptional<z.ZodString>;
         candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-    }, "strip", z.ZodTypeAny, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }>>;
+    }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">>>;
     description: z.ZodOptional<z.ZodString>;
     skipInReport: z.ZodDefault<z.ZodBoolean>;
     required: z.ZodOptional<z.ZodBoolean>;
@@ -267,6 +274,7 @@ export declare const NavigateStepSchema: z.ZodObject<{
     skipInReport: boolean;
     required?: boolean | undefined;
     description?: string | undefined;
+    url?: string | undefined;
     surfaceId?: string | undefined;
     meta?: Record<string, any> | undefined;
     frame?: string | {
@@ -275,18 +283,19 @@ export declare const NavigateStepSchema: z.ZodObject<{
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
     effects?: {
@@ -301,6 +310,7 @@ export declare const NavigateStepSchema: z.ZodObject<{
     action: "navigate";
     required?: boolean | undefined;
     description?: string | undefined;
+    url?: string | undefined;
     surfaceId?: string | undefined;
     meta?: Record<string, any> | undefined;
     frame?: string | {
@@ -309,18 +319,19 @@ export declare const NavigateStepSchema: z.ZodObject<{
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     skipInReport?: boolean | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
@@ -380,6 +391,7 @@ export declare const ClickStepSchema: z.ZodObject<{
         url?: string | undefined;
     }>]>>;
     locator: z.ZodOptional<z.ZodObject<{
+        id: z.ZodOptional<z.ZodString>;
         selector: z.ZodOptional<z.ZodString>;
         primary: z.ZodOptional<z.ZodString>;
         name: z.ZodOptional<z.ZodString>;
@@ -390,29 +402,31 @@ export declare const ClickStepSchema: z.ZodObject<{
         componentId: z.ZodOptional<z.ZodString>;
         candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-    }, "strip", z.ZodTypeAny, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }>>;
+    }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">>>;
     description: z.ZodOptional<z.ZodString>;
     skipInReport: z.ZodDefault<z.ZodBoolean>;
     required: z.ZodOptional<z.ZodBoolean>;
@@ -451,18 +465,19 @@ export declare const ClickStepSchema: z.ZodObject<{
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
     effects?: {
@@ -496,18 +511,19 @@ export declare const ClickStepSchema: z.ZodObject<{
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     skipInReport?: boolean | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
@@ -578,6 +594,7 @@ export declare const DblClickStepSchema: z.ZodObject<{
         url?: string | undefined;
     }>]>>;
     locator: z.ZodOptional<z.ZodObject<{
+        id: z.ZodOptional<z.ZodString>;
         selector: z.ZodOptional<z.ZodString>;
         primary: z.ZodOptional<z.ZodString>;
         name: z.ZodOptional<z.ZodString>;
@@ -588,29 +605,31 @@ export declare const DblClickStepSchema: z.ZodObject<{
         componentId: z.ZodOptional<z.ZodString>;
         candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-    }, "strip", z.ZodTypeAny, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }>>;
+    }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">>>;
     description: z.ZodOptional<z.ZodString>;
     skipInReport: z.ZodDefault<z.ZodBoolean>;
     required: z.ZodOptional<z.ZodBoolean>;
@@ -650,18 +669,19 @@ export declare const DblClickStepSchema: z.ZodObject<{
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
     effects?: {
@@ -693,18 +713,19 @@ export declare const DblClickStepSchema: z.ZodObject<{
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     skipInReport?: boolean | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
@@ -750,6 +771,7 @@ export declare const FillStepSchema: z.ZodObject<{
         url?: string | undefined;
     }>]>>;
     locator: z.ZodOptional<z.ZodObject<{
+        id: z.ZodOptional<z.ZodString>;
         selector: z.ZodOptional<z.ZodString>;
         primary: z.ZodOptional<z.ZodString>;
         name: z.ZodOptional<z.ZodString>;
@@ -760,29 +782,31 @@ export declare const FillStepSchema: z.ZodObject<{
         componentId: z.ZodOptional<z.ZodString>;
         candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-    }, "strip", z.ZodTypeAny, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }>>;
+    }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">>>;
     description: z.ZodOptional<z.ZodString>;
     skipInReport: z.ZodDefault<z.ZodBoolean>;
     required: z.ZodOptional<z.ZodBoolean>;
@@ -822,18 +846,19 @@ export declare const FillStepSchema: z.ZodObject<{
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
     effects?: {
@@ -858,18 +883,19 @@ export declare const FillStepSchema: z.ZodObject<{
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     skipInReport?: boolean | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
@@ -906,6 +932,7 @@ export declare const SelectOptionStepSchema: z.ZodObject<{
         url?: string | undefined;
     }>]>>;
     locator: z.ZodOptional<z.ZodObject<{
+        id: z.ZodOptional<z.ZodString>;
         selector: z.ZodOptional<z.ZodString>;
         primary: z.ZodOptional<z.ZodString>;
         name: z.ZodOptional<z.ZodString>;
@@ -916,29 +943,31 @@ export declare const SelectOptionStepSchema: z.ZodObject<{
         componentId: z.ZodOptional<z.ZodString>;
         candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-    }, "strip", z.ZodTypeAny, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }>>;
+    }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">>>;
     description: z.ZodOptional<z.ZodString>;
     skipInReport: z.ZodDefault<z.ZodBoolean>;
     required: z.ZodOptional<z.ZodBoolean>;
@@ -979,18 +1008,19 @@ export declare const SelectOptionStepSchema: z.ZodObject<{
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
     effects?: {
@@ -1015,18 +1045,19 @@ export declare const SelectOptionStepSchema: z.ZodObject<{
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     skipInReport?: boolean | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
@@ -1061,6 +1092,7 @@ export declare const LovSelectStepSchema: z.ZodObject<{
         url?: string | undefined;
     }>]>>;
     locator: z.ZodOptional<z.ZodObject<{
+        id: z.ZodOptional<z.ZodString>;
         selector: z.ZodOptional<z.ZodString>;
         primary: z.ZodOptional<z.ZodString>;
         name: z.ZodOptional<z.ZodString>;
@@ -1071,29 +1103,31 @@ export declare const LovSelectStepSchema: z.ZodObject<{
         componentId: z.ZodOptional<z.ZodString>;
         candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-    }, "strip", z.ZodTypeAny, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }>>;
+    }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">>>;
     description: z.ZodOptional<z.ZodString>;
     skipInReport: z.ZodDefault<z.ZodBoolean>;
     required: z.ZodOptional<z.ZodBoolean>;
@@ -1133,18 +1167,19 @@ export declare const LovSelectStepSchema: z.ZodObject<{
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
     effects?: {
@@ -1168,18 +1203,19 @@ export declare const LovSelectStepSchema: z.ZodObject<{
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     skipInReport?: boolean | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
@@ -1229,6 +1265,7 @@ export declare const PressStepSchema: z.ZodObject<{
         url?: string | undefined;
     }>]>>;
     locator: z.ZodOptional<z.ZodObject<{
+        id: z.ZodOptional<z.ZodString>;
         selector: z.ZodOptional<z.ZodString>;
         primary: z.ZodOptional<z.ZodString>;
         name: z.ZodOptional<z.ZodString>;
@@ -1239,29 +1276,31 @@ export declare const PressStepSchema: z.ZodObject<{
         componentId: z.ZodOptional<z.ZodString>;
         candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-    }, "strip", z.ZodTypeAny, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }>>;
+    }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">>>;
     description: z.ZodOptional<z.ZodString>;
     skipInReport: z.ZodDefault<z.ZodBoolean>;
     required: z.ZodOptional<z.ZodBoolean>;
@@ -1301,18 +1340,19 @@ export declare const PressStepSchema: z.ZodObject<{
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
     effects?: {
@@ -1341,18 +1381,19 @@ export declare const PressStepSchema: z.ZodObject<{
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     skipInReport?: boolean | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
@@ -1391,6 +1432,7 @@ export declare const CheckStepSchema: z.ZodObject<{
         url?: string | undefined;
     }>]>>;
     locator: z.ZodOptional<z.ZodObject<{
+        id: z.ZodOptional<z.ZodString>;
         selector: z.ZodOptional<z.ZodString>;
         primary: z.ZodOptional<z.ZodString>;
         name: z.ZodOptional<z.ZodString>;
@@ -1401,29 +1443,31 @@ export declare const CheckStepSchema: z.ZodObject<{
         componentId: z.ZodOptional<z.ZodString>;
         candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-    }, "strip", z.ZodTypeAny, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }>>;
+    }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">>>;
     description: z.ZodOptional<z.ZodString>;
     skipInReport: z.ZodDefault<z.ZodBoolean>;
     required: z.ZodOptional<z.ZodBoolean>;
@@ -1463,18 +1507,19 @@ export declare const CheckStepSchema: z.ZodObject<{
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
     effects?: {
@@ -1496,18 +1541,19 @@ export declare const CheckStepSchema: z.ZodObject<{
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     skipInReport?: boolean | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
@@ -1541,6 +1587,7 @@ export declare const UncheckStepSchema: z.ZodObject<{
         url?: string | undefined;
     }>]>>;
     locator: z.ZodOptional<z.ZodObject<{
+        id: z.ZodOptional<z.ZodString>;
         selector: z.ZodOptional<z.ZodString>;
         primary: z.ZodOptional<z.ZodString>;
         name: z.ZodOptional<z.ZodString>;
@@ -1551,29 +1598,31 @@ export declare const UncheckStepSchema: z.ZodObject<{
         componentId: z.ZodOptional<z.ZodString>;
         candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-    }, "strip", z.ZodTypeAny, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }>>;
+    }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">>>;
     description: z.ZodOptional<z.ZodString>;
     skipInReport: z.ZodDefault<z.ZodBoolean>;
     required: z.ZodOptional<z.ZodBoolean>;
@@ -1613,18 +1662,19 @@ export declare const UncheckStepSchema: z.ZodObject<{
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
     effects?: {
@@ -1646,18 +1696,19 @@ export declare const UncheckStepSchema: z.ZodObject<{
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     skipInReport?: boolean | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
@@ -1692,6 +1743,7 @@ export declare const SetInputFilesStepSchema: z.ZodObject<{
         url?: string | undefined;
     }>]>>;
     locator: z.ZodOptional<z.ZodObject<{
+        id: z.ZodOptional<z.ZodString>;
         selector: z.ZodOptional<z.ZodString>;
         primary: z.ZodOptional<z.ZodString>;
         name: z.ZodOptional<z.ZodString>;
@@ -1702,29 +1754,31 @@ export declare const SetInputFilesStepSchema: z.ZodObject<{
         componentId: z.ZodOptional<z.ZodString>;
         candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-    }, "strip", z.ZodTypeAny, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }>>;
+    }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">>>;
     description: z.ZodOptional<z.ZodString>;
     skipInReport: z.ZodDefault<z.ZodBoolean>;
     required: z.ZodOptional<z.ZodBoolean>;
@@ -1765,18 +1819,19 @@ export declare const SetInputFilesStepSchema: z.ZodObject<{
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
     effects?: {
@@ -1800,18 +1855,19 @@ export declare const SetInputFilesStepSchema: z.ZodObject<{
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     skipInReport?: boolean | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
@@ -1845,6 +1901,7 @@ export declare const ScrollStepSchema: z.ZodObject<{
         url?: string | undefined;
     }>]>>;
     locator: z.ZodOptional<z.ZodObject<{
+        id: z.ZodOptional<z.ZodString>;
         selector: z.ZodOptional<z.ZodString>;
         primary: z.ZodOptional<z.ZodString>;
         name: z.ZodOptional<z.ZodString>;
@@ -1855,29 +1912,31 @@ export declare const ScrollStepSchema: z.ZodObject<{
         componentId: z.ZodOptional<z.ZodString>;
         candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-    }, "strip", z.ZodTypeAny, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }>>;
+    }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">>>;
     description: z.ZodOptional<z.ZodString>;
     skipInReport: z.ZodDefault<z.ZodBoolean>;
     required: z.ZodOptional<z.ZodBoolean>;
@@ -1916,18 +1975,19 @@ export declare const ScrollStepSchema: z.ZodObject<{
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
     effects?: {
@@ -1951,18 +2011,19 @@ export declare const ScrollStepSchema: z.ZodObject<{
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     skipInReport?: boolean | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
@@ -2006,6 +2067,7 @@ export declare const HoverStepSchema: z.ZodObject<{
         url?: string | undefined;
     }>]>>;
     locator: z.ZodOptional<z.ZodObject<{
+        id: z.ZodOptional<z.ZodString>;
         selector: z.ZodOptional<z.ZodString>;
         primary: z.ZodOptional<z.ZodString>;
         name: z.ZodOptional<z.ZodString>;
@@ -2016,29 +2078,31 @@ export declare const HoverStepSchema: z.ZodObject<{
         componentId: z.ZodOptional<z.ZodString>;
         candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-    }, "strip", z.ZodTypeAny, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }>>;
+    }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">>>;
     description: z.ZodOptional<z.ZodString>;
     skipInReport: z.ZodDefault<z.ZodBoolean>;
     required: z.ZodOptional<z.ZodBoolean>;
@@ -2077,18 +2141,19 @@ export declare const HoverStepSchema: z.ZodObject<{
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
     effects?: {
@@ -2114,18 +2179,19 @@ export declare const HoverStepSchema: z.ZodObject<{
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     skipInReport?: boolean | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
@@ -2163,6 +2229,7 @@ export declare const CopyStepSchema: z.ZodObject<{
         url?: string | undefined;
     }>]>>;
     locator: z.ZodOptional<z.ZodObject<{
+        id: z.ZodOptional<z.ZodString>;
         selector: z.ZodOptional<z.ZodString>;
         primary: z.ZodOptional<z.ZodString>;
         name: z.ZodOptional<z.ZodString>;
@@ -2173,29 +2240,31 @@ export declare const CopyStepSchema: z.ZodObject<{
         componentId: z.ZodOptional<z.ZodString>;
         candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-    }, "strip", z.ZodTypeAny, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }>>;
+    }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">>>;
     description: z.ZodOptional<z.ZodString>;
     skipInReport: z.ZodDefault<z.ZodBoolean>;
     required: z.ZodOptional<z.ZodBoolean>;
@@ -2236,18 +2305,19 @@ export declare const CopyStepSchema: z.ZodObject<{
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
     effects?: {
@@ -2271,18 +2341,19 @@ export declare const CopyStepSchema: z.ZodObject<{
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     skipInReport?: boolean | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
@@ -2315,6 +2386,7 @@ export declare const WaitStepSchema: z.ZodObject<{
         url?: string | undefined;
     }>]>>;
     locator: z.ZodOptional<z.ZodObject<{
+        id: z.ZodOptional<z.ZodString>;
         selector: z.ZodOptional<z.ZodString>;
         primary: z.ZodOptional<z.ZodString>;
         name: z.ZodOptional<z.ZodString>;
@@ -2325,29 +2397,31 @@ export declare const WaitStepSchema: z.ZodObject<{
         componentId: z.ZodOptional<z.ZodString>;
         candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-    }, "strip", z.ZodTypeAny, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }>>;
+    }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">>>;
     description: z.ZodOptional<z.ZodString>;
     skipInReport: z.ZodDefault<z.ZodBoolean>;
     required: z.ZodOptional<z.ZodBoolean>;
@@ -2387,18 +2461,19 @@ export declare const WaitStepSchema: z.ZodObject<{
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
     effects?: {
@@ -2421,18 +2496,19 @@ export declare const WaitStepSchema: z.ZodObject<{
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     skipInReport?: boolean | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
@@ -2464,6 +2540,7 @@ export declare const AssertVisibleStepSchema: z.ZodObject<{
         url?: string | undefined;
     }>]>>;
     locator: z.ZodOptional<z.ZodObject<{
+        id: z.ZodOptional<z.ZodString>;
         selector: z.ZodOptional<z.ZodString>;
         primary: z.ZodOptional<z.ZodString>;
         name: z.ZodOptional<z.ZodString>;
@@ -2474,29 +2551,31 @@ export declare const AssertVisibleStepSchema: z.ZodObject<{
         componentId: z.ZodOptional<z.ZodString>;
         candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-    }, "strip", z.ZodTypeAny, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }>>;
+    }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">>>;
     description: z.ZodOptional<z.ZodString>;
     skipInReport: z.ZodDefault<z.ZodBoolean>;
     required: z.ZodOptional<z.ZodBoolean>;
@@ -2535,18 +2614,19 @@ export declare const AssertVisibleStepSchema: z.ZodObject<{
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
     effects?: {
@@ -2568,18 +2648,19 @@ export declare const AssertVisibleStepSchema: z.ZodObject<{
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     skipInReport?: boolean | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
@@ -2612,6 +2693,7 @@ export declare const AssertTextStepSchema: z.ZodObject<{
         url?: string | undefined;
     }>]>>;
     locator: z.ZodOptional<z.ZodObject<{
+        id: z.ZodOptional<z.ZodString>;
         selector: z.ZodOptional<z.ZodString>;
         primary: z.ZodOptional<z.ZodString>;
         name: z.ZodOptional<z.ZodString>;
@@ -2622,29 +2704,31 @@ export declare const AssertTextStepSchema: z.ZodObject<{
         componentId: z.ZodOptional<z.ZodString>;
         candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-    }, "strip", z.ZodTypeAny, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }>>;
+    }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">>>;
     description: z.ZodOptional<z.ZodString>;
     skipInReport: z.ZodDefault<z.ZodBoolean>;
     required: z.ZodOptional<z.ZodBoolean>;
@@ -2684,18 +2768,19 @@ export declare const AssertTextStepSchema: z.ZodObject<{
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
     effects?: {
@@ -2718,18 +2803,19 @@ export declare const AssertTextStepSchema: z.ZodObject<{
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     skipInReport?: boolean | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
@@ -2762,6 +2848,7 @@ export declare const AssertValueStepSchema: z.ZodObject<{
         url?: string | undefined;
     }>]>>;
     locator: z.ZodOptional<z.ZodObject<{
+        id: z.ZodOptional<z.ZodString>;
         selector: z.ZodOptional<z.ZodString>;
         primary: z.ZodOptional<z.ZodString>;
         name: z.ZodOptional<z.ZodString>;
@@ -2772,29 +2859,31 @@ export declare const AssertValueStepSchema: z.ZodObject<{
         componentId: z.ZodOptional<z.ZodString>;
         candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-    }, "strip", z.ZodTypeAny, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }>>;
+    }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">>>;
     description: z.ZodOptional<z.ZodString>;
     skipInReport: z.ZodDefault<z.ZodBoolean>;
     required: z.ZodOptional<z.ZodBoolean>;
@@ -2834,18 +2923,19 @@ export declare const AssertValueStepSchema: z.ZodObject<{
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
     effects?: {
@@ -2868,18 +2958,19 @@ export declare const AssertValueStepSchema: z.ZodObject<{
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     skipInReport?: boolean | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
@@ -2912,6 +3003,7 @@ export declare const AssertCheckedStepSchema: z.ZodObject<{
         url?: string | undefined;
     }>]>>;
     locator: z.ZodOptional<z.ZodObject<{
+        id: z.ZodOptional<z.ZodString>;
         selector: z.ZodOptional<z.ZodString>;
         primary: z.ZodOptional<z.ZodString>;
         name: z.ZodOptional<z.ZodString>;
@@ -2922,29 +3014,31 @@ export declare const AssertCheckedStepSchema: z.ZodObject<{
         componentId: z.ZodOptional<z.ZodString>;
         candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-    }, "strip", z.ZodTypeAny, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }>>;
+    }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">>>;
     description: z.ZodOptional<z.ZodString>;
     skipInReport: z.ZodDefault<z.ZodBoolean>;
     required: z.ZodOptional<z.ZodBoolean>;
@@ -2984,18 +3078,19 @@ export declare const AssertCheckedStepSchema: z.ZodObject<{
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
     effects?: {
@@ -3018,18 +3113,19 @@ export declare const AssertCheckedStepSchema: z.ZodObject<{
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     skipInReport?: boolean | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
@@ -3062,6 +3158,7 @@ export declare const AssertSnapshotStepSchema: z.ZodObject<{
         url?: string | undefined;
     }>]>>;
     locator: z.ZodOptional<z.ZodObject<{
+        id: z.ZodOptional<z.ZodString>;
         selector: z.ZodOptional<z.ZodString>;
         primary: z.ZodOptional<z.ZodString>;
         name: z.ZodOptional<z.ZodString>;
@@ -3072,29 +3169,31 @@ export declare const AssertSnapshotStepSchema: z.ZodObject<{
         componentId: z.ZodOptional<z.ZodString>;
         candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-    }, "strip", z.ZodTypeAny, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }>>;
+    }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">>>;
     description: z.ZodOptional<z.ZodString>;
     skipInReport: z.ZodDefault<z.ZodBoolean>;
     required: z.ZodOptional<z.ZodBoolean>;
@@ -3134,18 +3233,19 @@ export declare const AssertSnapshotStepSchema: z.ZodObject<{
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
     effects?: {
@@ -3168,18 +3268,19 @@ export declare const AssertSnapshotStepSchema: z.ZodObject<{
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     skipInReport?: boolean | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
@@ -3194,6 +3295,7 @@ export declare const AssertSnapshotStepSchema: z.ZodObject<{
 export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.ZodObject<{
     action: z.ZodLiteral<"navigate">;
     value: z.ZodString;
+    url: z.ZodOptional<z.ZodString>;
     surfaceId: z.ZodOptional<z.ZodString>;
     frame: z.ZodOptional<z.ZodUnion<[z.ZodString, z.ZodObject<{
         url: z.ZodOptional<z.ZodString>;
@@ -3212,6 +3314,7 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         url?: string | undefined;
     }>]>>;
     locator: z.ZodOptional<z.ZodObject<{
+        id: z.ZodOptional<z.ZodString>;
         selector: z.ZodOptional<z.ZodString>;
         primary: z.ZodOptional<z.ZodString>;
         name: z.ZodOptional<z.ZodString>;
@@ -3222,29 +3325,31 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         componentId: z.ZodOptional<z.ZodString>;
         candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-    }, "strip", z.ZodTypeAny, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }>>;
+    }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">>>;
     description: z.ZodOptional<z.ZodString>;
     skipInReport: z.ZodDefault<z.ZodBoolean>;
     required: z.ZodOptional<z.ZodBoolean>;
@@ -3276,6 +3381,7 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
     skipInReport: boolean;
     required?: boolean | undefined;
     description?: string | undefined;
+    url?: string | undefined;
     surfaceId?: string | undefined;
     meta?: Record<string, any> | undefined;
     frame?: string | {
@@ -3284,18 +3390,19 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
     effects?: {
@@ -3310,6 +3417,7 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
     action: "navigate";
     required?: boolean | undefined;
     description?: string | undefined;
+    url?: string | undefined;
     surfaceId?: string | undefined;
     meta?: Record<string, any> | undefined;
     frame?: string | {
@@ -3318,18 +3426,19 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     skipInReport?: boolean | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
@@ -3388,6 +3497,7 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         url?: string | undefined;
     }>]>>;
     locator: z.ZodOptional<z.ZodObject<{
+        id: z.ZodOptional<z.ZodString>;
         selector: z.ZodOptional<z.ZodString>;
         primary: z.ZodOptional<z.ZodString>;
         name: z.ZodOptional<z.ZodString>;
@@ -3398,29 +3508,31 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         componentId: z.ZodOptional<z.ZodString>;
         candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-    }, "strip", z.ZodTypeAny, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }>>;
+    }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">>>;
     description: z.ZodOptional<z.ZodString>;
     skipInReport: z.ZodDefault<z.ZodBoolean>;
     required: z.ZodOptional<z.ZodBoolean>;
@@ -3459,18 +3571,19 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
     effects?: {
@@ -3504,18 +3617,19 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     skipInReport?: boolean | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
@@ -3585,6 +3699,7 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         url?: string | undefined;
     }>]>>;
     locator: z.ZodOptional<z.ZodObject<{
+        id: z.ZodOptional<z.ZodString>;
         selector: z.ZodOptional<z.ZodString>;
         primary: z.ZodOptional<z.ZodString>;
         name: z.ZodOptional<z.ZodString>;
@@ -3595,29 +3710,31 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         componentId: z.ZodOptional<z.ZodString>;
         candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-    }, "strip", z.ZodTypeAny, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }>>;
+    }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">>>;
     description: z.ZodOptional<z.ZodString>;
     skipInReport: z.ZodDefault<z.ZodBoolean>;
     required: z.ZodOptional<z.ZodBoolean>;
@@ -3657,18 +3774,19 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
     effects?: {
@@ -3700,18 +3818,19 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     skipInReport?: boolean | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
@@ -3756,6 +3875,7 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         url?: string | undefined;
     }>]>>;
     locator: z.ZodOptional<z.ZodObject<{
+        id: z.ZodOptional<z.ZodString>;
         selector: z.ZodOptional<z.ZodString>;
         primary: z.ZodOptional<z.ZodString>;
         name: z.ZodOptional<z.ZodString>;
@@ -3766,29 +3886,31 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         componentId: z.ZodOptional<z.ZodString>;
         candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-    }, "strip", z.ZodTypeAny, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }>>;
+    }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">>>;
     description: z.ZodOptional<z.ZodString>;
     skipInReport: z.ZodDefault<z.ZodBoolean>;
     required: z.ZodOptional<z.ZodBoolean>;
@@ -3828,18 +3950,19 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
     effects?: {
@@ -3864,18 +3987,19 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     skipInReport?: boolean | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
@@ -3911,6 +4035,7 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         url?: string | undefined;
     }>]>>;
     locator: z.ZodOptional<z.ZodObject<{
+        id: z.ZodOptional<z.ZodString>;
         selector: z.ZodOptional<z.ZodString>;
         primary: z.ZodOptional<z.ZodString>;
         name: z.ZodOptional<z.ZodString>;
@@ -3921,29 +4046,31 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         componentId: z.ZodOptional<z.ZodString>;
         candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-    }, "strip", z.ZodTypeAny, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }>>;
+    }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">>>;
     description: z.ZodOptional<z.ZodString>;
     skipInReport: z.ZodDefault<z.ZodBoolean>;
     required: z.ZodOptional<z.ZodBoolean>;
@@ -3984,18 +4111,19 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
     effects?: {
@@ -4020,18 +4148,19 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     skipInReport?: boolean | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
@@ -4065,6 +4194,7 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         url?: string | undefined;
     }>]>>;
     locator: z.ZodOptional<z.ZodObject<{
+        id: z.ZodOptional<z.ZodString>;
         selector: z.ZodOptional<z.ZodString>;
         primary: z.ZodOptional<z.ZodString>;
         name: z.ZodOptional<z.ZodString>;
@@ -4075,29 +4205,31 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         componentId: z.ZodOptional<z.ZodString>;
         candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-    }, "strip", z.ZodTypeAny, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }>>;
+    }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">>>;
     description: z.ZodOptional<z.ZodString>;
     skipInReport: z.ZodDefault<z.ZodBoolean>;
     required: z.ZodOptional<z.ZodBoolean>;
@@ -4137,18 +4269,19 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
     effects?: {
@@ -4172,18 +4305,19 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     skipInReport?: boolean | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
@@ -4232,6 +4366,7 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         url?: string | undefined;
     }>]>>;
     locator: z.ZodOptional<z.ZodObject<{
+        id: z.ZodOptional<z.ZodString>;
         selector: z.ZodOptional<z.ZodString>;
         primary: z.ZodOptional<z.ZodString>;
         name: z.ZodOptional<z.ZodString>;
@@ -4242,29 +4377,31 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         componentId: z.ZodOptional<z.ZodString>;
         candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-    }, "strip", z.ZodTypeAny, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }>>;
+    }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">>>;
     description: z.ZodOptional<z.ZodString>;
     skipInReport: z.ZodDefault<z.ZodBoolean>;
     required: z.ZodOptional<z.ZodBoolean>;
@@ -4304,18 +4441,19 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
     effects?: {
@@ -4344,18 +4482,19 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     skipInReport?: boolean | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
@@ -4393,6 +4532,7 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         url?: string | undefined;
     }>]>>;
     locator: z.ZodOptional<z.ZodObject<{
+        id: z.ZodOptional<z.ZodString>;
         selector: z.ZodOptional<z.ZodString>;
         primary: z.ZodOptional<z.ZodString>;
         name: z.ZodOptional<z.ZodString>;
@@ -4403,29 +4543,31 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         componentId: z.ZodOptional<z.ZodString>;
         candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-    }, "strip", z.ZodTypeAny, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }>>;
+    }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">>>;
     description: z.ZodOptional<z.ZodString>;
     skipInReport: z.ZodDefault<z.ZodBoolean>;
     required: z.ZodOptional<z.ZodBoolean>;
@@ -4465,18 +4607,19 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
     effects?: {
@@ -4498,18 +4641,19 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     skipInReport?: boolean | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
@@ -4542,6 +4686,7 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         url?: string | undefined;
     }>]>>;
     locator: z.ZodOptional<z.ZodObject<{
+        id: z.ZodOptional<z.ZodString>;
         selector: z.ZodOptional<z.ZodString>;
         primary: z.ZodOptional<z.ZodString>;
         name: z.ZodOptional<z.ZodString>;
@@ -4552,29 +4697,31 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         componentId: z.ZodOptional<z.ZodString>;
         candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-    }, "strip", z.ZodTypeAny, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }>>;
+    }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">>>;
     description: z.ZodOptional<z.ZodString>;
     skipInReport: z.ZodDefault<z.ZodBoolean>;
     required: z.ZodOptional<z.ZodBoolean>;
@@ -4614,18 +4761,19 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
     effects?: {
@@ -4647,18 +4795,19 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     skipInReport?: boolean | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
@@ -4692,6 +4841,7 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         url?: string | undefined;
     }>]>>;
     locator: z.ZodOptional<z.ZodObject<{
+        id: z.ZodOptional<z.ZodString>;
         selector: z.ZodOptional<z.ZodString>;
         primary: z.ZodOptional<z.ZodString>;
         name: z.ZodOptional<z.ZodString>;
@@ -4702,29 +4852,31 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         componentId: z.ZodOptional<z.ZodString>;
         candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-    }, "strip", z.ZodTypeAny, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }>>;
+    }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">>>;
     description: z.ZodOptional<z.ZodString>;
     skipInReport: z.ZodDefault<z.ZodBoolean>;
     required: z.ZodOptional<z.ZodBoolean>;
@@ -4765,18 +4917,19 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
     effects?: {
@@ -4800,18 +4953,19 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     skipInReport?: boolean | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
@@ -4844,6 +4998,7 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         url?: string | undefined;
     }>]>>;
     locator: z.ZodOptional<z.ZodObject<{
+        id: z.ZodOptional<z.ZodString>;
         selector: z.ZodOptional<z.ZodString>;
         primary: z.ZodOptional<z.ZodString>;
         name: z.ZodOptional<z.ZodString>;
@@ -4854,29 +5009,31 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         componentId: z.ZodOptional<z.ZodString>;
         candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-    }, "strip", z.ZodTypeAny, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }>>;
+    }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">>>;
     description: z.ZodOptional<z.ZodString>;
     skipInReport: z.ZodDefault<z.ZodBoolean>;
     required: z.ZodOptional<z.ZodBoolean>;
@@ -4915,18 +5072,19 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
     effects?: {
@@ -4950,18 +5108,19 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     skipInReport?: boolean | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
@@ -5004,6 +5163,7 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         url?: string | undefined;
     }>]>>;
     locator: z.ZodOptional<z.ZodObject<{
+        id: z.ZodOptional<z.ZodString>;
         selector: z.ZodOptional<z.ZodString>;
         primary: z.ZodOptional<z.ZodString>;
         name: z.ZodOptional<z.ZodString>;
@@ -5014,29 +5174,31 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         componentId: z.ZodOptional<z.ZodString>;
         candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-    }, "strip", z.ZodTypeAny, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }>>;
+    }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">>>;
     description: z.ZodOptional<z.ZodString>;
     skipInReport: z.ZodDefault<z.ZodBoolean>;
     required: z.ZodOptional<z.ZodBoolean>;
@@ -5075,18 +5237,19 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
     effects?: {
@@ -5112,18 +5275,19 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     skipInReport?: boolean | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
@@ -5160,6 +5324,7 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         url?: string | undefined;
     }>]>>;
     locator: z.ZodOptional<z.ZodObject<{
+        id: z.ZodOptional<z.ZodString>;
         selector: z.ZodOptional<z.ZodString>;
         primary: z.ZodOptional<z.ZodString>;
         name: z.ZodOptional<z.ZodString>;
@@ -5170,29 +5335,31 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         componentId: z.ZodOptional<z.ZodString>;
         candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-    }, "strip", z.ZodTypeAny, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }>>;
+    }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">>>;
     description: z.ZodOptional<z.ZodString>;
     skipInReport: z.ZodDefault<z.ZodBoolean>;
     required: z.ZodOptional<z.ZodBoolean>;
@@ -5233,18 +5400,19 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
     effects?: {
@@ -5268,18 +5436,19 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     skipInReport?: boolean | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
@@ -5311,6 +5480,7 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         url?: string | undefined;
     }>]>>;
     locator: z.ZodOptional<z.ZodObject<{
+        id: z.ZodOptional<z.ZodString>;
         selector: z.ZodOptional<z.ZodString>;
         primary: z.ZodOptional<z.ZodString>;
         name: z.ZodOptional<z.ZodString>;
@@ -5321,29 +5491,31 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         componentId: z.ZodOptional<z.ZodString>;
         candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-    }, "strip", z.ZodTypeAny, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }>>;
+    }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">>>;
     description: z.ZodOptional<z.ZodString>;
     skipInReport: z.ZodDefault<z.ZodBoolean>;
     required: z.ZodOptional<z.ZodBoolean>;
@@ -5383,18 +5555,19 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
     effects?: {
@@ -5417,18 +5590,19 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     skipInReport?: boolean | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
@@ -5459,6 +5633,7 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         url?: string | undefined;
     }>]>>;
     locator: z.ZodOptional<z.ZodObject<{
+        id: z.ZodOptional<z.ZodString>;
         selector: z.ZodOptional<z.ZodString>;
         primary: z.ZodOptional<z.ZodString>;
         name: z.ZodOptional<z.ZodString>;
@@ -5469,29 +5644,31 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         componentId: z.ZodOptional<z.ZodString>;
         candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-    }, "strip", z.ZodTypeAny, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }>>;
+    }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">>>;
     description: z.ZodOptional<z.ZodString>;
     skipInReport: z.ZodDefault<z.ZodBoolean>;
     required: z.ZodOptional<z.ZodBoolean>;
@@ -5530,18 +5707,19 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
     effects?: {
@@ -5563,18 +5741,19 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     skipInReport?: boolean | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
@@ -5606,6 +5785,7 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         url?: string | undefined;
     }>]>>;
     locator: z.ZodOptional<z.ZodObject<{
+        id: z.ZodOptional<z.ZodString>;
         selector: z.ZodOptional<z.ZodString>;
         primary: z.ZodOptional<z.ZodString>;
         name: z.ZodOptional<z.ZodString>;
@@ -5616,29 +5796,31 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         componentId: z.ZodOptional<z.ZodString>;
         candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-    }, "strip", z.ZodTypeAny, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }>>;
+    }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">>>;
     description: z.ZodOptional<z.ZodString>;
     skipInReport: z.ZodDefault<z.ZodBoolean>;
     required: z.ZodOptional<z.ZodBoolean>;
@@ -5678,18 +5860,19 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
     effects?: {
@@ -5712,18 +5895,19 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     skipInReport?: boolean | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
@@ -5755,6 +5939,7 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         url?: string | undefined;
     }>]>>;
     locator: z.ZodOptional<z.ZodObject<{
+        id: z.ZodOptional<z.ZodString>;
         selector: z.ZodOptional<z.ZodString>;
         primary: z.ZodOptional<z.ZodString>;
         name: z.ZodOptional<z.ZodString>;
@@ -5765,29 +5950,31 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         componentId: z.ZodOptional<z.ZodString>;
         candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-    }, "strip", z.ZodTypeAny, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }>>;
+    }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">>>;
     description: z.ZodOptional<z.ZodString>;
     skipInReport: z.ZodDefault<z.ZodBoolean>;
     required: z.ZodOptional<z.ZodBoolean>;
@@ -5827,18 +6014,19 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
     effects?: {
@@ -5861,18 +6049,19 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     skipInReport?: boolean | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
@@ -5904,6 +6093,7 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         url?: string | undefined;
     }>]>>;
     locator: z.ZodOptional<z.ZodObject<{
+        id: z.ZodOptional<z.ZodString>;
         selector: z.ZodOptional<z.ZodString>;
         primary: z.ZodOptional<z.ZodString>;
         name: z.ZodOptional<z.ZodString>;
@@ -5914,29 +6104,31 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         componentId: z.ZodOptional<z.ZodString>;
         candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-    }, "strip", z.ZodTypeAny, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }>>;
+    }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">>>;
     description: z.ZodOptional<z.ZodString>;
     skipInReport: z.ZodDefault<z.ZodBoolean>;
     required: z.ZodOptional<z.ZodBoolean>;
@@ -5976,18 +6168,19 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
     effects?: {
@@ -6010,18 +6203,19 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     skipInReport?: boolean | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
@@ -6053,6 +6247,7 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         url?: string | undefined;
     }>]>>;
     locator: z.ZodOptional<z.ZodObject<{
+        id: z.ZodOptional<z.ZodString>;
         selector: z.ZodOptional<z.ZodString>;
         primary: z.ZodOptional<z.ZodString>;
         name: z.ZodOptional<z.ZodString>;
@@ -6063,29 +6258,31 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         componentId: z.ZodOptional<z.ZodString>;
         candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-    }, "strip", z.ZodTypeAny, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }>>;
+    }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">>>;
     description: z.ZodOptional<z.ZodString>;
     skipInReport: z.ZodDefault<z.ZodBoolean>;
     required: z.ZodOptional<z.ZodBoolean>;
@@ -6125,18 +6322,19 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
     effects?: {
@@ -6159,18 +6357,19 @@ export declare const SemanticStepV2Schema: z.ZodDiscriminatedUnion<"action", [z.
         selector?: string | undefined;
         url?: string | undefined;
     } | undefined;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     skipInReport?: boolean | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
@@ -6187,6 +6386,7 @@ export declare const SemanticCandidateSchema: z.ZodObject<{
     surfaceId: z.ZodOptional<z.ZodString>;
     frame: z.ZodOptional<z.ZodAny>;
     locator: z.ZodOptional<z.ZodObject<{
+        id: z.ZodOptional<z.ZodString>;
         selector: z.ZodOptional<z.ZodString>;
         primary: z.ZodOptional<z.ZodString>;
         name: z.ZodOptional<z.ZodString>;
@@ -6197,29 +6397,31 @@ export declare const SemanticCandidateSchema: z.ZodObject<{
         componentId: z.ZodOptional<z.ZodString>;
         candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-    }, "strip", z.ZodTypeAny, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }, {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    }>>;
+    }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough">>>;
     value: z.ZodOptional<z.ZodAny>;
     values: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
     key: z.ZodOptional<z.ZodString>;
@@ -6292,18 +6494,19 @@ export declare const SemanticCandidateSchema: z.ZodObject<{
     surfaceId?: string | undefined;
     meta?: Record<string, any> | undefined;
     frame?: any;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectOutputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
     effects?: {
@@ -6340,18 +6543,19 @@ export declare const SemanticCandidateSchema: z.ZodObject<{
     surfaceId?: string | undefined;
     meta?: Record<string, any> | undefined;
     frame?: any;
-    locator?: {
-        name?: string | undefined;
-        label?: string | undefined;
-        selector?: string | undefined;
-        primary?: string | undefined;
-        role?: string | undefined;
-        attrSelector?: string | undefined;
-        testId?: string | undefined;
-        componentId?: string | undefined;
-        candidates?: string[] | undefined;
-        backupSelectors?: string[] | undefined;
-    } | undefined;
+    locator?: z.objectInputType<{
+        id: z.ZodOptional<z.ZodString>;
+        selector: z.ZodOptional<z.ZodString>;
+        primary: z.ZodOptional<z.ZodString>;
+        name: z.ZodOptional<z.ZodString>;
+        label: z.ZodOptional<z.ZodString>;
+        role: z.ZodOptional<z.ZodString>;
+        attrSelector: z.ZodOptional<z.ZodString>;
+        testId: z.ZodOptional<z.ZodString>;
+        componentId: z.ZodOptional<z.ZodString>;
+        candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+    }, z.ZodTypeAny, "passthrough"> | undefined;
     skipInReport?: boolean | undefined;
     requiredSource?: string | undefined;
     requiredScope?: string | undefined;
@@ -6393,6 +6597,7 @@ export declare const AdapterDecisionSchema: z.ZodDiscriminatedUnion<"kind", [z.Z
         surfaceId: z.ZodOptional<z.ZodString>;
         frame: z.ZodOptional<z.ZodAny>;
         locator: z.ZodOptional<z.ZodObject<{
+            id: z.ZodOptional<z.ZodString>;
             selector: z.ZodOptional<z.ZodString>;
             primary: z.ZodOptional<z.ZodString>;
             name: z.ZodOptional<z.ZodString>;
@@ -6403,29 +6608,31 @@ export declare const AdapterDecisionSchema: z.ZodDiscriminatedUnion<"kind", [z.Z
             componentId: z.ZodOptional<z.ZodString>;
             candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
             backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-        }, "strip", z.ZodTypeAny, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }>>;
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">>>;
         value: z.ZodOptional<z.ZodAny>;
         values: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
         key: z.ZodOptional<z.ZodString>;
@@ -6498,18 +6705,19 @@ export declare const AdapterDecisionSchema: z.ZodDiscriminatedUnion<"kind", [z.Z
         surfaceId?: string | undefined;
         meta?: Record<string, any> | undefined;
         frame?: any;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -6546,18 +6754,19 @@ export declare const AdapterDecisionSchema: z.ZodDiscriminatedUnion<"kind", [z.Z
         surfaceId?: string | undefined;
         meta?: Record<string, any> | undefined;
         frame?: any;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -6599,18 +6808,19 @@ export declare const AdapterDecisionSchema: z.ZodDiscriminatedUnion<"kind", [z.Z
         surfaceId?: string | undefined;
         meta?: Record<string, any> | undefined;
         frame?: any;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -6650,18 +6860,19 @@ export declare const AdapterDecisionSchema: z.ZodDiscriminatedUnion<"kind", [z.Z
         surfaceId?: string | undefined;
         meta?: Record<string, any> | undefined;
         frame?: any;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -6697,6 +6908,7 @@ export declare const AdapterDecisionSchema: z.ZodDiscriminatedUnion<"kind", [z.Z
         surfaceId: z.ZodOptional<z.ZodOptional<z.ZodString>>;
         frame: z.ZodOptional<z.ZodOptional<z.ZodAny>>;
         locator: z.ZodOptional<z.ZodOptional<z.ZodObject<{
+            id: z.ZodOptional<z.ZodString>;
             selector: z.ZodOptional<z.ZodString>;
             primary: z.ZodOptional<z.ZodString>;
             name: z.ZodOptional<z.ZodString>;
@@ -6707,29 +6919,31 @@ export declare const AdapterDecisionSchema: z.ZodDiscriminatedUnion<"kind", [z.Z
             componentId: z.ZodOptional<z.ZodString>;
             candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
             backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-        }, "strip", z.ZodTypeAny, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }>>>;
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">>>>;
         value: z.ZodOptional<z.ZodOptional<z.ZodAny>>;
         values: z.ZodOptional<z.ZodOptional<z.ZodArray<z.ZodString, "many">>>;
         key: z.ZodOptional<z.ZodOptional<z.ZodString>>;
@@ -6801,18 +7015,19 @@ export declare const AdapterDecisionSchema: z.ZodDiscriminatedUnion<"kind", [z.Z
         surfaceId?: string | undefined;
         meta?: Record<string, any> | undefined;
         frame?: any;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -6850,18 +7065,19 @@ export declare const AdapterDecisionSchema: z.ZodDiscriminatedUnion<"kind", [z.Z
         surfaceId?: string | undefined;
         meta?: Record<string, any> | undefined;
         frame?: any;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -6902,18 +7118,19 @@ export declare const AdapterDecisionSchema: z.ZodDiscriminatedUnion<"kind", [z.Z
         surfaceId?: string | undefined;
         meta?: Record<string, any> | undefined;
         frame?: any;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -6954,18 +7171,19 @@ export declare const AdapterDecisionSchema: z.ZodDiscriminatedUnion<"kind", [z.Z
         surfaceId?: string | undefined;
         meta?: Record<string, any> | undefined;
         frame?: any;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -7041,6 +7259,7 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
     steps: z.ZodArray<z.ZodDiscriminatedUnion<"action", [z.ZodObject<{
         action: z.ZodLiteral<"navigate">;
         value: z.ZodString;
+        url: z.ZodOptional<z.ZodString>;
         surfaceId: z.ZodOptional<z.ZodString>;
         frame: z.ZodOptional<z.ZodUnion<[z.ZodString, z.ZodObject<{
             url: z.ZodOptional<z.ZodString>;
@@ -7059,6 +7278,7 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             url?: string | undefined;
         }>]>>;
         locator: z.ZodOptional<z.ZodObject<{
+            id: z.ZodOptional<z.ZodString>;
             selector: z.ZodOptional<z.ZodString>;
             primary: z.ZodOptional<z.ZodString>;
             name: z.ZodOptional<z.ZodString>;
@@ -7069,29 +7289,31 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             componentId: z.ZodOptional<z.ZodString>;
             candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
             backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-        }, "strip", z.ZodTypeAny, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }>>;
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">>>;
         description: z.ZodOptional<z.ZodString>;
         skipInReport: z.ZodDefault<z.ZodBoolean>;
         required: z.ZodOptional<z.ZodBoolean>;
@@ -7123,6 +7345,7 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
         skipInReport: boolean;
         required?: boolean | undefined;
         description?: string | undefined;
+        url?: string | undefined;
         surfaceId?: string | undefined;
         meta?: Record<string, any> | undefined;
         frame?: string | {
@@ -7131,18 +7354,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -7157,6 +7381,7 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
         action: "navigate";
         required?: boolean | undefined;
         description?: string | undefined;
+        url?: string | undefined;
         surfaceId?: string | undefined;
         meta?: Record<string, any> | undefined;
         frame?: string | {
@@ -7165,18 +7390,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -7235,6 +7461,7 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             url?: string | undefined;
         }>]>>;
         locator: z.ZodOptional<z.ZodObject<{
+            id: z.ZodOptional<z.ZodString>;
             selector: z.ZodOptional<z.ZodString>;
             primary: z.ZodOptional<z.ZodString>;
             name: z.ZodOptional<z.ZodString>;
@@ -7245,29 +7472,31 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             componentId: z.ZodOptional<z.ZodString>;
             candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
             backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-        }, "strip", z.ZodTypeAny, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }>>;
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">>>;
         description: z.ZodOptional<z.ZodString>;
         skipInReport: z.ZodDefault<z.ZodBoolean>;
         required: z.ZodOptional<z.ZodBoolean>;
@@ -7306,18 +7535,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -7351,18 +7581,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -7432,6 +7663,7 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             url?: string | undefined;
         }>]>>;
         locator: z.ZodOptional<z.ZodObject<{
+            id: z.ZodOptional<z.ZodString>;
             selector: z.ZodOptional<z.ZodString>;
             primary: z.ZodOptional<z.ZodString>;
             name: z.ZodOptional<z.ZodString>;
@@ -7442,29 +7674,31 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             componentId: z.ZodOptional<z.ZodString>;
             candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
             backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-        }, "strip", z.ZodTypeAny, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }>>;
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">>>;
         description: z.ZodOptional<z.ZodString>;
         skipInReport: z.ZodDefault<z.ZodBoolean>;
         required: z.ZodOptional<z.ZodBoolean>;
@@ -7504,18 +7738,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -7547,18 +7782,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -7603,6 +7839,7 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             url?: string | undefined;
         }>]>>;
         locator: z.ZodOptional<z.ZodObject<{
+            id: z.ZodOptional<z.ZodString>;
             selector: z.ZodOptional<z.ZodString>;
             primary: z.ZodOptional<z.ZodString>;
             name: z.ZodOptional<z.ZodString>;
@@ -7613,29 +7850,31 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             componentId: z.ZodOptional<z.ZodString>;
             candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
             backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-        }, "strip", z.ZodTypeAny, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }>>;
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">>>;
         description: z.ZodOptional<z.ZodString>;
         skipInReport: z.ZodDefault<z.ZodBoolean>;
         required: z.ZodOptional<z.ZodBoolean>;
@@ -7675,18 +7914,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -7711,18 +7951,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -7758,6 +7999,7 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             url?: string | undefined;
         }>]>>;
         locator: z.ZodOptional<z.ZodObject<{
+            id: z.ZodOptional<z.ZodString>;
             selector: z.ZodOptional<z.ZodString>;
             primary: z.ZodOptional<z.ZodString>;
             name: z.ZodOptional<z.ZodString>;
@@ -7768,29 +8010,31 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             componentId: z.ZodOptional<z.ZodString>;
             candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
             backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-        }, "strip", z.ZodTypeAny, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }>>;
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">>>;
         description: z.ZodOptional<z.ZodString>;
         skipInReport: z.ZodDefault<z.ZodBoolean>;
         required: z.ZodOptional<z.ZodBoolean>;
@@ -7831,18 +8075,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -7867,18 +8112,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -7912,6 +8158,7 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             url?: string | undefined;
         }>]>>;
         locator: z.ZodOptional<z.ZodObject<{
+            id: z.ZodOptional<z.ZodString>;
             selector: z.ZodOptional<z.ZodString>;
             primary: z.ZodOptional<z.ZodString>;
             name: z.ZodOptional<z.ZodString>;
@@ -7922,29 +8169,31 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             componentId: z.ZodOptional<z.ZodString>;
             candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
             backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-        }, "strip", z.ZodTypeAny, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }>>;
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">>>;
         description: z.ZodOptional<z.ZodString>;
         skipInReport: z.ZodDefault<z.ZodBoolean>;
         required: z.ZodOptional<z.ZodBoolean>;
@@ -7984,18 +8233,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -8019,18 +8269,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -8079,6 +8330,7 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             url?: string | undefined;
         }>]>>;
         locator: z.ZodOptional<z.ZodObject<{
+            id: z.ZodOptional<z.ZodString>;
             selector: z.ZodOptional<z.ZodString>;
             primary: z.ZodOptional<z.ZodString>;
             name: z.ZodOptional<z.ZodString>;
@@ -8089,29 +8341,31 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             componentId: z.ZodOptional<z.ZodString>;
             candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
             backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-        }, "strip", z.ZodTypeAny, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }>>;
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">>>;
         description: z.ZodOptional<z.ZodString>;
         skipInReport: z.ZodDefault<z.ZodBoolean>;
         required: z.ZodOptional<z.ZodBoolean>;
@@ -8151,18 +8405,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -8191,18 +8446,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -8240,6 +8496,7 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             url?: string | undefined;
         }>]>>;
         locator: z.ZodOptional<z.ZodObject<{
+            id: z.ZodOptional<z.ZodString>;
             selector: z.ZodOptional<z.ZodString>;
             primary: z.ZodOptional<z.ZodString>;
             name: z.ZodOptional<z.ZodString>;
@@ -8250,29 +8507,31 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             componentId: z.ZodOptional<z.ZodString>;
             candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
             backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-        }, "strip", z.ZodTypeAny, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }>>;
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">>>;
         description: z.ZodOptional<z.ZodString>;
         skipInReport: z.ZodDefault<z.ZodBoolean>;
         required: z.ZodOptional<z.ZodBoolean>;
@@ -8312,18 +8571,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -8345,18 +8605,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -8389,6 +8650,7 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             url?: string | undefined;
         }>]>>;
         locator: z.ZodOptional<z.ZodObject<{
+            id: z.ZodOptional<z.ZodString>;
             selector: z.ZodOptional<z.ZodString>;
             primary: z.ZodOptional<z.ZodString>;
             name: z.ZodOptional<z.ZodString>;
@@ -8399,29 +8661,31 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             componentId: z.ZodOptional<z.ZodString>;
             candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
             backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-        }, "strip", z.ZodTypeAny, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }>>;
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">>>;
         description: z.ZodOptional<z.ZodString>;
         skipInReport: z.ZodDefault<z.ZodBoolean>;
         required: z.ZodOptional<z.ZodBoolean>;
@@ -8461,18 +8725,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -8494,18 +8759,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -8539,6 +8805,7 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             url?: string | undefined;
         }>]>>;
         locator: z.ZodOptional<z.ZodObject<{
+            id: z.ZodOptional<z.ZodString>;
             selector: z.ZodOptional<z.ZodString>;
             primary: z.ZodOptional<z.ZodString>;
             name: z.ZodOptional<z.ZodString>;
@@ -8549,29 +8816,31 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             componentId: z.ZodOptional<z.ZodString>;
             candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
             backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-        }, "strip", z.ZodTypeAny, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }>>;
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">>>;
         description: z.ZodOptional<z.ZodString>;
         skipInReport: z.ZodDefault<z.ZodBoolean>;
         required: z.ZodOptional<z.ZodBoolean>;
@@ -8612,18 +8881,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -8647,18 +8917,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -8691,6 +8962,7 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             url?: string | undefined;
         }>]>>;
         locator: z.ZodOptional<z.ZodObject<{
+            id: z.ZodOptional<z.ZodString>;
             selector: z.ZodOptional<z.ZodString>;
             primary: z.ZodOptional<z.ZodString>;
             name: z.ZodOptional<z.ZodString>;
@@ -8701,29 +8973,31 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             componentId: z.ZodOptional<z.ZodString>;
             candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
             backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-        }, "strip", z.ZodTypeAny, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }>>;
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">>>;
         description: z.ZodOptional<z.ZodString>;
         skipInReport: z.ZodDefault<z.ZodBoolean>;
         required: z.ZodOptional<z.ZodBoolean>;
@@ -8762,18 +9036,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -8797,18 +9072,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -8851,6 +9127,7 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             url?: string | undefined;
         }>]>>;
         locator: z.ZodOptional<z.ZodObject<{
+            id: z.ZodOptional<z.ZodString>;
             selector: z.ZodOptional<z.ZodString>;
             primary: z.ZodOptional<z.ZodString>;
             name: z.ZodOptional<z.ZodString>;
@@ -8861,29 +9138,31 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             componentId: z.ZodOptional<z.ZodString>;
             candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
             backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-        }, "strip", z.ZodTypeAny, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }>>;
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">>>;
         description: z.ZodOptional<z.ZodString>;
         skipInReport: z.ZodDefault<z.ZodBoolean>;
         required: z.ZodOptional<z.ZodBoolean>;
@@ -8922,18 +9201,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -8959,18 +9239,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -9007,6 +9288,7 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             url?: string | undefined;
         }>]>>;
         locator: z.ZodOptional<z.ZodObject<{
+            id: z.ZodOptional<z.ZodString>;
             selector: z.ZodOptional<z.ZodString>;
             primary: z.ZodOptional<z.ZodString>;
             name: z.ZodOptional<z.ZodString>;
@@ -9017,29 +9299,31 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             componentId: z.ZodOptional<z.ZodString>;
             candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
             backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-        }, "strip", z.ZodTypeAny, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }>>;
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">>>;
         description: z.ZodOptional<z.ZodString>;
         skipInReport: z.ZodDefault<z.ZodBoolean>;
         required: z.ZodOptional<z.ZodBoolean>;
@@ -9080,18 +9364,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -9115,18 +9400,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -9158,6 +9444,7 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             url?: string | undefined;
         }>]>>;
         locator: z.ZodOptional<z.ZodObject<{
+            id: z.ZodOptional<z.ZodString>;
             selector: z.ZodOptional<z.ZodString>;
             primary: z.ZodOptional<z.ZodString>;
             name: z.ZodOptional<z.ZodString>;
@@ -9168,29 +9455,31 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             componentId: z.ZodOptional<z.ZodString>;
             candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
             backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-        }, "strip", z.ZodTypeAny, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }>>;
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">>>;
         description: z.ZodOptional<z.ZodString>;
         skipInReport: z.ZodDefault<z.ZodBoolean>;
         required: z.ZodOptional<z.ZodBoolean>;
@@ -9230,18 +9519,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -9264,18 +9554,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -9306,6 +9597,7 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             url?: string | undefined;
         }>]>>;
         locator: z.ZodOptional<z.ZodObject<{
+            id: z.ZodOptional<z.ZodString>;
             selector: z.ZodOptional<z.ZodString>;
             primary: z.ZodOptional<z.ZodString>;
             name: z.ZodOptional<z.ZodString>;
@@ -9316,29 +9608,31 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             componentId: z.ZodOptional<z.ZodString>;
             candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
             backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-        }, "strip", z.ZodTypeAny, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }>>;
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">>>;
         description: z.ZodOptional<z.ZodString>;
         skipInReport: z.ZodDefault<z.ZodBoolean>;
         required: z.ZodOptional<z.ZodBoolean>;
@@ -9377,18 +9671,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -9410,18 +9705,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -9453,6 +9749,7 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             url?: string | undefined;
         }>]>>;
         locator: z.ZodOptional<z.ZodObject<{
+            id: z.ZodOptional<z.ZodString>;
             selector: z.ZodOptional<z.ZodString>;
             primary: z.ZodOptional<z.ZodString>;
             name: z.ZodOptional<z.ZodString>;
@@ -9463,29 +9760,31 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             componentId: z.ZodOptional<z.ZodString>;
             candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
             backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-        }, "strip", z.ZodTypeAny, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }>>;
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">>>;
         description: z.ZodOptional<z.ZodString>;
         skipInReport: z.ZodDefault<z.ZodBoolean>;
         required: z.ZodOptional<z.ZodBoolean>;
@@ -9525,18 +9824,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -9559,18 +9859,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -9602,6 +9903,7 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             url?: string | undefined;
         }>]>>;
         locator: z.ZodOptional<z.ZodObject<{
+            id: z.ZodOptional<z.ZodString>;
             selector: z.ZodOptional<z.ZodString>;
             primary: z.ZodOptional<z.ZodString>;
             name: z.ZodOptional<z.ZodString>;
@@ -9612,29 +9914,31 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             componentId: z.ZodOptional<z.ZodString>;
             candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
             backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-        }, "strip", z.ZodTypeAny, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }>>;
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">>>;
         description: z.ZodOptional<z.ZodString>;
         skipInReport: z.ZodDefault<z.ZodBoolean>;
         required: z.ZodOptional<z.ZodBoolean>;
@@ -9674,18 +9978,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -9708,18 +10013,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -9751,6 +10057,7 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             url?: string | undefined;
         }>]>>;
         locator: z.ZodOptional<z.ZodObject<{
+            id: z.ZodOptional<z.ZodString>;
             selector: z.ZodOptional<z.ZodString>;
             primary: z.ZodOptional<z.ZodString>;
             name: z.ZodOptional<z.ZodString>;
@@ -9761,29 +10068,31 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             componentId: z.ZodOptional<z.ZodString>;
             candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
             backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-        }, "strip", z.ZodTypeAny, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }>>;
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">>>;
         description: z.ZodOptional<z.ZodString>;
         skipInReport: z.ZodDefault<z.ZodBoolean>;
         required: z.ZodOptional<z.ZodBoolean>;
@@ -9823,18 +10132,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -9857,18 +10167,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -9900,6 +10211,7 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             url?: string | undefined;
         }>]>>;
         locator: z.ZodOptional<z.ZodObject<{
+            id: z.ZodOptional<z.ZodString>;
             selector: z.ZodOptional<z.ZodString>;
             primary: z.ZodOptional<z.ZodString>;
             name: z.ZodOptional<z.ZodString>;
@@ -9910,29 +10222,31 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             componentId: z.ZodOptional<z.ZodString>;
             candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
             backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-        }, "strip", z.ZodTypeAny, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }>>;
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">>>;
         description: z.ZodOptional<z.ZodString>;
         skipInReport: z.ZodDefault<z.ZodBoolean>;
         required: z.ZodOptional<z.ZodBoolean>;
@@ -9972,18 +10286,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -10006,18 +10321,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -10051,6 +10367,7 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
         skipInReport: boolean;
         required?: boolean | undefined;
         description?: string | undefined;
+        url?: string | undefined;
         surfaceId?: string | undefined;
         meta?: Record<string, any> | undefined;
         frame?: string | {
@@ -10059,18 +10376,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -10093,18 +10411,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -10140,18 +10459,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -10185,18 +10505,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -10223,18 +10544,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -10259,18 +10581,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -10295,18 +10618,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -10336,18 +10660,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -10371,18 +10696,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -10407,18 +10733,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -10441,18 +10768,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -10477,18 +10805,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -10517,18 +10846,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -10552,18 +10882,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -10586,18 +10917,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -10621,18 +10953,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -10656,18 +10989,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -10691,18 +11025,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -10726,18 +11061,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -10768,6 +11104,7 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
         action: "navigate";
         required?: boolean | undefined;
         description?: string | undefined;
+        url?: string | undefined;
         surfaceId?: string | undefined;
         meta?: Record<string, any> | undefined;
         frame?: string | {
@@ -10776,18 +11113,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -10810,18 +11148,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -10856,18 +11195,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -10902,18 +11242,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -10940,18 +11281,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -10976,18 +11318,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -11012,18 +11355,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -11052,18 +11396,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -11087,18 +11432,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -11124,18 +11470,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -11158,18 +11505,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -11194,18 +11542,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -11234,18 +11583,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -11269,18 +11619,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -11303,18 +11654,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -11338,18 +11690,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -11373,18 +11726,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -11408,18 +11762,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -11443,18 +11798,19 @@ export declare const RecordingEnvelopeSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -11650,6 +12006,7 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
     steps: z.ZodArray<z.ZodUnion<[z.ZodDiscriminatedUnion<"action", [z.ZodObject<{
         action: z.ZodLiteral<"navigate">;
         value: z.ZodString;
+        url: z.ZodOptional<z.ZodString>;
         surfaceId: z.ZodOptional<z.ZodString>;
         frame: z.ZodOptional<z.ZodUnion<[z.ZodString, z.ZodObject<{
             url: z.ZodOptional<z.ZodString>;
@@ -11668,6 +12025,7 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             url?: string | undefined;
         }>]>>;
         locator: z.ZodOptional<z.ZodObject<{
+            id: z.ZodOptional<z.ZodString>;
             selector: z.ZodOptional<z.ZodString>;
             primary: z.ZodOptional<z.ZodString>;
             name: z.ZodOptional<z.ZodString>;
@@ -11678,29 +12036,31 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             componentId: z.ZodOptional<z.ZodString>;
             candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
             backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-        }, "strip", z.ZodTypeAny, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }>>;
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">>>;
         description: z.ZodOptional<z.ZodString>;
         skipInReport: z.ZodDefault<z.ZodBoolean>;
         required: z.ZodOptional<z.ZodBoolean>;
@@ -11732,6 +12092,7 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
         skipInReport: boolean;
         required?: boolean | undefined;
         description?: string | undefined;
+        url?: string | undefined;
         surfaceId?: string | undefined;
         meta?: Record<string, any> | undefined;
         frame?: string | {
@@ -11740,18 +12101,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -11766,6 +12128,7 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
         action: "navigate";
         required?: boolean | undefined;
         description?: string | undefined;
+        url?: string | undefined;
         surfaceId?: string | undefined;
         meta?: Record<string, any> | undefined;
         frame?: string | {
@@ -11774,18 +12137,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -11844,6 +12208,7 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             url?: string | undefined;
         }>]>>;
         locator: z.ZodOptional<z.ZodObject<{
+            id: z.ZodOptional<z.ZodString>;
             selector: z.ZodOptional<z.ZodString>;
             primary: z.ZodOptional<z.ZodString>;
             name: z.ZodOptional<z.ZodString>;
@@ -11854,29 +12219,31 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             componentId: z.ZodOptional<z.ZodString>;
             candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
             backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-        }, "strip", z.ZodTypeAny, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }>>;
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">>>;
         description: z.ZodOptional<z.ZodString>;
         skipInReport: z.ZodDefault<z.ZodBoolean>;
         required: z.ZodOptional<z.ZodBoolean>;
@@ -11915,18 +12282,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -11960,18 +12328,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -12041,6 +12410,7 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             url?: string | undefined;
         }>]>>;
         locator: z.ZodOptional<z.ZodObject<{
+            id: z.ZodOptional<z.ZodString>;
             selector: z.ZodOptional<z.ZodString>;
             primary: z.ZodOptional<z.ZodString>;
             name: z.ZodOptional<z.ZodString>;
@@ -12051,29 +12421,31 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             componentId: z.ZodOptional<z.ZodString>;
             candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
             backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-        }, "strip", z.ZodTypeAny, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }>>;
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">>>;
         description: z.ZodOptional<z.ZodString>;
         skipInReport: z.ZodDefault<z.ZodBoolean>;
         required: z.ZodOptional<z.ZodBoolean>;
@@ -12113,18 +12485,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -12156,18 +12529,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -12212,6 +12586,7 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             url?: string | undefined;
         }>]>>;
         locator: z.ZodOptional<z.ZodObject<{
+            id: z.ZodOptional<z.ZodString>;
             selector: z.ZodOptional<z.ZodString>;
             primary: z.ZodOptional<z.ZodString>;
             name: z.ZodOptional<z.ZodString>;
@@ -12222,29 +12597,31 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             componentId: z.ZodOptional<z.ZodString>;
             candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
             backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-        }, "strip", z.ZodTypeAny, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }>>;
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">>>;
         description: z.ZodOptional<z.ZodString>;
         skipInReport: z.ZodDefault<z.ZodBoolean>;
         required: z.ZodOptional<z.ZodBoolean>;
@@ -12284,18 +12661,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -12320,18 +12698,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -12367,6 +12746,7 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             url?: string | undefined;
         }>]>>;
         locator: z.ZodOptional<z.ZodObject<{
+            id: z.ZodOptional<z.ZodString>;
             selector: z.ZodOptional<z.ZodString>;
             primary: z.ZodOptional<z.ZodString>;
             name: z.ZodOptional<z.ZodString>;
@@ -12377,29 +12757,31 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             componentId: z.ZodOptional<z.ZodString>;
             candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
             backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-        }, "strip", z.ZodTypeAny, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }>>;
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">>>;
         description: z.ZodOptional<z.ZodString>;
         skipInReport: z.ZodDefault<z.ZodBoolean>;
         required: z.ZodOptional<z.ZodBoolean>;
@@ -12440,18 +12822,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -12476,18 +12859,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -12521,6 +12905,7 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             url?: string | undefined;
         }>]>>;
         locator: z.ZodOptional<z.ZodObject<{
+            id: z.ZodOptional<z.ZodString>;
             selector: z.ZodOptional<z.ZodString>;
             primary: z.ZodOptional<z.ZodString>;
             name: z.ZodOptional<z.ZodString>;
@@ -12531,29 +12916,31 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             componentId: z.ZodOptional<z.ZodString>;
             candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
             backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-        }, "strip", z.ZodTypeAny, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }>>;
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">>>;
         description: z.ZodOptional<z.ZodString>;
         skipInReport: z.ZodDefault<z.ZodBoolean>;
         required: z.ZodOptional<z.ZodBoolean>;
@@ -12593,18 +12980,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -12628,18 +13016,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -12688,6 +13077,7 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             url?: string | undefined;
         }>]>>;
         locator: z.ZodOptional<z.ZodObject<{
+            id: z.ZodOptional<z.ZodString>;
             selector: z.ZodOptional<z.ZodString>;
             primary: z.ZodOptional<z.ZodString>;
             name: z.ZodOptional<z.ZodString>;
@@ -12698,29 +13088,31 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             componentId: z.ZodOptional<z.ZodString>;
             candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
             backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-        }, "strip", z.ZodTypeAny, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }>>;
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">>>;
         description: z.ZodOptional<z.ZodString>;
         skipInReport: z.ZodDefault<z.ZodBoolean>;
         required: z.ZodOptional<z.ZodBoolean>;
@@ -12760,18 +13152,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -12800,18 +13193,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -12849,6 +13243,7 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             url?: string | undefined;
         }>]>>;
         locator: z.ZodOptional<z.ZodObject<{
+            id: z.ZodOptional<z.ZodString>;
             selector: z.ZodOptional<z.ZodString>;
             primary: z.ZodOptional<z.ZodString>;
             name: z.ZodOptional<z.ZodString>;
@@ -12859,29 +13254,31 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             componentId: z.ZodOptional<z.ZodString>;
             candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
             backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-        }, "strip", z.ZodTypeAny, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }>>;
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">>>;
         description: z.ZodOptional<z.ZodString>;
         skipInReport: z.ZodDefault<z.ZodBoolean>;
         required: z.ZodOptional<z.ZodBoolean>;
@@ -12921,18 +13318,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -12954,18 +13352,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -12998,6 +13397,7 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             url?: string | undefined;
         }>]>>;
         locator: z.ZodOptional<z.ZodObject<{
+            id: z.ZodOptional<z.ZodString>;
             selector: z.ZodOptional<z.ZodString>;
             primary: z.ZodOptional<z.ZodString>;
             name: z.ZodOptional<z.ZodString>;
@@ -13008,29 +13408,31 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             componentId: z.ZodOptional<z.ZodString>;
             candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
             backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-        }, "strip", z.ZodTypeAny, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }>>;
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">>>;
         description: z.ZodOptional<z.ZodString>;
         skipInReport: z.ZodDefault<z.ZodBoolean>;
         required: z.ZodOptional<z.ZodBoolean>;
@@ -13070,18 +13472,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -13103,18 +13506,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -13148,6 +13552,7 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             url?: string | undefined;
         }>]>>;
         locator: z.ZodOptional<z.ZodObject<{
+            id: z.ZodOptional<z.ZodString>;
             selector: z.ZodOptional<z.ZodString>;
             primary: z.ZodOptional<z.ZodString>;
             name: z.ZodOptional<z.ZodString>;
@@ -13158,29 +13563,31 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             componentId: z.ZodOptional<z.ZodString>;
             candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
             backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-        }, "strip", z.ZodTypeAny, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }>>;
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">>>;
         description: z.ZodOptional<z.ZodString>;
         skipInReport: z.ZodDefault<z.ZodBoolean>;
         required: z.ZodOptional<z.ZodBoolean>;
@@ -13221,18 +13628,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -13256,18 +13664,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -13300,6 +13709,7 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             url?: string | undefined;
         }>]>>;
         locator: z.ZodOptional<z.ZodObject<{
+            id: z.ZodOptional<z.ZodString>;
             selector: z.ZodOptional<z.ZodString>;
             primary: z.ZodOptional<z.ZodString>;
             name: z.ZodOptional<z.ZodString>;
@@ -13310,29 +13720,31 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             componentId: z.ZodOptional<z.ZodString>;
             candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
             backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-        }, "strip", z.ZodTypeAny, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }>>;
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">>>;
         description: z.ZodOptional<z.ZodString>;
         skipInReport: z.ZodDefault<z.ZodBoolean>;
         required: z.ZodOptional<z.ZodBoolean>;
@@ -13371,18 +13783,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -13406,18 +13819,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -13460,6 +13874,7 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             url?: string | undefined;
         }>]>>;
         locator: z.ZodOptional<z.ZodObject<{
+            id: z.ZodOptional<z.ZodString>;
             selector: z.ZodOptional<z.ZodString>;
             primary: z.ZodOptional<z.ZodString>;
             name: z.ZodOptional<z.ZodString>;
@@ -13470,29 +13885,31 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             componentId: z.ZodOptional<z.ZodString>;
             candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
             backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-        }, "strip", z.ZodTypeAny, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }>>;
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">>>;
         description: z.ZodOptional<z.ZodString>;
         skipInReport: z.ZodDefault<z.ZodBoolean>;
         required: z.ZodOptional<z.ZodBoolean>;
@@ -13531,18 +13948,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -13568,18 +13986,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -13616,6 +14035,7 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             url?: string | undefined;
         }>]>>;
         locator: z.ZodOptional<z.ZodObject<{
+            id: z.ZodOptional<z.ZodString>;
             selector: z.ZodOptional<z.ZodString>;
             primary: z.ZodOptional<z.ZodString>;
             name: z.ZodOptional<z.ZodString>;
@@ -13626,29 +14046,31 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             componentId: z.ZodOptional<z.ZodString>;
             candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
             backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-        }, "strip", z.ZodTypeAny, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }>>;
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">>>;
         description: z.ZodOptional<z.ZodString>;
         skipInReport: z.ZodDefault<z.ZodBoolean>;
         required: z.ZodOptional<z.ZodBoolean>;
@@ -13689,18 +14111,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -13724,18 +14147,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -13767,6 +14191,7 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             url?: string | undefined;
         }>]>>;
         locator: z.ZodOptional<z.ZodObject<{
+            id: z.ZodOptional<z.ZodString>;
             selector: z.ZodOptional<z.ZodString>;
             primary: z.ZodOptional<z.ZodString>;
             name: z.ZodOptional<z.ZodString>;
@@ -13777,29 +14202,31 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             componentId: z.ZodOptional<z.ZodString>;
             candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
             backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-        }, "strip", z.ZodTypeAny, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }>>;
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">>>;
         description: z.ZodOptional<z.ZodString>;
         skipInReport: z.ZodDefault<z.ZodBoolean>;
         required: z.ZodOptional<z.ZodBoolean>;
@@ -13839,18 +14266,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -13873,18 +14301,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -13915,6 +14344,7 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             url?: string | undefined;
         }>]>>;
         locator: z.ZodOptional<z.ZodObject<{
+            id: z.ZodOptional<z.ZodString>;
             selector: z.ZodOptional<z.ZodString>;
             primary: z.ZodOptional<z.ZodString>;
             name: z.ZodOptional<z.ZodString>;
@@ -13925,29 +14355,31 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             componentId: z.ZodOptional<z.ZodString>;
             candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
             backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-        }, "strip", z.ZodTypeAny, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }>>;
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">>>;
         description: z.ZodOptional<z.ZodString>;
         skipInReport: z.ZodDefault<z.ZodBoolean>;
         required: z.ZodOptional<z.ZodBoolean>;
@@ -13986,18 +14418,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -14019,18 +14452,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -14062,6 +14496,7 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             url?: string | undefined;
         }>]>>;
         locator: z.ZodOptional<z.ZodObject<{
+            id: z.ZodOptional<z.ZodString>;
             selector: z.ZodOptional<z.ZodString>;
             primary: z.ZodOptional<z.ZodString>;
             name: z.ZodOptional<z.ZodString>;
@@ -14072,29 +14507,31 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             componentId: z.ZodOptional<z.ZodString>;
             candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
             backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-        }, "strip", z.ZodTypeAny, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }>>;
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">>>;
         description: z.ZodOptional<z.ZodString>;
         skipInReport: z.ZodDefault<z.ZodBoolean>;
         required: z.ZodOptional<z.ZodBoolean>;
@@ -14134,18 +14571,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -14168,18 +14606,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -14211,6 +14650,7 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             url?: string | undefined;
         }>]>>;
         locator: z.ZodOptional<z.ZodObject<{
+            id: z.ZodOptional<z.ZodString>;
             selector: z.ZodOptional<z.ZodString>;
             primary: z.ZodOptional<z.ZodString>;
             name: z.ZodOptional<z.ZodString>;
@@ -14221,29 +14661,31 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             componentId: z.ZodOptional<z.ZodString>;
             candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
             backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-        }, "strip", z.ZodTypeAny, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }>>;
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">>>;
         description: z.ZodOptional<z.ZodString>;
         skipInReport: z.ZodDefault<z.ZodBoolean>;
         required: z.ZodOptional<z.ZodBoolean>;
@@ -14283,18 +14725,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -14317,18 +14760,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -14360,6 +14804,7 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             url?: string | undefined;
         }>]>>;
         locator: z.ZodOptional<z.ZodObject<{
+            id: z.ZodOptional<z.ZodString>;
             selector: z.ZodOptional<z.ZodString>;
             primary: z.ZodOptional<z.ZodString>;
             name: z.ZodOptional<z.ZodString>;
@@ -14370,29 +14815,31 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             componentId: z.ZodOptional<z.ZodString>;
             candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
             backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-        }, "strip", z.ZodTypeAny, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }>>;
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">>>;
         description: z.ZodOptional<z.ZodString>;
         skipInReport: z.ZodDefault<z.ZodBoolean>;
         required: z.ZodOptional<z.ZodBoolean>;
@@ -14432,18 +14879,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -14466,18 +14914,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -14509,6 +14958,7 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             url?: string | undefined;
         }>]>>;
         locator: z.ZodOptional<z.ZodObject<{
+            id: z.ZodOptional<z.ZodString>;
             selector: z.ZodOptional<z.ZodString>;
             primary: z.ZodOptional<z.ZodString>;
             name: z.ZodOptional<z.ZodString>;
@@ -14519,29 +14969,31 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             componentId: z.ZodOptional<z.ZodString>;
             candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
             backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-        }, "strip", z.ZodTypeAny, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }, {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        }>>;
+        }, "passthrough", z.ZodTypeAny, z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">, z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough">>>;
         description: z.ZodOptional<z.ZodString>;
         skipInReport: z.ZodDefault<z.ZodBoolean>;
         required: z.ZodOptional<z.ZodBoolean>;
@@ -14581,18 +15033,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -14615,18 +15068,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -14686,6 +15140,7 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
         skipInReport: boolean;
         required?: boolean | undefined;
         description?: string | undefined;
+        url?: string | undefined;
         surfaceId?: string | undefined;
         meta?: Record<string, any> | undefined;
         frame?: string | {
@@ -14694,18 +15149,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -14728,18 +15184,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -14775,18 +15232,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -14820,18 +15278,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -14858,18 +15317,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -14894,18 +15354,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -14930,18 +15391,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -14971,18 +15433,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -15006,18 +15469,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -15042,18 +15506,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -15076,18 +15541,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -15112,18 +15578,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -15152,18 +15619,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -15187,18 +15655,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -15221,18 +15690,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -15256,18 +15726,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -15291,18 +15762,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -15326,18 +15798,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -15361,18 +15834,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectOutputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
         effects?: {
@@ -15408,6 +15882,7 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
         action: "navigate";
         required?: boolean | undefined;
         description?: string | undefined;
+        url?: string | undefined;
         surfaceId?: string | undefined;
         meta?: Record<string, any> | undefined;
         frame?: string | {
@@ -15416,18 +15891,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -15450,18 +15926,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -15496,18 +15973,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -15542,18 +16020,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -15580,18 +16059,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -15616,18 +16096,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -15652,18 +16133,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -15692,18 +16174,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -15727,18 +16210,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -15764,18 +16248,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -15798,18 +16283,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -15834,18 +16320,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -15874,18 +16361,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -15909,18 +16397,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -15943,18 +16432,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -15978,18 +16468,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -16013,18 +16504,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -16048,18 +16540,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;
@@ -16083,18 +16576,19 @@ export declare const ExecutionRequestSchema: z.ZodObject<{
             selector?: string | undefined;
             url?: string | undefined;
         } | undefined;
-        locator?: {
-            name?: string | undefined;
-            label?: string | undefined;
-            selector?: string | undefined;
-            primary?: string | undefined;
-            role?: string | undefined;
-            attrSelector?: string | undefined;
-            testId?: string | undefined;
-            componentId?: string | undefined;
-            candidates?: string[] | undefined;
-            backupSelectors?: string[] | undefined;
-        } | undefined;
+        locator?: z.objectInputType<{
+            id: z.ZodOptional<z.ZodString>;
+            selector: z.ZodOptional<z.ZodString>;
+            primary: z.ZodOptional<z.ZodString>;
+            name: z.ZodOptional<z.ZodString>;
+            label: z.ZodOptional<z.ZodString>;
+            role: z.ZodOptional<z.ZodString>;
+            attrSelector: z.ZodOptional<z.ZodString>;
+            testId: z.ZodOptional<z.ZodString>;
+            componentId: z.ZodOptional<z.ZodString>;
+            candidates: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+            backupSelectors: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
+        }, z.ZodTypeAny, "passthrough"> | undefined;
         skipInReport?: boolean | undefined;
         requiredSource?: string | undefined;
         requiredScope?: string | undefined;

@@ -1,23 +1,21 @@
 /**
  * Recording → NormalizedAction.
  *
- * THREE dialects reach this service and all three have to keep working:
+ * ARCHITECTURAL BOUNDARY:
+ *   External API Ingress: Protocol "2.0" ExecutionRequest (via @flowtrace/contracts)
+ *         ↓ (routes / API adapter)
+ *   Internal Engine Normalization: parses steps, binds parameters, applies locators
+ *
+ * THREE legacy file dialects also reach this service and all three keep working:
  *
  *   schema v1  { schemaVersion: 1, actions: [ { action, locator, … } ], steps?: [ { type: 'code', actionIndex, … } ] }
- *              actions is the sole canonical source of truth for execution & parameter binding;
- *              steps is an optional derived convenience with actionIndex mapping back to actions.
+ *              actions is the canonical source of truth for execution & parameter binding.
  *   legacy     { action: "click", locator: { … }, value, committedValue }  ~366 recordings
  *   codegen    { frame, action: { name, selector, text }, startTime }      ~413 recordings
  *
- * The last two are both stored as a BARE ARRAY and are collectively "legacy"
- * here. v1 wraps its steps in an envelope and says so outright.
- *
- * The version is read from `schemaVersion`, never inferred from field shapes.
- * That distinction matters more than it looks: v1 and legacy disagree about
- * what the verb `select` means, and guessing the version from, say, "does this
- * entry have a `durationMs`?" would make the meaning of a step depend on which
- * optional fields it happened to carry. Every branch below asks the declared
- * version and nothing else.
+ * Note: Raw files declaring numeric schemaVersion > 1 are rejected because numeric 2
+ * represents an unknown future legacy file dialect, whereas Protocol "2.0" is the
+ * structured external API contract.
  */
 
 import type { NormalizedAction } from './types';
@@ -179,7 +177,9 @@ export function normalizeAction(entry: any, schemaVersion: SchemaVersion = null)
     ? entry.action.name
     : (typeof entry?.action === 'string' ? entry.action : entry?.type ?? '');
 
-  const url = isActionObj ? entry.action.url : entry?.url;
+  const url = isActionObj
+    ? (entry.action.url || (name === 'navigate' ? entry.action.value : undefined))
+    : (entry?.url || (name === 'navigate' ? entry?.value : undefined));
 
   const selector = isActionObj
     ? entry.action.selector

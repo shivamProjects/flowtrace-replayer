@@ -523,8 +523,10 @@ const CASES = [
   },
   {
     name: 'guard/future-schema-version-refused',
-    // Replaying a v2 recording under v1 rules would apply the wrong meaning to
-    // verbs this engine has never heard of.
+    // Replaying an unknown numeric v2 raw recording file under v1 rules would apply
+    // the wrong meaning to verbs this engine has never heard of. Note: This guards
+    // legacy raw JSON file structure (where schemaVersion was integer 1), distinct from
+    // the Protocol "2.0" structured ExecutionRequest API envelope.
     raw: { schemaVersion: 2, actions: [nav('adf.html')] },
     expect: { throws: /understands up to 1/ },
   },

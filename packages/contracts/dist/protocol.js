@@ -46,6 +46,7 @@ exports.SurfaceInfoSchema = zod_1.z.object({
     title: zod_1.z.string().optional(),
 });
 exports.RecordedLocatorSchema = zod_1.z.object({
+    id: zod_1.z.string().optional(),
     selector: zod_1.z.string().optional(),
     primary: zod_1.z.string().optional(),
     name: zod_1.z.string().optional(),
@@ -56,7 +57,7 @@ exports.RecordedLocatorSchema = zod_1.z.object({
     componentId: zod_1.z.string().optional(),
     candidates: zod_1.z.array(zod_1.z.string()).optional(),
     backupSelectors: zod_1.z.array(zod_1.z.string()).optional(),
-});
+}).passthrough();
 exports.StepEffectSchema = zod_1.z.object({
     type: zod_1.z.string(),
     targetUrl: zod_1.z.string().optional(),
@@ -99,6 +100,7 @@ exports.NavigateStepSchema = zod_1.z.object({
     ...BaseStepFields,
     action: zod_1.z.literal('navigate'),
     value: zod_1.z.string().min(1),
+    url: zod_1.z.string().optional(),
 });
 exports.ClickStepSchema = zod_1.z.object({
     ...BaseStepFields,
