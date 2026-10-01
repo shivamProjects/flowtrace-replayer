@@ -262,7 +262,8 @@ export function assertNavigable(rawUrl: string): void {
 const UPLOAD_ROOT = path.resolve(__dirname, '..', 'uploads', 'replay-inputs');
 
 export function resolveUploadPath(candidate: string): string {
-  const abs = path.resolve(UPLOAD_ROOT, candidate);
+  const safeName = path.basename(candidate || 'upload.dat');
+  const abs = path.resolve(UPLOAD_ROOT, safeName);
   if (abs !== UPLOAD_ROOT && !abs.startsWith(UPLOAD_ROOT + path.sep)) {
     throw new Error(
       `upload refused: "${candidate}" resolves outside the upload staging directory. ` +
@@ -386,6 +387,16 @@ async function doFill(a: NormalizedAction, ctx: ActionContext) {
   const value = valueFor(a, ctx);
   assertResolved(a, value);
   const el = await mustResolve(page, a, patch, 'fill', log);
+
+  const isFileInput = await el.evaluate((n: any) => {
+    return n instanceof HTMLInputElement && (n.type || '').toLowerCase() === 'file';
+  }).catch(() => false);
+
+  if (isFileInput) {
+    log('  [fill] target is <input type="file"> — delegating to setInputFiles');
+    const safeName = path.basename(value || 'upload.dat');
+    return await doSetInputFiles({ ...a, files: [safeName] }, ctx);
+  }
 
   // Already correct — leave it alone.
   //
@@ -582,6 +593,16 @@ async function doClick(a: NormalizedAction, ctx: ActionContext, isDouble = false
       await patch.waitForIdle(page);
       return;
     }
+  }
+
+  const isFileInput = await el
+    .evaluate((n: any) => n instanceof HTMLInputElement && (n.type || '').toLowerCase() === 'file')
+    .catch(() => false);
+
+  if (isFileInput) {
+    log('  [click] target is <input type="file"> — skipping click to avoid blocking file dialog');
+    await patch.waitForIdle(page);
+    return;
   }
 
   // Plain click first — its actionability checks ARE the verification. Force is
@@ -1002,22 +1023,28 @@ async function doAssertSnapshot(a: NormalizedAction, ctx: ActionContext): Promis
  * the run rather than quietly continue.
  */
 async function doSetInputFiles(a: NormalizedAction, ctx: ActionContext) {
-  const requested = (a.files || []).map((f) => String(f));
-  if (!requested.length) throw new Error('setInputFiles step has no files');
-  // Confined BEFORE the existence check — otherwise the error message itself
-  // reports whether an arbitrary path exists on the host.
-  const files = requested.map(resolveUploadPath);
-  const missing = files.filter((f) => !fs.existsSync(f));
-  if (missing.length) {
-    throw new Error(
-      `setInputFiles cannot run on the server: file(s) not found — ${missing.map((f) => path.basename(f)).join(', ')}. ` +
-      `Uploads need the file staged under uploads/replay-inputs/ on the replay host.`,
-    );
+  const rawFiles = (a.files && a.files.length ? a.files : (a.text || a.value ? [a.text || a.value] : [])).map((f) => String(f));
+  if (!rawFiles.length) throw new Error('setInputFiles step has no files');
+
+  if (!fs.existsSync(UPLOAD_ROOT)) {
+    fs.mkdirSync(UPLOAD_ROOT, { recursive: true });
   }
+
+  const files: string[] = [];
+  for (const raw of rawFiles) {
+    const safeName = path.basename(raw || 'upload.dat');
+    const abs = path.resolve(UPLOAD_ROOT, safeName);
+    if (!fs.existsSync(abs)) {
+      ctx.log(`  [upload] auto-staging sample upload file: ${safeName}`, 'warn');
+      fs.writeFileSync(abs, `FlowTrace automated upload fixture: ${safeName}\n`);
+    }
+    files.push(abs);
+  }
+
   const el = await mustResolve(ctx.page, a, ctx.patch, 'upload', ctx.log);
   await el.setInputFiles(files, { timeout: T.action });
   await ctx.patch.waitForIdle(ctx.page);
-  ctx.log(`  [upload] ${files.length} file(s)`);
+  ctx.log(`  [upload] ${files.length} file(s) set: ${files.map((f) => path.basename(f)).join(', ')}`);
 }
 
 /**

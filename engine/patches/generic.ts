@@ -109,7 +109,21 @@ export class GenericPatch implements AppPatch {
     return null;
   }
 
-  async selectFromOpenList(_page: Page, _wanted: string, _log: LogFn): Promise<boolean> {
+  async selectFromOpenList(page: Page, wanted: string, log: LogFn): Promise<boolean> {
+    if (await this.pickListRow(page, wanted, log)) return true;
+
+    // If no option was currently visible, try opening visible comboboxes/dropdown controls
+    const openables = page.locator('[class*="-control"], [role="combobox"], input[id*="react-select"], div[id="city"], div[id="state"]').filter({ visible: true });
+    const count = await openables.count().catch(() => 0);
+    for (let i = 0; i < count; i++) {
+      const candidate = openables.nth(i);
+      await candidate.click({ timeout: 1000 }).catch(() => {});
+      await this.waitForIdle(page);
+      if (await this.pickListRow(page, wanted, log)) {
+        log(`  [select] selected "${wanted}" after opening combobox`);
+        return true;
+      }
+    }
     return false;
   }
 
