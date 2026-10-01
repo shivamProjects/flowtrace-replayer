@@ -77,11 +77,11 @@ export function parseRecording(raw: unknown): ParsedRecording {
       if (!Number.isFinite(v)) {
         throw new Error(`Recording declares a non-numeric schemaVersion: ${JSON.stringify(env.schemaVersion)}`);
       }
-      if (v > 1) {
-        // Newer than this engine. Replaying it under v1 rules would apply the
+      if (v > 2) {
+        // Newer than this engine. Replaying it under v1/v2 rules would apply the
         // wrong meaning to verbs it does not know about yet.
         throw new Error(
-          `Recording declares schemaVersion ${v}, but this engine understands up to 1. ` +
+          `Recording declares schemaVersion ${v}, but this engine understands up to 2. ` +
           `Upgrade the replayer rather than replaying it under older rules.`,
         );
       }
