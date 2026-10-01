@@ -36,6 +36,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@flowtrace/contracts": "workspace:*",
     "@anthropic-ai/sdk": "^0.115.0",
     "@aws-sdk/client-s3": "^3.1024.0",
     "@aws-sdk/lib-storage": "^3.1024.0",

@@ -50,6 +50,7 @@ const crypto = require('crypto');
 const express = require('express');
 const fs = require('fs');
 
+const { ExecutionRequestSchema } = require('@flowtrace/contracts');
 const SpecRunner = require('../run/specRunner');
 const { outerDeadlineMs } = require('../run/specRunner');
 const { CallbackClient } = require('../platform/callbackClient');
@@ -108,18 +109,45 @@ function writeLine(res, object) {
 }
 
 router.post('/replay', requireServiceToken, async function (req, res) {
-  const {
-    jobExecutionId,
-    runId,
-    steps,
-    patchId,
-    schemaVersion,
-    parameters,
-    knownErrorTypes,
-    captureScreenshots,
-    callbackUrl,
-    callbackToken,
-  } = req.body || {};
+  // Dual-mode Protocol 2.0 & Legacy Dispatch Adapter
+  let jobExecutionId;
+  let runId;
+  let steps;
+  let patchId;
+  let schemaVersion;
+  let parameters;
+  let knownErrorTypes;
+  let captureScreenshots;
+  let callbackUrl;
+  let callbackToken;
+
+  const parsedProtocolV2 = ExecutionRequestSchema.safeParse(req.body);
+  if (parsedProtocolV2.success) {
+    const data = parsedProtocolV2.data;
+    jobExecutionId = data.jobExecutionId;
+    runId = data.runId;
+    steps = data.steps;
+    patchId = data.patchId;
+    schemaVersion = data.schemaVersion;
+    parameters = data.parameters;
+    knownErrorTypes = data.knownErrorTypes;
+    captureScreenshots = data.captureScreenshots;
+    callbackUrl = data.callbackUrl;
+    callbackToken = data.callbackToken;
+  } else {
+    // Legacy schema V1 / fallback
+    const body = req.body || {};
+    jobExecutionId = body.jobExecutionId;
+    runId = body.runId;
+    steps = body.steps;
+    patchId = body.patchId;
+    schemaVersion = body.schemaVersion;
+    parameters = body.parameters;
+    knownErrorTypes = body.knownErrorTypes;
+    captureScreenshots = body.captureScreenshots;
+    callbackUrl = body.callbackUrl;
+    callbackToken = body.callbackToken;
+  }
 
   if (!jobExecutionId || typeof jobExecutionId !== 'string') {
     return res.status(400).json({ success: false, error: 'jobExecutionId is required' });
