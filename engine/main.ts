@@ -31,6 +31,7 @@ import {
   type ActionContext,
 } from './actions';
 import { assertReplayable, describeAction, normalizeAction, parseRecording } from './normalize';
+import { ReplaySurfaceRegistry } from './surfaces';
 import { resolveRelativeNav } from './relative-nav';
 import { installSettleProbe, waitForPaint } from './settle';
 import {
@@ -473,13 +474,9 @@ test.describe('Dynamic Action Replayer', () => {
       emit('output', { name: 'transactionNumber', value: num });
     };
 
-    // ── Multi-surface page resolver ──────────────────────────────────────────
-    // Maps surfaceId (e.g. 'surface_main', 'surface_popup_...') to Playwright Page handles.
-    const surfacePages = new Map<string, Page>();
-    const declaredSurfaces = new Set(actions.map((a) => a.surfaceId).filter(Boolean));
-    const rootSurfaceId = actions.find((a) => a.surfaceId)?.surfaceId || 'surface_main';
-    surfacePages.set(rootSurfaceId, page);
-    surfacePages.set('surface_main', page);
+    // ── Multi-surface Execution Registry ────────────────────────────────────
+    // Maintains authoritative Page mapping for each surfaceId across popups & new tabs
+    const surfaceRegistry = new ReplaySurfaceRegistry(page, actions);
 
     for (let i = 0; i < actions.length; i++) {
       const action = actions[i];
@@ -505,52 +502,18 @@ test.describe('Dynamic Action Replayer', () => {
       writeResults(results, false, `in progress at step ${i + 1} (${redactor.redact(label)})`);
       console.log(`\n[${i + 1}/${actions.length}] ${action.name} — ${redactor.redact(label)}`);
 
-      // ── Surface Resolution ──────────────────────────────────────────────────
+      // ── Surface Resolution Hierarchy ────────────────────────────────────────
+      // RecordingSession -> Surface (surfaceRegistry) -> Frame (resolveScope) -> Locator -> Action
       let targetPage = page;
-      if (action.surfaceId) {
-        if (surfacePages.has(action.surfaceId) && !surfacePages.get(action.surfaceId)!.isClosed()) {
-          targetPage = surfacePages.get(action.surfaceId)!;
-        } else if (action.surfaceId !== rootSurfaceId && action.surfaceId !== 'surface_main') {
-          // If action targets a popup surface, check live pages in context
-          let live = page.context().pages().filter((p) => !p.isClosed());
-          let popupCandidate = live.find((p) => p !== page && !Array.from(surfacePages.values()).includes(p));
-          if (!popupCandidate) {
-            // Give asynchronous window opening a moment
-            await page.waitForTimeout(250).catch(() => {});
-            live = page.context().pages().filter((p) => !p.isClosed());
-            popupCandidate = live.find((p) => p !== page && !Array.from(surfacePages.values()).includes(p)) ||
-                             (live.length > 1 ? live[live.length - 1] : undefined);
-          }
-
-          if (popupCandidate && popupCandidate !== page) {
-            targetPage = popupCandidate;
-            surfacePages.set(action.surfaceId, targetPage);
-            await targetPage.waitForLoadState('domcontentloaded').catch(() => {});
-            await installSettleProbe(targetPage);
-            await targetPage.bringToFront().catch(() => {});
-            log(`  [surface] resolved surface "${action.surfaceId}" to new window ("${(await targetPage.title().catch(() => '')).slice(0, 60)}")`, 'warn');
-          } else if (surfacePages.has(action.surfaceId) && surfacePages.get(action.surfaceId)!.isClosed()) {
-            throw new Error(`Surface "${action.surfaceId}" was closed before step ${i + 1} could act on it.`);
-          } else if (declaredSurfaces.size > 1) {
-            // Multi-surface recording where target popup page is absent: fail closed
-            throw new Error(
-              `Target surface "${action.surfaceId}" not found in browser context. ` +
-              `Refusing to replay popup action against the main page.`,
-            );
-          }
-        }
+      try {
+        targetPage = await surfaceRegistry.resolveSurface(action, page);
+      } catch (err: any) {
+        log(`  [surface] ${err.message}`, 'error');
+        throw err;
       }
 
-      // Re-acquire target page if closed or replaced
-      if (targetPage.isClosed()) {
-        const live = page.context().pages().filter((p) => !p.isClosed());
-        if (live.length) {
-          targetPage = live[live.length - 1];
-          await installSettleProbe(targetPage);
-          log('  [page] the previous page closed — continuing on the replacement', 'warn');
-        }
-      } else if (!action.surfaceId) {
-        // Fallback for untagged legacy steps: follow newest live tab if opened
+      // Fallback for legacy codegen actions without surfaceId: follow newest live tab if opened
+      if (!action.surfaceId && !targetPage.isClosed()) {
         let live = page.context().pages().filter((p) => !p.isClosed());
         let newest = live[live.length - 1];
         if (!newest || newest === targetPage) {
