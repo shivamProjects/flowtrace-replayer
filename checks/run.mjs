@@ -19,6 +19,7 @@
  * rather than "case 7 failed".
  */
 
+import os from 'node:os';
 import { spawn } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync, existsSync, rmSync } from 'node:fs';
 import { createRequire } from 'node:module';
@@ -1365,10 +1366,15 @@ function runCase(env) {
   });
 }
 
+const concurrency = Math.max(
+  1,
+  Number(process.env.CONCURRENCY) || Math.min(os.cpus()?.length || 4, 6)
+);
+
 let passed = 0;
 const failures = [];
 
-for (const [caseIndex, c] of cases.entries()) {
+async function executeCase(c, caseIndex) {
   // Every case gets its OWN directory.
   //
   // These were shared files under .work/, and that made the whole suite
@@ -1488,7 +1494,7 @@ for (const [caseIndex, c] of cases.entries()) {
   }
 
   if (problems.length) {
-    failures.push({ name: c.name, problems });
+    failures.push({ name: c.name, problems, stdout });
     console.log(`FAIL  ${c.name}`);
     for (const p of problems) console.log(`        ${p}`);
     // The engine's own output is the evidence for WHY it failed, and it was
@@ -1504,6 +1510,17 @@ for (const [caseIndex, c] of cases.entries()) {
     console.log(`pass  ${c.name}`);
   }
 }
+
+// Execute cases concurrently
+let cursor = 0;
+const workers = Array.from({ length: Math.min(concurrency, cases.length) }, async () => {
+  while (cursor < cases.length) {
+    const idx = cursor++;
+    await executeCase(cases[idx], idx);
+  }
+});
+
+await Promise.all(workers);
 
 fixtures.kill();
 
