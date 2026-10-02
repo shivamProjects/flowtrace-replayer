@@ -9,6 +9,8 @@
 const SpecRunner = require('../run/specRunner');
 const { CallbackClient } = require('../platform/callbackClient');
 
+const { CallbackJournal } = require('../platform/callbackJournal');
+
 const CONTROL_PLANE_URL = (
   process.env.FLOWTRACE_CONTROL_PLANE_URL ||
   process.env.FLOWTRACE_API_URL ||
@@ -74,21 +76,36 @@ async function executeRun(claimData) {
   );
 
   const runner = new SpecRunner(runId);
+  const leaseExpiresAt = run.leaseExpiresAt
+    ? new Date(run.leaseExpiresAt).getTime()
+    : Date.now() + 15 * 60 * 1000;
+  const LEASE_SAFETY_BUFFER_MS = 15_000;
+  let lastHeartbeatSuccess = Date.now();
 
   // Start heartbeat timer
   const heartbeatInterval = setInterval(async () => {
     try {
       const ok = await callbackClient.postHeartbeat({
         workerNodeId: WORKER_NODE_ID,
+        attemptCount: run.attemptCount,
       });
-      if (!ok && (callbackClient.cancelled || callbackClient.lastStatus === 409)) {
-        console.warn(`[${runId}] Heartbeat returned 409 (Run Cancelled). Aborting runner immediately...`);
+      if (ok) {
+        lastHeartbeatSuccess = Date.now();
+      } else if (callbackClient.cancelled || callbackClient.lastStatus === 409) {
+        console.warn(`[${runId}] Heartbeat returned 409 (Fencing conflict or Run Cancelled). Aborting runner immediately...`);
         await runner.close();
       }
     } catch (err) {
       console.error(`[${runId}] Heartbeat error: ${err.message}`);
     }
-  }, 25_000);
+
+    // Local lease expiry guard: If heartbeat has not succeeded and current time exceeds lease deadline, self-abort locally
+    const now = Date.now();
+    if (now > leaseExpiresAt - LEASE_SAFETY_BUFFER_MS && now - lastHeartbeatSuccess > 30_000) {
+      console.warn(`[${runId}] Local lease expiry deadline approaching without renewed heartbeat. Aborting runner locally to prevent split-brain...`);
+      await runner.close();
+    }
+  }, 15_000);
 
   const startTime = Date.now();
 
@@ -101,10 +118,14 @@ async function executeRun(claimData) {
     const steps = executionRequest.steps || [];
     console.log(`[${runId}] Executing ${steps.length} steps via SpecRunner against ${run.baseUrl || 'configured target'}...`);
 
-    // Wire live events to callbacks
+    // Wire live events to callbacks with fencing rejection abortion
     runner.on('step-end', async (stepResult) => {
       try {
-        await callbackClient.postStep(stepResult);
+        const ok = await callbackClient.postStep(stepResult);
+        if (!ok && (callbackClient.cancelled || callbackClient.lastStatus === 409)) {
+          console.warn(`[${runId}] Step callback returned 409 (Fencing conflict / Cancelled). Aborting runner...`);
+          await runner.close();
+        }
       } catch (err) {
         console.warn(`[${runId}] Failed to post step callback:`, err.message);
       }
@@ -112,7 +133,11 @@ async function executeRun(claimData) {
 
     runner.on('heal', async (healData) => {
       try {
-        await callbackClient.postHeal(healData);
+        const ok = await callbackClient.postHeal(healData);
+        if (!ok && (callbackClient.cancelled || callbackClient.lastStatus === 409)) {
+          console.warn(`[${runId}] Heal callback returned 409 (Fencing conflict / Cancelled). Aborting runner...`);
+          await runner.close();
+        }
       } catch (err) {
         console.warn(`[${runId}] Failed to post heal callback:`, err.message);
       }
@@ -129,8 +154,8 @@ async function executeRun(claimData) {
 
     const totalDuration = Date.now() - startTime;
 
-    if (replayResult.cancelled) {
-      console.log(`[${runId}] Run was cancelled mid-flight. Halting callback finalization.`);
+    if (replayResult.cancelled || callbackClient.cancelled || callbackClient.lastStatus === 409) {
+      console.log(`[${runId}] Run was cancelled or fenced mid-flight. Halting callback finalization.`);
       return;
     }
 
@@ -176,6 +201,9 @@ async function startWorkerLoop() {
   while (!shouldStop) {
     let claimed = false;
     try {
+      // Flush any pending durable journaled outbox entries
+      await CallbackJournal.flushAll((msg) => console.log(`[worker] ${msg}`));
+
       const claimResult = await claimWork();
       if (claimResult && claimResult.claimed && claimResult.run) {
         claimed = true;

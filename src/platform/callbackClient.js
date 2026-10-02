@@ -169,18 +169,30 @@ class CallbackClient {
     return this._post('heal-skipped', payload);
   }
 
-  /** Terminal error callback for the app boundary. */
-  postError(err) {
+  /** Terminal error callback for the app boundary with durable outbox fallback. */
+  async postError(err) {
     const payload = this.isApp && this.runId
       ? { runId: this.runId, ...(typeof err === 'string' ? { error: err } : err) }
       : err;
-    return this._post('error', payload);
+    const ok = await this._post('error', payload, { maxRetries: 3 });
+    if (!ok && this.enabled && !this.cancelled && this.lastStatus !== 409) {
+      const id = this.runId || this.jobExecutionId || 'unknown';
+      const { CallbackJournal } = require('./callbackJournal');
+      CallbackJournal.save(id, 'error', this._url('error'), payload, this.token);
+    }
+    return ok;
   }
 
-  /** Terminal completion callback for the app boundary. */
-  postComplete(result) {
+  /** Terminal completion callback for the app boundary with durable outbox fallback. */
+  async postComplete(result) {
     const payload = this.isApp && this.runId ? { runId: this.runId, ...result } : result;
-    return this._post('complete', payload);
+    const ok = await this._post('complete', payload, { maxRetries: 3 });
+    if (!ok && this.enabled && !this.cancelled && this.lastStatus !== 409) {
+      const id = this.runId || this.jobExecutionId || 'unknown';
+      const { CallbackJournal } = require('./callbackJournal');
+      CallbackJournal.save(id, 'complete', this._url('complete'), payload, this.token);
+    }
+    return ok;
   }
 
   /**
