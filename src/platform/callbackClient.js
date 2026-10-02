@@ -72,39 +72,60 @@ class CallbackClient {
   }
 
   /**
-   * POST one JSON body. Resolves to true on a 2xx and false on anything else,
-   * including a thrown transport error. It NEVER rejects — see the header.
+   * POST one JSON body with exponential backoff retry for transient network / 5xx errors.
+   * Resolves to true/response on success, and handles 409 cancellation.
    */
-  async _post(suffix, body) {
+  async _post(suffix, body, { maxRetries = 2 } = {}) {
     if (!this.enabled) return false;
 
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
-    try {
-      const res = await fetch(this._url(suffix), {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-          ...(this.token ? { authorization: `Bearer ${this.token}` } : {}),
-        },
-        body: JSON.stringify(body),
-        signal: controller.signal,
-      });
-      if (!res.ok) {
+    let attempt = 0;
+    while (attempt <= maxRetries) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+      try {
+        const res = await fetch(this._url(suffix), {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json',
+            ...(this.token ? { authorization: `Bearer ${this.token}` } : {}),
+          },
+          body: JSON.stringify(body),
+          signal: controller.signal,
+        });
+
+        if (res.status === 409) {
+          // Explicit cancellation signal
+          this.log(`[callback] ${suffix} -> HTTP 409 (Run Cancelled)`);
+          return false;
+        }
+
+        if (!res.ok) {
+          this.failures++;
+          this.log(`[callback] ${suffix} -> HTTP ${res.status} (attempt ${attempt + 1}/${maxRetries + 1})`);
+          if (res.status >= 500 && attempt < maxRetries) {
+            const backoffMs = Math.min(1000 * Math.pow(2, attempt), 4000);
+            await new Promise((r) => setTimeout(r, backoffMs));
+            attempt++;
+            continue;
+          }
+          return false;
+        }
+        return true;
+      } catch (err) {
         this.failures++;
-        this.log(`[callback] ${suffix} -> HTTP ${res.status}`);
+        this.log(`[callback] ${suffix} failed: ${err.message} (attempt ${attempt + 1}/${maxRetries + 1})`);
+        if (attempt < maxRetries) {
+          const backoffMs = Math.min(1000 * Math.pow(2, attempt), 4000);
+          await new Promise((r) => setTimeout(r, backoffMs));
+          attempt++;
+          continue;
+        }
         return false;
+      } finally {
+        clearTimeout(timer);
       }
-      return true;
-    } catch (err) {
-      this.failures++;
-      // The message can name a host and a path. It cannot name a credential:
-      // nothing credential-bearing is ever passed to this method.
-      this.log(`[callback] ${suffix} failed: ${err.message}`);
-      return false;
-    } finally {
-      clearTimeout(timer);
     }
+    return false;
   }
 
   /**

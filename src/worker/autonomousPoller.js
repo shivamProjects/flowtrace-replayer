@@ -73,7 +73,7 @@ async function executeRun(claimData) {
     (msg) => console.log(`[${runId}] ${msg}`),
   );
 
-  console.log(`[worker] Claimed run ${runId} (org: ${run.orgId}). Starting replay...`);
+  const runner = new SpecRunner(runId);
 
   // Start heartbeat timer
   const heartbeatInterval = setInterval(async () => {
@@ -82,7 +82,8 @@ async function executeRun(claimData) {
         workerNodeId: WORKER_NODE_ID,
       });
       if (!ok) {
-        console.warn(`[${runId}] Heartbeat returned non-200 or run was cancelled`);
+        console.warn(`[${runId}] Heartbeat returned non-200 or run was cancelled. Aborting runner immediately...`);
+        await runner.close();
       }
     } catch (err) {
       console.error(`[${runId}] Heartbeat error: ${err.message}`);
@@ -92,23 +93,13 @@ async function executeRun(claimData) {
   const startTime = Date.now();
 
   try {
-    const executionRequest = run.executionRequest || {
-      jobExecutionId: `job_${runId}`,
-      runId,
-      steps: run.normalizedSteps || run.rawSteps || [],
-      patchId: run.patchId || 'generic',
-      schemaVersion: '2.0',
-      environment: {
-        baseUrl: run.baseUrl,
-      },
-      parameters: run.parameterValues,
-      captureScreenshots: true,
-    };
+    if (!run.executionRequest) {
+      throw new Error('Claimed run is missing authoritative ExecutionRequest from Control Plane compiler');
+    }
 
+    const executionRequest = run.executionRequest;
     const steps = executionRequest.steps || [];
     console.log(`[${runId}] Executing ${steps.length} steps via SpecRunner against ${run.baseUrl || 'configured target'}...`);
-
-    const runner = new SpecRunner(runId);
 
     // Wire live events to callbacks
     runner.on('step-end', async (stepResult) => {
@@ -137,6 +128,11 @@ async function executeRun(claimData) {
     await runner.close();
 
     const totalDuration = Date.now() - startTime;
+
+    if (replayResult.cancelled) {
+      console.log(`[${runId}] Run was cancelled mid-flight. Halting callback finalization.`);
+      return;
+    }
 
     if (replayResult.outputs && Object.keys(replayResult.outputs).length > 0) {
       await callbackClient.postOutputs(replayResult.outputs);
