@@ -73,7 +73,7 @@ class CallbackClient {
 
   /**
    * POST one JSON body with exponential backoff retry for transient network / 5xx errors.
-   * Resolves to true/response on success, and handles 409 cancellation.
+   * Resolves to true on success, false on failure/cancellation, and sets lastStatus/cancelled.
    */
   async _post(suffix, body, { maxRetries = 2 } = {}) {
     if (!this.enabled) return false;
@@ -93,8 +93,11 @@ class CallbackClient {
           signal: controller.signal,
         });
 
+        this.lastStatus = res.status;
+
         if (res.status === 409) {
           // Explicit cancellation signal
+          this.cancelled = true;
           this.log(`[callback] ${suffix} -> HTTP 409 (Run Cancelled)`);
           return false;
         }
@@ -113,6 +116,7 @@ class CallbackClient {
         return true;
       } catch (err) {
         this.failures++;
+        this.lastStatus = 0;
         this.log(`[callback] ${suffix} failed: ${err.message} (attempt ${attempt + 1}/${maxRetries + 1})`);
         if (attempt < maxRetries) {
           const backoffMs = Math.min(1000 * Math.pow(2, attempt), 4000);

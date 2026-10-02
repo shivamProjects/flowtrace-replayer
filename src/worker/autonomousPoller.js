@@ -81,8 +81,8 @@ async function executeRun(claimData) {
       const ok = await callbackClient.postHeartbeat({
         workerNodeId: WORKER_NODE_ID,
       });
-      if (!ok) {
-        console.warn(`[${runId}] Heartbeat returned non-200 or run was cancelled. Aborting runner immediately...`);
+      if (!ok && (callbackClient.cancelled || callbackClient.lastStatus === 409)) {
+        console.warn(`[${runId}] Heartbeat returned 409 (Run Cancelled). Aborting runner immediately...`);
         await runner.close();
       }
     } catch (err) {
