@@ -67,7 +67,6 @@ class CallbackJournal {
         suffix,
         url,
         payload,
-        token,
         createdAt: timestamp,
         attempts: 0,
         lastAttemptAt: null,
@@ -145,31 +144,17 @@ class CallbackJournal {
       const timeout = setTimeout(() => controller.abort(), FLUSH_TIMEOUT_MS);
 
       try {
-        // Try with original token first; fallback to workerApiKey if available
-        let authToken = entry.token;
+        let authToken = workerApiKey;
         let res = await fetch(entry.url, {
           method: 'POST',
           headers: {
             'content-type': 'application/json',
+            'x-attempt-count': String(entry.attemptCount || 1),
             ...(authToken ? { authorization: `Bearer ${authToken}` } : {}),
           },
           body: JSON.stringify(entry.payload),
           signal: controller.signal,
         });
-
-        // If unauthorized (token expired after outage), retry with worker cluster API key
-        if (res.status === 401 && workerApiKey && workerApiKey !== authToken) {
-          log(`[CallbackJournal] Token expired for ${entry.id}; retrying with worker cluster API key...`);
-          res = await fetch(entry.url, {
-            method: 'POST',
-            headers: {
-              'content-type': 'application/json',
-              authorization: `Bearer ${workerApiKey}`,
-            },
-            body: JSON.stringify(entry.payload),
-            signal: controller.signal,
-          });
-        }
 
         if (res.ok) {
           CallbackJournal.remove(entry.filePath);

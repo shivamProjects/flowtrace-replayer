@@ -100,12 +100,14 @@ async function runJournalChecks() {
 
     // 3. Flush on 200 OK removes file
     console.log('3. Verifies flush on 200 OK delivers payload and unlinks outbox file');
+    process.env.FLOWTRACE_WORKER_API_KEY = 'ft_live_cluster_worker_key_xyz';
     serverStatusToReturn = 200;
     requestHistory = [];
     const flushedCount = await CallbackJournal.flushAll(() => {});
     assert.strictEqual(flushedCount, 1, 'Should flush 1 entry');
     assert.strictEqual(requestHistory.length, 1);
-    assert.strictEqual(requestHistory[0].headers.authorization, 'Bearer jwt-token-alpha');
+    assert.strictEqual(requestHistory[0].headers.authorization, 'Bearer ft_live_cluster_worker_key_xyz');
+    assert.strictEqual(requestHistory[0].headers['x-attempt-count'], '1');
     assert.strictEqual(requestHistory[0].body.status, 'PASSED');
     assert.strictEqual(CallbackJournal.list().length, 0, 'Outbox must be empty after successful flush');
 
@@ -117,7 +119,6 @@ async function runJournalChecks() {
       suffix: 'complete',
       url: `http://127.0.0.1:${serverPort}/api/v1/internal/runs/stale-run-409/complete`,
       payload: { runId: 'stale-run-409', status: 'FAILED' },
-      token: 'stale-jwt',
     });
     serverStatusToReturn = 409;
     requestHistory = [];
@@ -125,8 +126,8 @@ async function runJournalChecks() {
     assert.strictEqual(dropped409, 1, '409 must be acknowledged and counted');
     assert.strictEqual(CallbackJournal.list().length, 0, 'Outbox must be empty after 409 clearance');
 
-    // 5. Expired token (401) fallbacks to FLOWTRACE_WORKER_API_KEY
-    console.log('5. Verifies 401 token expiration retries with FLOWTRACE_WORKER_API_KEY');
+    // 5. Worker API Key retry carries attempt fencing header
+    console.log('5. Verifies worker API key delivery carries X-Attempt-Count header');
     process.env.FLOWTRACE_WORKER_API_KEY = 'ft_live_cluster_worker_key_xyz';
     CallbackJournal.save({
       runId: 'expired-jwt-run',
@@ -134,21 +135,16 @@ async function runJournalChecks() {
       suffix: 'complete',
       url: `http://127.0.0.1:${serverPort}/api/v1/internal/runs/expired-jwt-run/complete`,
       payload: { runId: 'expired-jwt-run', status: 'PASSED' },
-      token: 'expired-jwt',
     });
 
-    let reqIndex = 0;
     server.removeAllListeners('request');
     server.on('request', (req, res) => {
       let body = '';
       req.on('data', (c) => (body += c));
       req.on('end', () => {
-        reqIndex++;
         const auth = req.headers.authorization;
-        if (auth === 'Bearer expired-jwt') {
-          res.writeHead(401, { 'content-type': 'application/json' });
-          res.end(JSON.stringify({ error: { code: 'UNAUTHENTICATED' } }));
-        } else if (auth === 'Bearer ft_live_cluster_worker_key_xyz') {
+        const attempt = req.headers['x-attempt-count'];
+        if (auth === 'Bearer ft_live_cluster_worker_key_xyz' && attempt === '2') {
           res.writeHead(200, { 'content-type': 'application/json' });
           res.end(JSON.stringify({ success: true }));
         } else {
@@ -159,7 +155,7 @@ async function runJournalChecks() {
     });
 
     const flushedWithFallback = await CallbackJournal.flushAll(() => {});
-    assert.strictEqual(flushedWithFallback, 1, 'Should successfully flush with worker API key fallback');
+    assert.strictEqual(flushedWithFallback, 1, 'Should successfully flush with worker API key and attempt count');
     assert.strictEqual(CallbackJournal.list().length, 0, 'Outbox must be empty after authenticated retry');
 
     // 6. Persistent backoff on 500 error

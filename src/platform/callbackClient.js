@@ -148,7 +148,19 @@ class CallbackClient {
    * Platform routes to 'steps'; App routes to 'step'.
    */
   postStep(stepResult) {
-    const payload = this.isApp && this.runId ? { runId: this.runId, ...stepResult } : stepResult;
+    const rawStatus = String(stepResult.status || 'PASSED').toUpperCase();
+    const normalizedStatus = rawStatus === 'SUCCESS' ? 'PASSED' : rawStatus;
+    const normalized = {
+      stepIndex: stepResult.stepIndex ?? stepResult.index ?? 0,
+      status: normalizedStatus,
+      durationMs: stepResult.durationMs ?? stepResult.duration,
+      action: stepResult.action || 'step',
+      error: stepResult.error || undefined,
+      errorType: stepResult.errorType || undefined,
+      failureStage: stepResult.failureStage || undefined,
+      screenshotKey: stepResult.screenshotKey || undefined,
+    };
+    const payload = this.isApp && this.runId ? { runId: this.runId, ...normalized } : normalized;
     return this._post(this.isApp ? 'step' : 'steps', payload);
   }
 

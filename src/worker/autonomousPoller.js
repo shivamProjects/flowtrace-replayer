@@ -79,41 +79,60 @@ async function executeRun(claimData) {
 
   const runner = new SpecRunner(runId);
 
-  // Authoritative dynamic lease tracking from database
-  let currentLeaseExpiresAt = run.leaseExpiresAt
-    ? new Date(run.leaseExpiresAt).getTime()
-    : Date.now() + 60_000;
+  // Authoritative dynamic lease tracking from database with independent deadline timer
   const LEASE_SAFETY_BUFFER_MS = 15_000;
-  let lastHeartbeatSuccess = Date.now();
+  let safetyDeadlineTimer = null;
 
-  // Dynamic heartbeat interval (every 10 seconds)
-  const heartbeatInterval = setInterval(async () => {
-    try {
-      const ok = await callbackClient.postHeartbeat({
-        workerNodeId: WORKER_NODE_ID,
-        attemptCount: run.attemptCount,
-      });
-      if (ok) {
-        lastHeartbeatSuccess = Date.now();
-        if (callbackClient.lastLeaseExpiresAt) {
-          currentLeaseExpiresAt = new Date(callbackClient.lastLeaseExpiresAt).getTime();
-        }
-      } else if (callbackClient.cancelled || callbackClient.lastStatus === 409) {
-        console.warn(`[${runId}] Heartbeat returned 409 (Fencing conflict or Run Cancelled). Aborting runner immediately...`);
+  function rescheduleSafetyDeadline(leaseExpiresAtIso) {
+    if (safetyDeadlineTimer) {
+      clearTimeout(safetyDeadlineTimer);
+      safetyDeadlineTimer = null;
+    }
+    const targetMs = new Date(leaseExpiresAtIso).getTime() - LEASE_SAFETY_BUFFER_MS;
+    const delayMs = Math.max(0, targetMs - Date.now());
+    safetyDeadlineTimer = setTimeout(async () => {
+      console.warn(`[${runId}] Independent lease safety deadline reached without renewed lease. Aborting runner locally to eliminate split-brain...`);
+      try {
         await runner.close();
-      }
-    } catch (err) {
-      console.error(`[${runId}] Heartbeat error: ${err.message}`);
-    }
+      } catch {}
+    }, delayMs);
+  }
 
-    // Split-Brain Elimination Guard: If local clock exceeds (leaseExpiresAt - safetyBuffer) without renewal,
-    // abort runner immediately before PostgreSQL lease expires, preventing duplicate ERP actions.
-    const now = Date.now();
-    if (now > currentLeaseExpiresAt - LEASE_SAFETY_BUFFER_MS) {
-      console.warn(`[${runId}] Local lease safety deadline reached without renewed heartbeat. Aborting runner locally to eliminate split-brain...`);
-      await runner.close();
+  // Initialize deadline from claimed run lease
+  if (run.leaseExpiresAt) {
+    rescheduleSafetyDeadline(run.leaseExpiresAt);
+  } else {
+    rescheduleSafetyDeadline(new Date(Date.now() + 60_000).toISOString());
+  }
+
+  // Sequential heartbeat loop (prevents overlapping async requests)
+  let heartbeatActive = true;
+  async function runSequentialHeartbeats() {
+    while (heartbeatActive) {
+      await new Promise((r) => setTimeout(r, 10_000));
+      if (!heartbeatActive) break;
+
+      try {
+        const ok = await callbackClient.postHeartbeat({
+          workerNodeId: WORKER_NODE_ID,
+          attemptCount: run.attemptCount,
+        });
+        if (ok && callbackClient.lastLeaseExpiresAt) {
+          rescheduleSafetyDeadline(callbackClient.lastLeaseExpiresAt);
+        } else if (callbackClient.cancelled || callbackClient.lastStatus === 409) {
+          console.warn(`[${runId}] Heartbeat returned 409 (Fencing conflict or Run Cancelled). Aborting runner immediately...`);
+          try {
+            await runner.close();
+          } catch {}
+          break;
+        }
+      } catch (err) {
+        console.error(`[${runId}] Heartbeat error: ${err.message}`);
+      }
     }
-  }, 10_000);
+  }
+
+  runSequentialHeartbeats();
 
   const startTime = Date.now();
 
@@ -205,7 +224,11 @@ async function executeRun(claimData) {
       { attemptCount: run.attemptCount || 1 }
     );
   } finally {
-    clearInterval(heartbeatInterval);
+    heartbeatActive = false;
+    if (safetyDeadlineTimer) {
+      clearTimeout(safetyDeadlineTimer);
+      safetyDeadlineTimer = null;
+    }
   }
 }
 
