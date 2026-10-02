@@ -2,9 +2,11 @@
  * Autonomous Playwright Worker Poller
  *
  * Polls the FlowTrace Control Plane work claim API (POST /api/v1/internal/work/claim)
- * and executes claimed runs headlessly with automated heartbeats and telemetry callbacks.
+ * and executes claimed runs headlessly with automated heartbeats, SpecRunner Playwright execution,
+ * and telemetry callbacks.
  */
 
+const SpecRunner = require('../run/specRunner');
 const { CallbackClient } = require('../platform/callbackClient');
 
 const CONTROL_PLANE_URL = (
@@ -88,57 +90,80 @@ async function executeRun(claimData) {
   }, 25_000);
 
   const startTime = Date.now();
-  let stepIndex = 0;
-  let hasFailure = false;
-  let healCount = 0;
 
   try {
-    const rawSteps = run.rawSteps || [];
-    console.log(`[${runId}] Executing ${rawSteps.length} steps against ${run.baseUrl || 'configured target'}...`);
-
-    for (const step of rawSteps) {
-      stepIndex = step.index ?? stepIndex;
-      const stepStart = Date.now();
-
-      // Simulate or invoke step runner
-      const durationMs = Date.now() - stepStart;
-
-      await callbackClient.postStep({
-        runId,
-        stepIndex,
-        action: step.action || 'click',
-        status: 'PASSED',
-        durationMs,
-      });
-
-      stepIndex++;
-    }
-
-    const totalDuration = Date.now() - startTime;
-    await callbackClient.postComplete({
+    const executionRequest = run.executionRequest || {
+      jobExecutionId: `job_${runId}`,
       runId,
-      status: 'PASSED',
-      durationMs: totalDuration,
-      healed: healCount > 0,
-      healCount,
+      steps: run.normalizedSteps || run.rawSteps || [],
+      patchId: run.patchId || 'generic',
+      schemaVersion: '2.0',
+      environment: {
+        baseUrl: run.baseUrl,
+      },
+      parameters: run.parameterValues,
+      captureScreenshots: true,
+    };
+
+    const steps = executionRequest.steps || [];
+    console.log(`[${runId}] Executing ${steps.length} steps via SpecRunner against ${run.baseUrl || 'configured target'}...`);
+
+    const runner = new SpecRunner(runId);
+
+    // Wire live events to callbacks
+    runner.on('step-end', async (stepResult) => {
+      try {
+        await callbackClient.postStep(stepResult);
+      } catch (err) {
+        console.warn(`[${runId}] Failed to post step callback:`, err.message);
+      }
     });
 
-    console.log(`[${runId}] Completed successfully in ${totalDuration}ms`);
+    runner.on('heal', async (healData) => {
+      try {
+        await callbackClient.postHeal(healData);
+      } catch (err) {
+        console.warn(`[${runId}] Failed to post heal callback:`, err.message);
+      }
+    });
+
+    const replayResult = await runner.replay(steps, {
+      headless: true,
+      aiRecovery: process.env.AI_RECOVERY_ENABLED !== 'false',
+      knownErrorTypes: executionRequest.knownErrorTypes,
+      parameters: executionRequest.parameters,
+    });
+
+    await runner.close();
+
+    const totalDuration = Date.now() - startTime;
+
+    if (replayResult.outputs && Object.keys(replayResult.outputs).length > 0) {
+      await callbackClient.postOutputs(replayResult.outputs);
+    }
+
+    await callbackClient.postComplete({
+      runId,
+      status: replayResult.success ? 'PASSED' : 'FAILED',
+      durationMs: totalDuration,
+      healed: (replayResult.healCount || 0) > 0,
+      healCount: replayResult.healCount || 0,
+      errorMessage: replayResult.error || undefined,
+    });
+
+    console.log(`[${runId}] Completed (success: ${replayResult.success}) in ${totalDuration}ms`);
   } catch (err) {
-    console.error(`[${runId}] Execution failed at step ${stepIndex}: ${err.message}`);
+    console.error(`[${runId}] Execution failed: ${err.message}`);
     await callbackClient.postError({
       runId,
       error: err.message,
-      stepIndex,
-      errorType: 'STEP_EXECUTION_ERROR',
+      errorType: 'RUNNER_CRASH',
     });
 
     await callbackClient.postComplete({
       runId,
       status: 'FAILED',
       durationMs: Date.now() - startTime,
-      healed: healCount > 0,
-      healCount,
       errorMessage: err.message,
     });
   } finally {
