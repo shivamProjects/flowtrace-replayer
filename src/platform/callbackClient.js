@@ -112,7 +112,8 @@ class CallbackClient {
    * Platform routes to 'steps'; App routes to 'step'.
    */
   postStep(stepResult) {
-    return this._post(this.isApp ? 'step' : 'steps', stepResult);
+    const payload = this.isApp && this.runId ? { runId: this.runId, ...stepResult } : stepResult;
+    return this._post(this.isApp ? 'step' : 'steps', payload);
   }
 
   /**
@@ -120,7 +121,8 @@ class CallbackClient {
    * Platform routes to 'heals'; App routes to 'heal'.
    */
   postHeal(heal) {
-    return this._post(this.isApp ? 'heal' : 'heals', heal);
+    const payload = this.isApp && this.runId ? { runId: this.runId, ...heal } : heal;
+    return this._post(this.isApp ? 'heal' : 'heals', payload);
   }
 
   /** One generalised, de-identified fix for the shared library. */
@@ -138,17 +140,22 @@ class CallbackClient {
    * App boundary only: /api/v1/internal/runs/{runId}/heal-skipped
    */
   postHealSkipped(record) {
-    return this._post('heal-skipped', record);
+    const payload = this.isApp && this.runId ? { runId: this.runId, ...record } : record;
+    return this._post('heal-skipped', payload);
   }
 
   /** Terminal error callback for the app boundary. */
   postError(err) {
-    return this._post('error', err);
+    const payload = this.isApp && this.runId
+      ? { runId: this.runId, ...(typeof err === 'string' ? { error: err } : err) }
+      : err;
+    return this._post('error', payload);
   }
 
   /** Terminal completion callback for the app boundary. */
   postComplete(result) {
-    return this._post('complete', result);
+    const payload = this.isApp && this.runId ? { runId: this.runId, ...result } : result;
+    return this._post('complete', payload);
   }
 
   /**
@@ -179,7 +186,10 @@ class CallbackClient {
    * run whose lease lapses, in seconds — it does not reconcile on a timer.
    */
   postHeartbeat(state) {
-    return this._post('heartbeat', { at: new Date().toISOString(), ...state });
+    const payload = this.isApp && this.runId
+      ? { runId: this.runId, at: new Date().toISOString(), ...state }
+      : { at: new Date().toISOString(), ...state };
+    return this._post('heartbeat', payload);
   }
 }
 
