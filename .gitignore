@@ -11,6 +11,7 @@ node_modules/
 # Runtime artifacts — per-execution screenshots and the PDFs built from them.
 report/
 uploads/
+.flowtrace-outbox/
 *.log
 
 # Playwright's own artifacts. The product takes its own step_<N>.png for the

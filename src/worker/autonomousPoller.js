@@ -8,7 +8,6 @@
 
 const SpecRunner = require('../run/specRunner');
 const { CallbackClient } = require('../platform/callbackClient');
-
 const { CallbackJournal } = require('../platform/callbackJournal');
 
 const CONTROL_PLANE_URL = (
@@ -52,6 +51,9 @@ async function claimWork() {
 
   if (!res.ok) {
     const text = await res.text().catch(() => '');
+    if (res.status === 403) {
+      throw new Error(`Worker API key lacks 'internal:claim' scope. Please configure a valid worker cluster API key with internal:claim scope. (Details: ${text})`);
+    }
     throw new Error(`Work claim failed (HTTP ${res.status}): ${text}`);
   }
 
@@ -76,13 +78,15 @@ async function executeRun(claimData) {
   );
 
   const runner = new SpecRunner(runId);
-  const leaseExpiresAt = run.leaseExpiresAt
+
+  // Authoritative dynamic lease tracking from database
+  let currentLeaseExpiresAt = run.leaseExpiresAt
     ? new Date(run.leaseExpiresAt).getTime()
-    : Date.now() + 15 * 60 * 1000;
+    : Date.now() + 60_000;
   const LEASE_SAFETY_BUFFER_MS = 15_000;
   let lastHeartbeatSuccess = Date.now();
 
-  // Start heartbeat timer
+  // Dynamic heartbeat interval (every 10 seconds)
   const heartbeatInterval = setInterval(async () => {
     try {
       const ok = await callbackClient.postHeartbeat({
@@ -91,6 +95,9 @@ async function executeRun(claimData) {
       });
       if (ok) {
         lastHeartbeatSuccess = Date.now();
+        if (callbackClient.lastLeaseExpiresAt) {
+          currentLeaseExpiresAt = new Date(callbackClient.lastLeaseExpiresAt).getTime();
+        }
       } else if (callbackClient.cancelled || callbackClient.lastStatus === 409) {
         console.warn(`[${runId}] Heartbeat returned 409 (Fencing conflict or Run Cancelled). Aborting runner immediately...`);
         await runner.close();
@@ -99,13 +106,14 @@ async function executeRun(claimData) {
       console.error(`[${runId}] Heartbeat error: ${err.message}`);
     }
 
-    // Local lease expiry guard: If heartbeat has not succeeded and current time exceeds lease deadline, self-abort locally
+    // Split-Brain Elimination Guard: If local clock exceeds (leaseExpiresAt - safetyBuffer) without renewal,
+    // abort runner immediately before PostgreSQL lease expires, preventing duplicate ERP actions.
     const now = Date.now();
-    if (now > leaseExpiresAt - LEASE_SAFETY_BUFFER_MS && now - lastHeartbeatSuccess > 30_000) {
-      console.warn(`[${runId}] Local lease expiry deadline approaching without renewed heartbeat. Aborting runner locally to prevent split-brain...`);
+    if (now > currentLeaseExpiresAt - LEASE_SAFETY_BUFFER_MS) {
+      console.warn(`[${runId}] Local lease safety deadline reached without renewed heartbeat. Aborting runner locally to eliminate split-brain...`);
       await runner.close();
     }
-  }, 15_000);
+  }, 10_000);
 
   const startTime = Date.now();
 
@@ -163,33 +171,51 @@ async function executeRun(claimData) {
       await callbackClient.postOutputs(replayResult.outputs);
     }
 
-    await callbackClient.postComplete({
-      runId,
-      status: replayResult.success ? 'PASSED' : 'FAILED',
-      durationMs: totalDuration,
-      healed: (replayResult.healCount || 0) > 0,
-      healCount: replayResult.healCount || 0,
-      errorMessage: replayResult.error || undefined,
-    });
+    await callbackClient.postComplete(
+      {
+        runId,
+        status: replayResult.success ? 'PASSED' : 'FAILED',
+        durationMs: totalDuration,
+        healed: (replayResult.healCount || 0) > 0,
+        healCount: replayResult.healCount || 0,
+        errorMessage: replayResult.error || undefined,
+      },
+      { attemptCount: run.attemptCount || 1 }
+    );
 
     console.log(`[${runId}] Completed (success: ${replayResult.success}) in ${totalDuration}ms`);
   } catch (err) {
     console.error(`[${runId}] Execution failed: ${err.message}`);
-    await callbackClient.postError({
-      runId,
-      error: err.message,
-      errorType: 'RUNNER_CRASH',
-    });
+    await callbackClient.postError(
+      {
+        runId,
+        error: err.message,
+        errorType: 'RUNNER_CRASH',
+      },
+      { attemptCount: run.attemptCount || 1 }
+    );
 
-    await callbackClient.postComplete({
-      runId,
-      status: 'FAILED',
-      durationMs: Date.now() - startTime,
-      errorMessage: err.message,
-    });
+    await callbackClient.postComplete(
+      {
+        runId,
+        status: 'FAILED',
+        durationMs: Date.now() - startTime,
+        errorMessage: err.message,
+      },
+      { attemptCount: run.attemptCount || 1 }
+    );
   } finally {
     clearInterval(heartbeatInterval);
   }
+}
+
+async function verifyWorkerCredentials() {
+  if (!WORKER_API_KEY) {
+    console.warn('[worker] Notice: No FLOWTRACE_WORKER_API_KEY configured. Running in development loopback mode.');
+    return;
+  }
+  const maskedKey = `${WORKER_API_KEY.slice(0, 10)}...`;
+  console.log(`[worker] Worker credential active (${maskedKey}). Enforcing required scope: 'internal:claim'.`);
 }
 
 async function startWorkerLoop() {
@@ -197,6 +223,7 @@ async function startWorkerLoop() {
   running = true;
   console.log(`[worker] FlowTrace Autonomous Worker started. Node ID: ${WORKER_NODE_ID}`);
   console.log(`[worker] Connecting to Control Plane: ${CONTROL_PLANE_URL}`);
+  await verifyWorkerCredentials();
 
   while (!shouldStop) {
     let claimed = false;
@@ -241,4 +268,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { startWorkerLoop, stopWorker, claimWork, executeRun };
+module.exports = { startWorkerLoop, stopWorker, claimWork, executeRun, verifyWorkerCredentials };

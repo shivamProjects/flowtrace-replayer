@@ -113,6 +113,17 @@ class CallbackClient {
           }
           return false;
         }
+
+        try {
+          const data = await res.json();
+          this.lastResponseBody = data;
+          if (data && data.leaseExpiresAt) {
+            this.lastLeaseExpiresAt = data.leaseExpiresAt;
+          }
+        } catch {
+          this.lastResponseBody = null;
+        }
+
         return true;
       } catch (err) {
         this.failures++;
@@ -170,7 +181,7 @@ class CallbackClient {
   }
 
   /** Terminal error callback for the app boundary with durable outbox fallback. */
-  async postError(err) {
+  async postError(err, { attemptCount = 1 } = {}) {
     const payload = this.isApp && this.runId
       ? { runId: this.runId, ...(typeof err === 'string' ? { error: err } : err) }
       : err;
@@ -178,19 +189,33 @@ class CallbackClient {
     if (!ok && this.enabled && !this.cancelled && this.lastStatus !== 409) {
       const id = this.runId || this.jobExecutionId || 'unknown';
       const { CallbackJournal } = require('./callbackJournal');
-      CallbackJournal.save(id, 'error', this._url('error'), payload, this.token);
+      CallbackJournal.save({
+        runId: id,
+        attemptCount,
+        suffix: 'error',
+        url: this._url('error'),
+        payload,
+        token: this.token,
+      });
     }
     return ok;
   }
 
   /** Terminal completion callback for the app boundary with durable outbox fallback. */
-  async postComplete(result) {
+  async postComplete(result, { attemptCount = 1 } = {}) {
     const payload = this.isApp && this.runId ? { runId: this.runId, ...result } : result;
     const ok = await this._post('complete', payload, { maxRetries: 3 });
     if (!ok && this.enabled && !this.cancelled && this.lastStatus !== 409) {
       const id = this.runId || this.jobExecutionId || 'unknown';
       const { CallbackJournal } = require('./callbackJournal');
-      CallbackJournal.save(id, 'complete', this._url('complete'), payload, this.token);
+      CallbackJournal.save({
+        runId: id,
+        attemptCount,
+        suffix: 'complete',
+        url: this._url('complete'),
+        payload,
+        token: this.token,
+      });
     }
     return ok;
   }

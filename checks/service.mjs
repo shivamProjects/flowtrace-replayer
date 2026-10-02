@@ -23,6 +23,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { runBoundaryChecks } from './callbackBoundary.mjs';
+import { runJournalChecks } from './callbackJournal.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, '..');
@@ -858,6 +859,8 @@ console.log('');
 const boundary = runBoundaryChecks();
 passed += boundary.passed;
 failed += boundary.failed;
+
+await runJournalChecks();
 
 console.log(`\n${passed}/${passed + failed} service checks passed\n`);
 process.exitCode = failed > 0 ? 1 : 0;
