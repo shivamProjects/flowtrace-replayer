@@ -154,7 +154,14 @@ for (const file of caseFiles) {
         // origin — some ADF markup behaves differently on about:blank.
         await page.route('**/fixture', (r) =>
           r.fulfill({ contentType: 'text/html', body: `<!doctype html><html><body>${html}</body></html>` }));
-        await page.goto('http://fixture.local/fixture');
+        const DUMMY_PNG = Buffer.from(
+          'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAAEUlEQVR42mNk+M+AFzCOKgAAU38B/aYj3fIAAAAASUVORK5CYII=',
+          'base64'
+        );
+        await page.route(/\.(png|jpe?g|gif|svg|ico)($|\?)/, (r) =>
+          r.fulfill({ contentType: 'image/png', body: DUMMY_PNG }));
+        await page.route((url) => !url.href.includes('/fixture'), (r) => r.abort());
+        await page.goto('http://fixture.local/fixture', { waitUntil: 'domcontentloaded' });
 
         for (const id of c.pre?.check ?? []) {
           await byId(page, id).check();
