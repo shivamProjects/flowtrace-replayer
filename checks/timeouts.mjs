@@ -31,7 +31,7 @@ function loadTimeoutsModule() {
   return m.exports;
 }
 
-const { parseDuration, parseCount, num, count, validateRecoveryEnv, describeTimeouts } = loadTimeoutsModule();
+const { parseDuration, parseCount, num, count, validateRecoveryEnv, describeTimeouts, MAX_TIMEOUT_MS } = loadTimeoutsModule();
 
 const failures = [];
 let passed = 0;
@@ -116,16 +116,24 @@ await check('timeouts/parseDuration-rejects-zero-rounding', () => {
 });
 
 await check('timeouts/parseDuration-rejects-overflow-and-infinity', () => {
+  // Node.js 32-bit timer boundary: 2^31 - 1 = 2,147,483,647ms
+  eq(MAX_TIMEOUT_MS, 2_147_483_647, 'MAX_TIMEOUT_MS is 2^31 - 1');
+  eq(parseDuration('2147483647ms'), 2_147_483_647, 'exact max supported 32-bit timer delay (2147483647ms)');
+  eq(parseDuration('2147483647'), 2_147_483_647, 'exact max bare milliseconds (2147483647)');
+  throws(() => parseDuration('2147483648ms', 'test_var'), /Node\.js 32-bit timer ceiling/, 'exact max + 1 (2147483648ms) rejected loudly');
+  throws(() => parseDuration('2147483648', 'test_var'), /Node\.js 32-bit timer ceiling/, 'exact max + 1 bare (2147483648) rejected loudly');
+  throws(() => parseDuration('35791395m', 'test_var'), /Node\.js 32-bit timer ceiling/, 'minute conversion exceeding 32-bit ceiling');
   throws(() => parseDuration('1e308m', 'test_var'), /Duration must resolve to a finite positive millisecond integer/, '1e308m overflows to Infinity');
   throws(() => parseDuration('9'.repeat(307) + 'm', 'test_var'), /Duration must resolve to a finite positive millisecond integer/, '307-digit minutes overflows to Infinity');
   throws(() => parseDuration('1e16m', 'test_var'), /Duration must resolve to a finite positive millisecond integer/, 'exceeds MAX_SAFE_INTEGER');
 });
 
-// 2c. Count parsing: strictly integer counts, rejects duration units
+// 2c. Count parsing: strictly integer counts, rejects duration units, count bounds separate from timer bounds
 await check('timeouts/parseCount-valid-integers', () => {
   eq(parseCount('3'), 3, 'valid count 3');
   eq(parseCount(' 10 '), 10, 'valid count 10 with whitespace');
   eq(parseCount('1'), 1, 'minimum valid count 1');
+  eq(parseCount('2147483648'), 2_147_483_648, 'count bounds separate from timer ceiling: 2147483648 is valid count');
 });
 
 await check('timeouts/parseCount-rejects-units-and-malformed', () => {

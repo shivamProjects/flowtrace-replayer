@@ -63,10 +63,16 @@ export function validateRecoveryEnv(env: Record<string, string | undefined> = pr
 validateRecoveryEnv();
 
 /**
+ * Maximum delay supported by Node.js setTimeout (signed 32-bit integer: 2^31 - 1 = 2,147,483,647ms, ~24.8 days).
+ * Passing a value larger than this causes Node to emit a TimeoutOverflowWarning and clamp the delay to 1ms.
+ */
+export const MAX_TIMEOUT_MS = 2_147_483_647;
+
+/**
  * Parse a human duration string (e.g. "90s", "2m", "500ms", or bare "90000").
  * Bare numbers are treated as milliseconds.
  * Rejects malformed values loudly by throwing an Error.
- * Rejects zero/sub-millisecond rounded results, non-finite values, and values exceeding Number.MAX_SAFE_INTEGER.
+ * Rejects zero/sub-millisecond rounded results, non-finite values, and values exceeding MAX_TIMEOUT_MS (2,147,483,647ms).
  */
 export function parseDuration(raw: string, varName = 'duration'): number {
   const trimmed = raw.trim();
@@ -107,9 +113,9 @@ export function parseDuration(raw: string, varName = 'duration'): number {
   }
 
   const res = Math.round(scaled);
-  if (!Number.isFinite(res) || res <= 0 || res > Number.MAX_SAFE_INTEGER) {
+  if (!Number.isFinite(res) || res <= 0 || res > MAX_TIMEOUT_MS) {
     throw new Error(
-      `[timeouts] Malformed timeout value for ${varName}: "${raw}". Duration must resolve to a finite positive millisecond integer <= Number.MAX_SAFE_INTEGER.`
+      `[timeouts] Malformed timeout value for ${varName}: "${raw}". Duration must resolve to a finite positive millisecond integer <= ${MAX_TIMEOUT_MS} (Node.js 32-bit timer ceiling).`
     );
   }
 
