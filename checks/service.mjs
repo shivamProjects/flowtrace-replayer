@@ -267,6 +267,29 @@ try {
     assert(res.status === 400, 'validate/an-empty-step-array-is-a-400', `got ${res.status}`);
   }
 
+  /* ── 3b. Active cancellation route (PLAT-101) ────────────────────────── */
+
+  {
+    const res = await fetch(`${configured.base}/api/v1/replay/cancel`, {
+      method: 'POST',
+      headers: auth,
+      body: JSON.stringify({ jobExecutionId: 'non-existent-job' }),
+    });
+    const body = await res.json();
+    assert(res.status === 200, 'cancel/cancel-route-answers-200', `got ${res.status}`);
+    assert(body.success === true && body.cancelled === false, 'cancel/cancel-reports-no-active-runner-safely');
+  }
+
+  {
+    const res = await fetch(`${configured.base}/api/v1/replay/test-job-123/cancel`, {
+      method: 'POST',
+      headers: auth,
+    });
+    const body = await res.json();
+    assert(res.status === 200, 'cancel/cancel-by-param-answers-200', `got ${res.status}`);
+    assert(body.success === true && body.cancelled === false, 'cancel/param-reports-no-active-runner-safely');
+  }
+
   /* ── 4. The queue path is gone, not merely disabled ────────────────────── */
 
   {

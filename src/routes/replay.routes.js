@@ -63,6 +63,33 @@ const router = express.Router();
 /** How often the run renews its lease with the platform (contract §7). */
 const HEARTBEAT_MS = Number(process.env.REPLAY_HEARTBEAT_MS || 15_000);
 
+/** Active in-flight runners keyed by jobExecutionId for prompt cancellation */
+const activeRunners = new Map();
+
+async function handleCancel(jobExecutionId) {
+  if (!jobExecutionId) {
+    return { success: false, error: 'jobExecutionId is required' };
+  }
+  const runner = activeRunners.get(jobExecutionId);
+  if (runner) {
+    console.log(`[replay ${jobExecutionId}] Active abort requested — terminating runner immediately`);
+    await runner.close().catch(() => {});
+    return { success: true, cancelled: true, message: 'Execution cancelled and process terminated' };
+  }
+  return { success: true, cancelled: false, message: 'No active execution found for this jobExecutionId' };
+}
+
+router.post('/replay/:jobExecutionId/cancel', requireServiceToken, async (req, res) => {
+  const result = await handleCancel(req.params.jobExecutionId);
+  return res.status(200).json(result);
+});
+
+router.post('/replay/cancel', requireServiceToken, async (req, res) => {
+  const jobExecutionId = req.body?.jobExecutionId;
+  const result = await handleCancel(jobExecutionId);
+  return res.status(result.success ? 200 : 400).json(result);
+});
+
 /**
  * Shared-secret auth.
  *
@@ -171,6 +198,7 @@ router.post('/replay', requireServiceToken, async function (req, res) {
   );
 
   const runner = new SpecRunner(jobExecutionId);
+  activeRunners.set(jobExecutionId, runner);
 
   // NDJSON, streamed. Committing the headers here rather than at the first
   // event means a client sees the connection is live immediately, and means
@@ -185,8 +213,14 @@ router.post('/replay', requireServiceToken, async function (req, res) {
 
   // Lease renewal. Fire-and-forget, unref'd so a pending tick can never be the
   // thing holding this process open.
-  const heartbeat = setInterval(() => {
-    callbacks.postHeartbeat({ jobExecutionId, phase: 'running' });
+  const heartbeat = setInterval(async () => {
+    try {
+      const ok = await callbacks.postHeartbeat({ jobExecutionId, phase: 'running' });
+      if (!ok && (callbacks.cancelled || callbacks.lastStatus === 409)) {
+        console.warn(`[replay ${jobExecutionId}] Heartbeat returned 409 (Run Cancelled). Aborting runner immediately...`);
+        await runner.close().catch(() => {});
+      }
+    } catch (_) {}
   }, HEARTBEAT_MS);
   heartbeat.unref();
 
@@ -244,7 +278,17 @@ router.post('/replay', requireServiceToken, async function (req, res) {
   // carries the complete array.
   const pending = [];
   runner.on('step-end', (p) => {
-    pending.push(callbacks.postStep({ index: p.index, status: p.status, durationMs: p.duration ?? null }));
+    pending.push(
+      callbacks
+        .postStep({ index: p.index, status: p.status, durationMs: p.duration ?? null })
+        .then((ok) => {
+          if (!ok && (callbacks.cancelled || callbacks.lastStatus === 409)) {
+            console.warn(`[replay ${jobExecutionId}] Step callback returned 409 (Run Cancelled). Aborting runner...`);
+            runner.close().catch(() => {});
+          }
+        })
+        .catch(() => {})
+    );
   });
 
   // Anything that only DESCRIBES a run — a learned label, a self-healed fix, a
@@ -377,6 +421,7 @@ router.post('/replay', requireServiceToken, async function (req, res) {
     // an unexpected throw in here actually is.
     console.error(`[replay ${jobExecutionId}] replay threw: ${err.message}`);
   } finally {
+    activeRunners.delete(jobExecutionId);
     clearInterval(heartbeat);
     await runner.close().catch(() => {});
     await callbacks.postHeartbeat({ jobExecutionId, phase: 'finished' });
