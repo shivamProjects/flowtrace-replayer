@@ -7,13 +7,14 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "checks": "node checks/branding.mjs && node checks/ai-fix.mjs && node checks/service.mjs && node checks/run.mjs",
+    "checks": "node checks/branding.mjs && node checks/ai-fix.mjs && node checks/service.mjs && node checks/run.mjs && node checks/timeouts.mjs",
     "checks:aifix": "node checks/ai-fix.mjs",
     "checks:errors": "node checks/errors.mjs",
     "checks:engine": "node checks/run.mjs",
+    "checks:timeouts": "node checks/timeouts.mjs",
     "replay": "playwright test",
     "replay:headed": "PLAYWRIGHT_HEADLESS=false playwright test",
-    "test": "node checks/branding.mjs && node checks/ai-fix.mjs && node checks/service.mjs && node checks/run.mjs",
+    "test": "node checks/branding.mjs && node checks/ai-fix.mjs && node checks/service.mjs && node checks/run.mjs && node checks/timeouts.mjs",
     "typecheck": "tsc --noEmit",
     "checks:service": "node checks/service.mjs",
     "test:fixtures": "playwright test --config=checks/fixtures.config.ts"

@@ -33,11 +33,83 @@
  * server this runs on is fast, but a customer pod on a bad day is not.
  */
 
-const num = (name: string, fallback: number): number => {
-  const raw = process.env[name];
-  if (!raw) return fallback;
-  const n = parseInt(raw, 10);
-  return Number.isFinite(n) && n > 0 ? n : fallback;
+/**
+ * Known environment variables for REPLAY_RECOVERY_* configuration.
+ * Any other REPLAY_RECOVERY_* variable in process.env causes a loud warning.
+ */
+export const KNOWN_RECOVERY_VARS = new Set([
+  'REPLAY_RECOVERY_STEP_MS',
+  'REPLAY_RECOVERY_MS',
+  'REPLAY_RECOVERY_RUN_MS',
+  'REPLAY_RECOVERY_MAX_ATTEMPTS',
+]);
+
+/**
+ * Scan environment for unrecognized REPLAY_RECOVERY_* variables and warn loudly.
+ */
+export function validateRecoveryEnv(env: Record<string, string | undefined> = process.env): string[] {
+  const warnings: string[] = [];
+  for (const key of Object.keys(env)) {
+    if (key.startsWith('REPLAY_RECOVERY_') && !KNOWN_RECOVERY_VARS.has(key)) {
+      const msg = `[timeouts] WARNING: Unrecognized environment variable "${key}". Valid recovery variables are: ${Array.from(KNOWN_RECOVERY_VARS).join(', ')}`;
+      console.warn(msg);
+      warnings.push(msg);
+    }
+  }
+  return warnings;
+}
+
+// Perform validation on module load
+validateRecoveryEnv();
+
+/**
+ * Parse a human duration string (e.g. "90s", "2m", "500ms", or bare "90000").
+ * Bare numbers are treated as milliseconds (or counts for attempt counters).
+ * Rejects malformed values loudly by throwing an Error.
+ */
+export function parseDuration(raw: string, varName = 'duration'): number {
+  const trimmed = raw.trim();
+  if (!trimmed) {
+    throw new Error(`[timeouts] Malformed timeout value for ${varName}: value cannot be empty`);
+  }
+
+  const match = trimmed.match(/^(\d+(?:\.\d+)?)\s*(ms|s|m)?$/i);
+  if (!match) {
+    throw new Error(
+      `[timeouts] Malformed timeout value for ${varName}: "${raw}". ` +
+      `Expected a positive number with optional unit (e.g. 90000, 500ms, 90s, 2m).`
+    );
+  }
+
+  const val = parseFloat(match[1]);
+  if (!Number.isFinite(val) || val <= 0) {
+    throw new Error(
+      `[timeouts] Malformed timeout value for ${varName}: "${raw}". Value must be greater than zero.`
+    );
+  }
+
+  const unit = match[2]?.toLowerCase();
+  switch (unit) {
+    case 'ms':
+      return Math.round(val);
+    case 's':
+      return Math.round(val * 1_000);
+    case 'm':
+      return Math.round(val * 60_000);
+    default:
+      return Math.round(val);
+  }
+}
+
+export const num = (name: string | string[], fallback: number, env: Record<string, string | undefined> = process.env): number => {
+  const names = Array.isArray(name) ? name : [name];
+  for (const n of names) {
+    const raw = env[n];
+    if (raw !== undefined && raw.trim() !== '') {
+      return parseDuration(raw, n);
+    }
+  }
+  return fallback;
 };
 
 export const PATIENCE = {
@@ -131,7 +203,7 @@ export const STEP_BUDGET_MS = num('REPLAY_STEP_BUDGET_MS', 90_000);
  * most likely to be killed before it could write a report. The thing meant to
  * rescue a run was its most likely cause of death.
  */
-export const RECOVERY_STEP_MS = num('REPLAY_RECOVERY_MS', 90_000);
+export const RECOVERY_STEP_MS = num(['REPLAY_RECOVERY_STEP_MS', 'REPLAY_RECOVERY_MS'], 90_000);
 export const RECOVERY_RUN_MS = num('REPLAY_RECOVERY_RUN_MS', 240_000);
 export const RECOVERY_MAX_ATTEMPTS = num('REPLAY_RECOVERY_MAX_ATTEMPTS', 3);
 
@@ -155,6 +227,7 @@ export function describeTimeouts(): string {
   return (
     `settle≤${PATIENCE.settle / 1000}s navigate≤${PATIENCE.navigate / 1000}s ` +
     `listOpen≤${ABSENCE.listOpen / 1000}s | visible≤${ABSENCE.visible / 1000}s ` +
-    `action≤${ABSENCE.action / 1000}s | step≤${STEP_BUDGET_MS / 1000}s`
+    `action≤${ABSENCE.action / 1000}s | step≤${STEP_BUDGET_MS / 1000}s ` +
+    `recoveryStep≤${RECOVERY_STEP_MS / 1000}s`
   );
 }
