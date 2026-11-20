@@ -64,8 +64,9 @@ validateRecoveryEnv();
 
 /**
  * Parse a human duration string (e.g. "90s", "2m", "500ms", or bare "90000").
- * Bare numbers are treated as milliseconds (or counts for attempt counters).
+ * Bare numbers are treated as milliseconds.
  * Rejects malformed values loudly by throwing an Error.
+ * Rejects zero/sub-millisecond rounded results, non-finite values, and values exceeding Number.MAX_SAFE_INTEGER.
  */
 export function parseDuration(raw: string, varName = 'duration'): number {
   const trimmed = raw.trim();
@@ -73,7 +74,7 @@ export function parseDuration(raw: string, varName = 'duration'): number {
     throw new Error(`[timeouts] Malformed timeout value for ${varName}: value cannot be empty`);
   }
 
-  const match = trimmed.match(/^(\d+(?:\.\d+)?)\s*(ms|s|m)?$/i);
+  const match = trimmed.match(/^(\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)\s*(ms|s|m)?$/i);
   if (!match) {
     throw new Error(
       `[timeouts] Malformed timeout value for ${varName}: "${raw}". ` +
@@ -89,16 +90,57 @@ export function parseDuration(raw: string, varName = 'duration'): number {
   }
 
   const unit = match[2]?.toLowerCase();
+  let scaled: number;
   switch (unit) {
     case 'ms':
-      return Math.round(val);
+      scaled = val;
+      break;
     case 's':
-      return Math.round(val * 1_000);
+      scaled = val * 1_000;
+      break;
     case 'm':
-      return Math.round(val * 60_000);
+      scaled = val * 60_000;
+      break;
     default:
-      return Math.round(val);
+      scaled = val;
+      break;
   }
+
+  const res = Math.round(scaled);
+  if (!Number.isFinite(res) || res <= 0 || res > Number.MAX_SAFE_INTEGER) {
+    throw new Error(
+      `[timeouts] Malformed timeout value for ${varName}: "${raw}". Duration must resolve to a finite positive millisecond integer <= Number.MAX_SAFE_INTEGER.`
+    );
+  }
+
+  return res;
+}
+
+/**
+ * Parse a positive integer count (e.g. "3").
+ * Strictly rejects duration units (s, ms, m), floats, non-positive numbers, and values exceeding Number.MAX_SAFE_INTEGER.
+ */
+export function parseCount(raw: string, varName = 'count'): number {
+  const trimmed = raw.trim();
+  if (!trimmed) {
+    throw new Error(`[timeouts] Malformed count value for ${varName}: value cannot be empty`);
+  }
+
+  if (!/^\d+$/.test(trimmed)) {
+    throw new Error(
+      `[timeouts] Malformed count value for ${varName}: "${raw}". ` +
+      `Expected a positive integer count without duration units.`
+    );
+  }
+
+  const val = Number(trimmed);
+  if (!Number.isSafeInteger(val) || val <= 0) {
+    throw new Error(
+      `[timeouts] Malformed count value for ${varName}: "${raw}". Count must be an integer greater than zero and <= Number.MAX_SAFE_INTEGER.`
+    );
+  }
+
+  return val;
 }
 
 export const num = (name: string | string[], fallback: number, env: Record<string, string | undefined> = process.env): number => {
@@ -107,6 +149,17 @@ export const num = (name: string | string[], fallback: number, env: Record<strin
     const raw = env[n];
     if (raw !== undefined && raw.trim() !== '') {
       return parseDuration(raw, n);
+    }
+  }
+  return fallback;
+};
+
+export const count = (name: string | string[], fallback: number, env: Record<string, string | undefined> = process.env): number => {
+  const names = Array.isArray(name) ? name : [name];
+  for (const n of names) {
+    const raw = env[n];
+    if (raw !== undefined && raw.trim() !== '') {
+      return parseCount(raw, n);
     }
   }
   return fallback;
@@ -205,7 +258,7 @@ export const STEP_BUDGET_MS = num('REPLAY_STEP_BUDGET_MS', 90_000);
  */
 export const RECOVERY_STEP_MS = num(['REPLAY_RECOVERY_STEP_MS', 'REPLAY_RECOVERY_MS'], 90_000);
 export const RECOVERY_RUN_MS = num('REPLAY_RECOVERY_RUN_MS', 240_000);
-export const RECOVERY_MAX_ATTEMPTS = num('REPLAY_RECOVERY_MAX_ATTEMPTS', 3);
+export const RECOVERY_MAX_ATTEMPTS = count('REPLAY_RECOVERY_MAX_ATTEMPTS', 3);
 
 export const SLOW_STEP_MS = num('REPLAY_SLOW_STEP_MS', 15_000);
 

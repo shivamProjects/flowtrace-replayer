@@ -31,7 +31,7 @@ function loadTimeoutsModule() {
   return m.exports;
 }
 
-const { parseDuration, num, validateRecoveryEnv, describeTimeouts } = loadTimeoutsModule();
+const { parseDuration, parseCount, num, count, validateRecoveryEnv, describeTimeouts } = loadTimeoutsModule();
 
 const failures = [];
 let passed = 0;
@@ -94,7 +94,7 @@ await check('timeouts/parseDuration-milliseconds', () => {
 
 await check('timeouts/parseDuration-bare-numbers', () => {
   eq(parseDuration('90000'), 90_000, 'bare 90000 in milliseconds');
-  eq(parseDuration('3'), 3, 'bare count (e.g. max attempts)');
+  eq(parseDuration('3'), 3, 'bare 3 in milliseconds');
   eq(parseDuration(' 15000 '), 15_000, 'bare number with whitespace');
 });
 
@@ -106,6 +106,51 @@ await check('timeouts/parseDuration-rejects-malformed', () => {
   throws(() => parseDuration('0', 'test_var'), /must be greater than zero/, 'zero value');
   throws(() => parseDuration('0s', 'test_var'), /must be greater than zero/, 'zero duration');
   throws(() => parseDuration('', 'test_var'), /cannot be empty/, 'empty string');
+});
+
+// 2b. Boundary regressions: zero-rounding and non-finite / overflow durations
+await check('timeouts/parseDuration-rejects-zero-rounding', () => {
+  throws(() => parseDuration('0.1ms', 'test_var'), /Duration must resolve to a finite positive millisecond integer/, '0.1ms rounds to 0ms');
+  throws(() => parseDuration('0.4ms', 'test_var'), /Duration must resolve to a finite positive millisecond integer/, '0.4ms rounds to 0ms');
+  throws(() => parseDuration('0.0001s', 'test_var'), /Duration must resolve to a finite positive millisecond integer/, '0.0001s rounds to 0ms');
+});
+
+await check('timeouts/parseDuration-rejects-overflow-and-infinity', () => {
+  throws(() => parseDuration('1e308m', 'test_var'), /Duration must resolve to a finite positive millisecond integer/, '1e308m overflows to Infinity');
+  throws(() => parseDuration('9'.repeat(307) + 'm', 'test_var'), /Duration must resolve to a finite positive millisecond integer/, '307-digit minutes overflows to Infinity');
+  throws(() => parseDuration('1e16m', 'test_var'), /Duration must resolve to a finite positive millisecond integer/, 'exceeds MAX_SAFE_INTEGER');
+});
+
+// 2c. Count parsing: strictly integer counts, rejects duration units
+await check('timeouts/parseCount-valid-integers', () => {
+  eq(parseCount('3'), 3, 'valid count 3');
+  eq(parseCount(' 10 '), 10, 'valid count 10 with whitespace');
+  eq(parseCount('1'), 1, 'minimum valid count 1');
+});
+
+await check('timeouts/parseCount-rejects-units-and-malformed', () => {
+  throws(() => parseCount('3s', 'REPLAY_RECOVERY_MAX_ATTEMPTS'), /Expected a positive integer count without duration units/, '3s rejected on count');
+  throws(() => parseCount('500ms', 'REPLAY_RECOVERY_MAX_ATTEMPTS'), /Expected a positive integer count without duration units/, '500ms rejected on count');
+  throws(() => parseCount('2m', 'REPLAY_RECOVERY_MAX_ATTEMPTS'), /Expected a positive integer count without duration units/, '2m rejected on count');
+  throws(() => parseCount('0', 'REPLAY_RECOVERY_MAX_ATTEMPTS'), /Count must be an integer greater than zero/, 'count 0 rejected');
+  throws(() => parseCount('-3', 'REPLAY_RECOVERY_MAX_ATTEMPTS'), /Expected a positive integer count without duration units/, 'negative count rejected');
+  throws(() => parseCount('3.5', 'REPLAY_RECOVERY_MAX_ATTEMPTS'), /Expected a positive integer count without duration units/, 'float count rejected');
+  throws(() => parseCount('', 'REPLAY_RECOVERY_MAX_ATTEMPTS'), /value cannot be empty/, 'empty count rejected');
+});
+
+await check('timeouts/count-helper-behavior', () => {
+  const envValid = { REPLAY_RECOVERY_MAX_ATTEMPTS: '5' };
+  eq(count('REPLAY_RECOVERY_MAX_ATTEMPTS', 3, envValid), 5, 'reads valid count from env');
+
+  const envUnset = {};
+  eq(count('REPLAY_RECOVERY_MAX_ATTEMPTS', 3, envUnset), 3, 'falls back when unset');
+
+  const envWithUnits = { REPLAY_RECOVERY_MAX_ATTEMPTS: '3s' };
+  throws(
+    () => count('REPLAY_RECOVERY_MAX_ATTEMPTS', 3, envWithUnits),
+    /Expected a positive integer count without duration units/,
+    'count helper throws loudly on 3s instead of parsing as 3000'
+  );
 });
 
 // 3. Fallback and precedence behavior with num()
